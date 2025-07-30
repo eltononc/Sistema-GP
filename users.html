@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Gerenciamento de Usuários</title> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            display: flex; /* Alterado para flexbox */
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #16213e;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #e0e0e0;
+            text-decoration: none;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.2em;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sidebar-links a:hover,
+        .sidebar-links a.active {
+            background-color: #e94560;
+            color: white;
+        }
+
+        .content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Topbar */
+        .topbar {
+            background-color: #1a1a2e;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between; /* Alterado para dar espaço ao hamburger */
+            align-items: center;
+            border-bottom: 1px solid #2d3e50;
+        }
+
+        .sidebar-toggle {
+            display: none; /* Escondido em telas grandes */
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .topbar-user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .welcome-user {
+            font-size: 1em;
+            color: #a0a0a0;
+        }
+
+        .logout-button {
+            background-color: #e94560;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-button:hover {
+            background-color: #b7384d;
+            transform: translateY(-1px);
+        }
+
+        /* Main Content Container */
+        .main-content-container {
+            flex-grow: 1;
+            padding: 30px; /* Padding geral */
+            margin: 0; /* Removido o recuo */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #0f3460;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            text-align: center;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2d3e50;
+        }
+
+        .section-header h3 {
+            color: #e0e0e0;
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .add-user-button {
+            background-color: #28a745; /* Verde para adicionar */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-user-button:hover {
+            background-color: #1e7e34;
+            transform: translateY(-1px);
+        }
+
+        .form-section {
+            background-color: #1a2a4a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: none; /* Escondido por padrão */
+        }
+
+        .form-section.active {
+            display: block; /* Mostrado quando ativo */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0a0a0;
+            font-weight: 300;
+        }
+
+        .form-group input {
+            width: calc(100% - 20px); /* Ajuste para padding */
+            padding: 10px;
+            border: 1px solid #2d3e50;
+            border-radius: 5px;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button {
+            background-color: #0f3460;
+            color: white;
+        }
+
+        .submit-button:hover {
+            background-color: #0c2b4d;
+        }
+
+        .cancel-button {
+            background-color: #4a5a70;
+            color: white;
+        }
+
+        .cancel-button:hover {
+            background-color: #3b485c;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .user-table th, .user-table td {
+            border: 1px solid #2d3e50;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .user-table th {
+            background-color: #0f3460;
+            color: white;
+            font-weight: 700;
+        }
+
+        .user-table tr:nth-child(even) {
+            background-color: #1a2a4a;
+        }
+
+        .user-table tr:hover {
+            background-color: #1e3a5f;
+        }
+
+        .table-actions button {
+            background-color: #e94560; /* Excluir */
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .table-actions button.edit {
+            background-color: #007bff; /* Editar */
+            margin-right: 8px;
+        }
+        .table-actions button:hover {
+            opacity: 0.9;
+        }
+
+
+        /* Rodapé (igual ao home.html para consistência) */
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #888;
+            background-color: #16213e;
+            width: 100%;
+        }
+
+        /* Mensagens de feedback */
+        .message-box {
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .message-box.success {
+            background-color: #28a745;
+            color: white;
+        }
+        .message-box.error {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Estilos para o Modal */
+        .modal {
+            display: none; /* Oculto por padrão */
+            position: fixed; /* Fica sobre todo o conteúdo */
+            z-index: 1000; /* Garante que fique na frente */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Fundo escuro semi-transparente */
+            animation: fadeInModal 0.5s;
+        }
+
+        .modal-content {
+            background-color: #16213e;
+            margin: 10% auto;
+            padding: 30px;
+            border: 1px solid #2d3e50;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+            animation: slideInModal 0.5s;
+        }
+
+        @keyframes fadeInModal {
+            from { background-color: rgba(0,0,0,0); }
+            to { background-color: rgba(0,0,0,0.6); }
+        }
+
+        @keyframes slideInModal {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2d3e50;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.6em;
+            color: #e0e0e0;
+        }
+
+        .close-button {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #e94560;
+            text-decoration: none;
+        }
+
+        .modal-body p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #c0c0c0;
+        }
+
+        .modal-footer {
+            padding-top: 20px;
+            border-top: 1px solid #2d3e50;
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .modal-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .modal-button.confirm-delete {
+            background-color: #e94560;
+            color: white;
+        }
+
+        .modal-button.confirm-delete:hover {
+            background-color: #b7384d;
+        }
+
+        .modal-button.cancel {
+            background-color: #4a5a70;
+            color: white;
+        }
+
+        .modal-button.cancel:hover {
+            background-color: #3b485c;
+        }
+
+        /* Estilos para o formulário de edição no modal */
+        #editUserForm .form-group {
+            margin-bottom: 20px;
+        }
+
+        #editUserForm .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #2d3e50;
+            border-radius: 5px;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px; /* Começa escondido */
+                height: 100%;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0; /* Mostra o sidebar */
+            }
+
+            .content-wrapper {
+                margin-left: 0;
+            }
+
+            .sidebar-toggle {
+                display: block; /* Mostra o botão hamburger */
+            }
+
+            .main-content-container {
+                padding: 20px; /* Menos padding em telas menores */
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .modal-content {
+                width: 90%;
+                margin: 20% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="home.html" class="sidebar-brand">Stake Pro</a>
+        <nav class="sidebar-links">
+            <a href="home.html"><i class="fas fa-home"></i> Início</a>
+            <a href="users.html" class="active"><i class="fas fa-user-shield"></i> Usuários</a>
+            <a href="departments.html"><i class="fas fa-building"></i> Departamentos</a>
+        </nav>
+    </aside>
+
+    <div class="content-wrapper">
+        <header class="topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-user-info">
+                <span class="welcome-user" id="navbarWelcomeMessage">Olá!</span>
+                <button id="logoutButton" class="logout-button">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content-container">
+            <div style="width: 100%;">
+                <h2>Gerenciamento de Usuários</h2>
+                <div class="message-box" id="messageBox" style="display: none;"></div>
+
+                <div class="section-header">
+                    <h3>Cadastrar Novo Usuário</h3>
+                    <button class="add-user-button" id="showAddUserFormButton">
+                        <i class="fas fa-plus-circle"></i> Novo Usuário
+                    </button>
+                </div>
+                
+                <div class="form-section" id="addUserFormSection">
+                    <form id="addUserForm">
+                        <div class="form-group">
+                            <label for="newUserName">Nome:</label>
+                            <input type="text" id="newUserName" placeholder="Nome Completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserEmail">Email:</label>
+                            <input type="email" id="newUserEmail" placeholder="email@exemplo.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserPassword">Senha:</label>
+                            <input type="password" id="newUserPassword" placeholder="Mínimo 6 caracteres" required>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="cancel-button" id="cancelAddUserFormButton">Cancelar</button>
+                            <button type="submit" class="submit-button">Cadastrar Usuário</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="section-header" style="margin-top: 50px;">
+                    <h3>Usuários Existentes</h3>
+                </div>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr><td colspan="4">Carregando usuários...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Stake Pro. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Exclusão</h3>
+                <span class="close-button" id="closeDeleteModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza de que deseja excluir o usuário <strong id="userNameToDelete"></strong>? Esta ação é irreversível.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDeleteButton" class="modal-button cancel">Cancelar</button>
+                <button id="confirmDeleteButton" class="modal-button confirm-delete">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Usuário -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Usuário</h3>
+                <span class="close-button" id="closeEditModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="form-group">
+                        <label for="editUserName">Nome:</label>
+                        <input type="text" id="editUserName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserEmail">Email:</label>
+                        <input type="email" id="editUserEmail" disabled> <!-- Email não pode ser alterado -->
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserStatus">Status:</label>
+                        <select id="editUserStatus">
+                            <option value="Ativo">Ativo</option>
+                            <option value="Inativo">Inativo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelEditButton" class="modal-button cancel">Cancelar</button>
+                <button id="saveEditButton" class="modal-button submit-button">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Suas credenciais de configuração do Firebase (igual ao index.html e home.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
+
+        // Inicialize o Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore(); // Instância do Firestore para gerenciar dados de usuários
+
+        // Elementos DOM
+        const navbarWelcomeMessageElement = document.getElementById('navbarWelcomeMessage');
+        const logoutButton = document.getElementById('logoutButton');
+        const messageBox = document.getElementById('messageBox');
+        const showAddUserFormButton = document.getElementById('showAddUserFormButton');
+        const addUserFormSection = document.getElementById('addUserFormSection');
+        const cancelAddUserFormButton = document.getElementById('cancelAddUserFormButton');
+        const addUserForm = document.getElementById('addUserForm');
+        const usersTableBody = document.getElementById('usersTableBody');
+
+        // Elementos do Modal de Exclusão
+        const deleteUserModal = document.getElementById('deleteUserModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        const userNameToDelete = document.getElementById('userNameToDelete');
+        let userIdToDelete = null;
+
+        // Elementos do Modal de Edição
+        const editUserModal = document.getElementById('editUserModal');
+        const closeEditModal = document.getElementById('closeEditModal');
+        const cancelEditButton = document.getElementById('cancelEditButton');
+        const saveEditButton = document.getElementById('saveEditButton');
+        const editUserForm = document.getElementById('editUserForm');
+        const editUserId = document.getElementById('editUserId');
+        const editUserName = document.getElementById('editUserName');
+        const editUserEmail = document.getElementById('editUserEmail');
+        const editUserStatus = document.getElementById('editUserStatus');
+
+        // Elementos da Responsividade
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        // Função para exibir mensagens
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${type}`; // Define a classe para estilização
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+                messageBox.textContent = '';
+            }, 5000);
+        }
+
+        // --- Lógica de Autenticação e Carregamento de Nome na Navbar ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Usuário está logado
+                let displayUserName = user.displayName || user.email.split('@')[0];
+                navbarWelcomeMessageElement.textContent = `Olá, ${displayUserName}!`;
+                loadUsers(); // Carrega os usuários quando a página é acessada por um usuário logado
+            } else {
+                // Usuário não está logado, redireciona para a página de login
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Função para logout (igual ao home.html)
+        logoutButton.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error("Erro ao fazer logout:", error);
+                showMessage("Erro ao fazer logout. Tente novamente.", "error");
+            });
+        });
+
+        // --- Lógica do Formulário de Cadastro de Usuário ---
+        showAddUserFormButton.addEventListener('click', () => {
+            addUserFormSection.classList.add('active'); // Mostra o formulário
+            showAddUserFormButton.style.display = 'none'; // Esconde o botão "Novo Usuário"
+            addUserForm.reset(); // Limpa o formulário
+            showMessage(''); // Limpa mensagens anteriores
+        });
+
+        cancelAddUserFormButton.addEventListener('click', () => {
+            addUserFormSection.classList.remove('active'); // Esconde o formulário
+            showAddUserFormButton.style.display = 'inline-flex'; // Mostra o botão "Novo Usuário"
+            showMessage(''); // Limpa mensagens anteriores
+        });
+
+        addUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('newUserName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const password = document.getElementById('newUserPassword').value;
+
+            if (password.length < 6) {
+                showMessage("A senha deve ter no mínimo 6 caracteres.", "error");
+                return;
+            }
+
+            try {
+                // CADASTRA O USUÁRIO NO FIREBASE AUTHENTICATION (SDK CLIENTE)
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // ATUALIZA O DISPLAY NAME NO FIREBASE AUTH (OPCIONAL, MAS BOM)
+                await user.updateProfile({ displayName: name });
+
+                // CRIA UM DOCUMENTO CORRESPONDENTE NO FIRESTORE (PARA APARECER NA TABELA)
+                await db.collection('users').doc(user.uid).set({
+                    email: user.email,
+                    displayName: name,
+                    status: 'Ativo', // Adiciona o status padrão
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    // Você pode adicionar outros campos aqui, como role: 'user'
+                });
+
+                showMessage(`Usuário "${email}" cadastrado com sucesso!`, "success");
+                addUserForm.reset();
+                addUserFormSection.classList.remove('active');
+                showAddUserFormButton.style.display = 'inline-flex';
+                loadUsers(); // Recarrega a lista de usuários
+
+            } catch (error) {
+                console.error("Erro ao cadastrar usuário:", error);
+                let errorMessage = "Erro ao cadastrar usuário.";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = "Este email já está cadastrado.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Formato de email inválido.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = "Senha muito fraca. Mínimo 6 caracteres.";
+                }
+                showMessage(errorMessage, "error");
+            }
+        });
+
+        // --- Lógica de Visualização de Usuários (Carrega do Firestore) ---
+        async function loadUsers() {
+            usersTableBody.innerHTML = '<tr><td colspan="4">Carregando usuários...</td></tr>';
+            try {
+                // Acessa a coleção 'users' no Firestore
+                const snapshot = await db.collection('users').orderBy('displayName').get(); // Ordena por nome
+
+                if (snapshot.empty) {
+                    usersTableBody.innerHTML = '<tr><td colspan="4">Nenhum usuário cadastrado.</td></tr>';
+                    return;
+                }
+
+                usersTableBody.innerHTML = ''; // Limpa a mensagem de carregamento
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    const row = `
+                        <tr>
+                            <td>${userData.displayName || userData.email.split('@')[0]}</td>
+                            <td>${userData.email}</td>
+                            <td>${userData.status || 'Indefinido'}</td>
+                            <td class="table-actions">
+                                <button class="edit" data-uid="${doc.id}"><i class="fas fa-edit"></i> Editar</button>
+                                <button class="delete" data-uid="${doc.id}"><i class="fas fa-trash-alt"></i> Excluir</button>
+                            </td>
+                        </tr>
+                    `;
+                    usersTableBody.innerHTML += row;
+                });
+
+                // Adicionar listeners para os botões de Ações (Editar/Excluir)
+                addEventListenersToTableButtons();
+
+            } catch (error) {
+                console.error("Erro ao carregar usuários do Firestore:", error);
+                usersTableBody.innerHTML = '<tr><td colspan="3">Erro ao carregar usuários.</td></tr>';
+                showMessage("Erro ao carregar usuários.", "error");
+            }
+        }
+
+        // --- Lógica de Excluir Usuário ---
+        // A exclusão agora é feita em duas etapas: abrir modal e confirmar.
+        function openDeleteModal(uid, name) {
+            userIdToDelete = uid;
+            userNameToDelete.textContent = name;
+            deleteUserModal.style.display = 'block';
+        }
+
+        closeDeleteModal.onclick = () => deleteUserModal.style.display = 'none';
+        cancelDeleteButton.onclick = () => deleteUserModal.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target == deleteUserModal) {
+                deleteUserModal.style.display = 'none';
+            }
+            if (event.target == editUserModal) {
+                editUserModal.style.display = 'none';
+            }
+        };
+
+        confirmDeleteButton.addEventListener('click', async () => {
+            if (!userIdToDelete) return;
+
+            try {
+                const token = await auth.currentUser.getIdToken();
+                const response = await fetch('/.netlify/functions/users-delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ uid: userIdToDelete })
+                });
+
+                if (!response.ok) {
+                    try {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Erro na função Netlify.');
+                    } catch (jsonError) {
+                        const errorText = await response.text();
+                        throw new Error(errorText || response.statusText);
+                    }
+                }
+
+                showMessage(`Usuário ${userNameToDelete.textContent} excluído com sucesso!`, "success");
+                deleteUserModal.style.display = 'none';
+                loadUsers(); // Recarrega a lista de usuários
+
+            } catch (error) {
+                console.error("Erro ao excluir usuário:", error);
+                showMessage(`Erro ao excluir usuário: ${error.message}`, "error");
+                deleteUserModal.style.display = 'none';
+            }
+        });
+
+        // --- Lógica de Edição de Usuário ---
+        function openEditModal(uid, name, email, status) {
+            editUserId.value = uid;
+            editUserName.value = name;
+            editUserEmail.value = email;
+            editUserStatus.value = status;
+            editUserModal.style.display = 'block';
+        }
+
+        closeEditModal.onclick = () => editUserModal.style.display = 'none';
+        cancelEditButton.onclick = () => editUserModal.style.display = 'none';
+
+        saveEditButton.addEventListener('click', async () => {
+            const uid = editUserId.value;
+            const newName = editUserName.value;
+            const newStatus = editUserStatus.value;
+
+            const updateData = {
+                displayName: newName,
+                status: newStatus
+            };
+
+            try {
+                const token = await auth.currentUser.getIdToken();
+                const response = await fetch('/.netlify/functions/users-update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ uid: uid, data: updateData })
+                });
+
+                if (!response.ok) {
+                    try {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Erro na função Netlify.');
+                    } catch (jsonError) {
+                        const errorText = await response.text();
+                        throw new Error(errorText || response.statusText);
+                    }
+                }
+
+                showMessage("Usuário atualizado com sucesso!", "success");
+                editUserModal.style.display = 'none';
+                loadUsers();
+
+            } catch (error) {
+                console.error("Erro ao atualizar usuário:", error);
+                showMessage(`Erro ao atualizar usuário: ${error.message}`, "error");
+            }
+        });
+
+        function addEventListenersToTableButtons() {
+            document.querySelectorAll('.user-table .delete').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const button = e.currentTarget;
+                    const uid = button.dataset.uid;
+                    const name = button.closest('tr').querySelector('td:first-child').textContent;
+                    openDeleteModal(uid, name);
+                });
+            });
+
+            document.querySelectorAll('.user-table .edit').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const button = e.currentTarget;
+                    const uid = button.dataset.uid;
+                    const row = button.closest('tr');
+                    const name = row.querySelector('td:nth-child(1)').textContent;
+                    const email = row.querySelector('td:nth-child(2)').textContent;
+                    const status = row.querySelector('td:nth-child(3)').textContent;
+                    openEditModal(uid, name, email, status);
+                });
+            });
+        }
+
+        // --- Lógica para Responsividade (Sidebar Toggle) ---
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Opcional: Fechar o sidebar se clicar fora dele em modo mobile
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnToggle = sidebarToggle.contains(event.target);
+
+                if (!isClickInsideSidebar && !isClickOnToggle) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
