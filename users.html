@@ -121,7 +121,14 @@
         .main-content-container {
             flex-grow: 1;
             padding: 30px; /* Padding geral */
-            margin: 0; /* Removido o recuo */
+            margin: 0 auto; /* Centraliza o conteúdo */
+            max-width: 1200px; /* Define uma largura máxima para telas grandes */
+        }
+
+        /* Novo estilo para o wrapper da tabela */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Para rolagem suave em dispositivos móveis */
         }
 
         @keyframes fadeIn {
@@ -242,6 +249,8 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            table-layout: fixed; /* Garante que as colunas tenham larguras iguais ou definidas */
+            word-break: break-word; /* Quebra palavras longas */
         }
 
         .user-table th, .user-table td {
@@ -533,26 +542,26 @@
                 <div class="section-header" style="margin-top: 50px;">
                     <h3>Usuários Existentes</h3>
                 </div>
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody">
-                        <tr><td colspan="4">Carregando usuários...</td></tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="4">Carregando usuários...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
 
-    <footer>
-        <p>&copy; 2025 Stake Pro. Todos os direitos reservados.</p>
-    </footer>
+    
 
     <!-- Modal de Confirmação de Exclusão -->
     <div id="deleteUserModal" class="modal">
@@ -831,13 +840,16 @@
                 });
 
                 if (!response.ok) {
+                    const errorText = await response.text(); // Lê o corpo da resposta uma única vez como texto
+                    let errorMessage = 'Erro na função Netlify.';
                     try {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Erro na função Netlify.');
-                    } catch (jsonError) {
-                        const errorText = await response.text();
-                        throw new Error(errorText || response.statusText);
+                        const errorData = JSON.parse(errorText); // Tenta parsear como JSON
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (jsonParseError) {
+                        // Se não for JSON válido, usa o texto bruto
+                        errorMessage = errorText || response.statusText;
                     }
+                    throw new Error(errorMessage);
                 }
 
                 showMessage(`Usuário ${userNameToDelete.textContent} excluído com sucesso!`, "success");
@@ -885,13 +897,16 @@
                 });
 
                 if (!response.ok) {
+                    const errorText = await response.text(); // Lê o corpo da resposta uma única vez como texto
+                    let errorMessage = 'Erro na função Netlify.';
                     try {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Erro na função Netlify.');
-                    } catch (jsonError) {
-                        const errorText = await response.text();
-                        throw new Error(errorText || response.statusText);
+                        const errorData = JSON.parse(errorText); // Tenta parsear como JSON
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (jsonParseError) {
+                        // Se não for JSON válido, usa o texto bruto
+                        errorMessage = errorText || response.statusText;
                     }
+                    throw new Error(errorMessage);
                 }
 
                 showMessage("Usuário atualizado com sucesso!", "success");
