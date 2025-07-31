@@ -1,8 +1,8 @@
 [build]
-  command = "npm install"
   publish = "."
-  functions = "netlify"
+  command = "echo 'No build command needed for static HTML'"
 
-[functions]
-  node_version = "18" # Você pode ajustar para a versão do Node.js que preferir
-  external_node_modules = ["firebase-admin"] # Garante que o firebase-admin seja empacotado com a função
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

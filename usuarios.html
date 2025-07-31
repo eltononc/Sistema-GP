@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Usuários</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* slate-900 */
+            color: #E2E8F0; /* slate-200 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 2.25rem;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+        .logotext-sub {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #cbd5e1; /* slate-300 */
+            line-height: 1.2;
+        }
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white flex min-h-screen antialiased">
+
+    <canvas id="backgroundCanvas"></canvas>
+
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-slate-800/50 backdrop-blur-sm shadow-lg w-56 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2" aria-hidden="true">
+                        <defs>
+                            <filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter>
+                            <linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient>
+                            <linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient>
+                            <linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient>
+                            <linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient>
+                        </defs>
+                        <g filter="url(#dropshadow)">
+                            <path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/>
+                            <path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/>
+                            <path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/>
+                            <path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/>
+                            <path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/>
+                            <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
+                            <circle cx="25" cy="25" r="5" fill="#FFFFFF"/>
+                            <circle cx="75" cy="25" r="5" fill="#FFFFFF"/>
+                            <circle cx="25" cy="75" r="5" fill="#FFFFFF"/>
+                            <circle cx="75" cy="75" r="5" fill="#FFFFFF"/>
+                        </g>
+                    </svg>
+                    <div class="text-left">
+                        <h1 class="text-white logotext-stake text-xl">Stake <span class="text-accentGreen">Pro</span></h1>
+                        <p class="logotext-sub text-xs">Projects and Process</p>
+                    </div>
+                </div>
+                <!-- Botão de fechar para mobile -->
+                <button id="sidebarCloseButton" class="md:hidden text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <nav class="flex-grow">
+                <a href="home.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Início
+                    </div>
+                </a>
+                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0h.01M9 15h.01M12 19v-6a2 2 0 00-2-2H8a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M12 15h.01M15 19v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M15 15h.01M18 19v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M18 15h.01M21 19v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M21 15h.01"></path></svg>
+                        Projetos
+                    </div>
+                </a>
+                <a href="usuarios.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm-6-4a4 4 0 00-4-4H3"></path></svg>
+                        Usuários
+                    </div>
+                </a>
+                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Configurações
+                    </div>
+                </a>
+                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Ajuda
+                    </div>
+                </a>
+                <button id="logoutButtonSidebar" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-red-700 hover:text-white w-full text-left mt-4">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        Sair
+                    </div>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header for main content -->
+            <header class="bg-slate-800/50 backdrop-blur-sm shadow-lg py-3 w-full rounded-b-xl md:rounded-none md:rounded-bl-xl">
+                <div class="w-full px-6 md:px-8 flex justify-between items-center">
+                    <button id="sidebarToggleButton" class="md:hidden text-white focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <div class="flex items-center md:hidden">
+                        <!-- Logo para mobile no header principal -->
+                        <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2" aria-hidden="true">
+                            <defs>
+                                <filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter>
+                                <linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient>
+                                <linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient>
+                                <linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient>
+                                <linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient>
+                            </defs>
+                            <g filter="url(#dropshadow)">
+                                <path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/>
+                                <path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/>
+                                <path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/>
+                                <path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/>
+                                <path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/>
+                                <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
+                                <circle cx="25" cy="25" r="5" fill="#FFFFFF"/>
+                                <circle cx="75" cy="25" r="5" fill="#FFFFFF"/>
+                                <circle cx="25" cy="75" r="5" fill="#FFFFFF"/>
+                                <circle cx="75" cy="75" r="5" fill="#FFFFFF"/>
+                            </g>
+                        </svg>
+                        <div class="text-left">
+                            <h1 class="text-white logotext-stake text-xl">Stake <span class="text-accentGreen">Pro</span></h1>
+                            <p class="logotext-sub text-xs">Projects and Process</p>
+                        </div>
+                    </div>
+                    <nav class="ml-auto">
+                        <button id="logoutButton" class="px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-secondary transition duration-300 ease-in-out" aria-label="Sair do sistema">Logout</button>
+                    </nav>
+                </div>
+            </header>
+
+            <!-- Conteúdo Principal da Home -->
+            <main class="flex-grow flex items-center justify-center p-4 md:p-8 w-full">
+                <div class="bg-slate-800/50 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl w-full border border-slate-700">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="text-left">
+                            <h2 class="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                                Gerenciamento de Usuários
+                            </h2>
+                            <p class="text-lg text-slate-300">
+                                Visualize e adicione usuários à sua plataforma.
+                            </p>
+                        </div>
+                        <button id="showAddUserFormButton" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out flex-shrink-0 transform hover:scale-105">
+                            Cadastrar Usuário
+                        </button>
+                    </div>
+
+                    <!-- Formulário de Adição de Usuário -->
+                    <div id="addUserFormContainer" class="mb-8 p-6 bg-slate-700/50 rounded-lg shadow-md hidden">
+                        <h3 class="text-2xl font-bold text-white mb-4">Adicionar Novo Usuário</h3>
+                        <form id="addUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                            <div>
+                                <label for="fullName" class="block text-slate-300 text-sm font-bold mb-2">Nome Completo:</label>
+                                <input type="text" id="fullName" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                            </div>
+                            <div>
+                                <label for="department" class="block text-slate-300 text-sm font-bold mb-2">Departamento:</label>
+                                <input type="text" id="department" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                            </div>
+                            <div>
+                                <label for="role" class="block text-slate-300 text-sm font-bold mb-2">Função:</label>
+                                <input type="text" id="role" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                            </div>
+                            <div>
+                                <label for="workStartTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Trabalho (Início):</label>
+                                <input type="time" id="workStartTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                            </div>
+                            <div>
+                                <label for="workEndTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Trabalho (Fim):</label>
+                                <input type="time" id="workEndTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                            </div>
+                            <div>
+                                <label for="lunchStartTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Almoço (Início):</label>
+                                <input type="time" id="lunchStartTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                            </div>
+                            <div>
+                                <label for="lunchEndTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Almoço (Fim):</label>
+                                <input type="time" id="lunchEndTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                            </div>
+                            <div>
+                                <label for="vacationForecast" class="block text-slate-300 text-sm font-bold mb-2">Previsão de Férias:</label>
+                                <input type="date" id="vacationForecast" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500">
+                            </div>
+                            <div class="md:col-span-2 flex justify-end">
+                                <button type="submit" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out">
+                                    Adicionar Usuário
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lista de Usuários -->
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-bold text-white mb-4">Usuários Cadastrados</h3>
+                        <div id="usersList" class="text-left">
+                            <!-- Usuários serão carregados aqui pelo JavaScript -->
+                            <p class="text-slate-400">Carregando usuários...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Rodapé -->
+            <footer class="bg-slate-800/50 backdrop-blur-sm text-white py-4 w-full rounded-t-xl mt-6 md:rounded-none md:rounded-tl-xl">
+                <div class="w-full px-6 md:px-8 text-center text-sm">
+                    <p>&copy; 2025 Stake Pro. Todos os direitos reservados.</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script>
+        // Suas configurações do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
+
+        // Inicialize o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore(); // Obtenha a instância do Firestore
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
+            const usersListDiv = document.getElementById('usersList');
+            const addUserForm = document.getElementById('addUserForm');
+            const addUserFormContainer = document.getElementById('addUserFormContainer');
+            const showAddUserFormButton = document.getElementById('showAddUserFormButton');
+
+            // Lógica de autenticação (redireciona se não estiver logado)
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Lógica do Sidebar (copiada de home.html)
+            sidebarToggleButton.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+
+            sidebarCloseButton.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            // Lógica para mostrar/ocultar o formulário de adicionar usuário
+            showAddUserFormButton.addEventListener('click', () => {
+                addUserFormContainer.classList.remove('hidden');
+                addUserFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            // --- Lógica do Fundo Gantt Estático (copiada de home.html) ---
+            const canvas = document.getElementById('backgroundCanvas');
+            const ctx = canvas.getContext('2d');
+            const ganttSpeed = 0.1;
+            const barHeight = 20, barGap = 40, numBarsPerLine = 3, numLines = 8;
+            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)', particle: 'rgba(180, 200, 255, 0.05)', line: 'rgba(180, 200, 255, 0.08)', bpmIcon: 'rgba(96, 165, 250, 0.1)' };
+            const bars = [], barColors = [colors.bar1, colors.bar2, colors.bar3];
+            for (let i = 0; i < numLines * numBarsPerLine; i++) { bars.push({ width: (Math.random() * 0.2 + 0.1) * window.innerWidth, color: barColors[Math.floor(Math.random() * barColors.length)], initialXOffset: Math.random() * window.innerWidth }); }
+            const numParticles = 50, connectionDistance = 120, particles = [], numBPMIcons = 10, bpmIcons = [];
+
+            function initializeDynamicElements() {
+                particles.length = 0;
+                for (let i = 0; i < numParticles; i++) { particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 1, speed: Math.random() * 0.4 + 0.1, angle: Math.random() * Math.PI * 2, color: colors.particle }); }
+                bpmIcons.length = 0;
+                const iconTypes = ['circle', 'square', 'diamond'];
+                for (let i = 0; i < numBPMIcons; i++) { bpmIcons.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 15, speed: Math.random() * 0.2 + 0.1, type: iconTypes[Math.floor(Math.random() * iconTypes.length)], rotation: Math.random() * Math.PI * 2, rotationSpeed: (Math.random() - 0.5) * 0.02, directionX: Math.random() > 0.5 ? 1 : -1, directionY: Math.random() > 0.5 ? 1 : -1, color: colors.bpmIcon }); }
+            }
+
+            function roundRect(ctx, x, y, width, height, radius) {
+                ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill();
+            }
+
+            function drawBPMIcon(ctx, icon) {
+                ctx.save(); ctx.translate(icon.x, icon.y); ctx.rotate(icon.rotation); ctx.fillStyle = icon.color; const halfSize = icon.size / 2; switch (icon.type) { case 'circle': ctx.beginPath(); ctx.arc(0, 0, halfSize, 0, Math.PI * 2); ctx.fill(); break; case 'square': ctx.fillRect(-halfSize, -halfSize, icon.size, icon.size); break; case 'diamond': ctx.beginPath(); ctx.moveTo(0, -halfSize); ctx.lineTo(halfSize, 0); ctx.lineTo(0, halfSize); ctx.lineTo(-halfSize, 0); ctx.closePath(); ctx.fill(); break; } ctx.restore();
+            }
+
+            function drawBackgroundElements() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < numLines; i++) { const y = (i * (barHeight + barGap)) + (barGap / 2); for (let j = 0; j < numBarsPerLine; j++) { const bar = bars[i * numBarsPerLine + j]; const x = bar.initialXOffset % canvas.width; ctx.fillStyle = bar.color; roundRect(ctx, x, y, bar.width, barHeight, 5); } }
+                particles.forEach((p1, i) => { ctx.fillStyle = p1.color; ctx.beginPath(); ctx.arc(p1.x, p1.y, p1.size, 0, Math.PI * 2); ctx.fill(); for (let j = i + 1; j < particles.length; j++) { const p2 = particles[j]; const distance = Math.hypot(p1.x - p2.x, p1.y - p2.y); if (distance < connectionDistance) { ctx.strokeStyle = colors.line; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } } });
+                bpmIcons.forEach(icon => drawBPMIcon(ctx, icon));
+            }
+
+            function resizeAnimationCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initializeDynamicElements();
+                drawBackgroundElements();
+            }
+
+            resizeAnimationCanvas();
+            window.addEventListener('resize', resizeAnimationCanvas);
+            // --- Fim da Lógica do Fundo Gantt Estático ---
+
+            // Função para formatar a data de férias
+            function formatVacationDate(dateString) {
+                if (!dateString) return 'N/A';
+                const date = new Date(dateString);
+                const currentYear = new Date().getFullYear();
+                if (date.getFullYear() < currentYear) {
+                    return 'N/A (Previsão Antiga)'; // Limpa se for de ano anterior
+                }
+                return date.toLocaleDateString('pt-BR');
+            }
+
+            // Função para renderizar usuários
+            function renderUsers(users) {
+                usersListDiv.innerHTML = ''; // Limpa a lista existente
+                if (users.length === 0) {
+                    usersListDiv.innerHTML = '<p class="text-slate-400 md:col-span-3">Nenhum usuário cadastrado ainda.</p>';
+                    return;
+                }
+
+                const ul = document.createElement('ul');
+                ul.className = 'divide-y divide-slate-700'; // Adiciona um divisor entre os itens da lista
+
+                // Cabeçalho da lista (opcional, mas útil para clareza)
+                const headerLi = document.createElement('li');
+                headerLi.className = 'py-2 px-4 bg-slate-700 font-bold text-sm uppercase tracking-wider rounded-t-md hidden md:grid md:grid-cols-6 gap-4';
+                headerLi.innerHTML = `
+                    <div class="col-span-2">Nome Completo</div>
+                    <div>Departamento</div>
+                    <div>Função</div>
+                    <div class="col-span-2">Horários</div>
+                    <div>Férias</div>
+                `;
+                ul.appendChild(headerLi);
+
+                users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.className = 'py-3 px-4 hover:bg-slate-700/70 transition duration-200 ease-in-out md:grid md:grid-cols-6 gap-4 items-center';
+                    li.innerHTML = `
+                        <div class="font-semibold text-white col-span-2">${user.fullName}</div>
+                        <div class="text-slate-300 text-sm">${user.department}</div>
+                        <div class="text-slate-300 text-sm">${user.role}</div>
+                        <div class="text-slate-300 text-sm col-span-2">${user.workStartTime}-${user.workEndTime} (Almoço: ${user.lunchStartTime}-${user.lunchEndTime})</div>
+                        <div class="text-slate-300 text-sm">${formatVacationDate(user.vacationForecast)}</div>
+                    `;
+                    ul.appendChild(li);
+                });
+                usersListDiv.appendChild(ul);
+            }
+
+            // Listener em tempo real para a coleção de usuários
+            db.collection("users").onSnapshot(snapshot => {
+                const users = [];
+                snapshot.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+                renderUsers(users);
+            }, error => {
+                console.error("Erro ao buscar usuários: ", error);
+                usersListDiv.innerHTML = '<p class="text-red-400 md:col-span-3">Erro ao carregar usuários.</p>';
+            });
+
+            // Lógica para adicionar novo usuário
+            addUserForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const fullName = document.getElementById('fullName').value;
+                const department = document.getElementById('department').value;
+                const role = document.getElementById('role').value;
+                const workStartTime = document.getElementById('workStartTime').value;
+                const workEndTime = document.getElementById('workEndTime').value;
+                const lunchStartTime = document.getElementById('lunchStartTime').value;
+                const lunchEndTime = document.getElementById('lunchEndTime').value;
+                const vacationForecast = document.getElementById('vacationForecast').value; // Pode ser vazio
+
+                if (!fullName || !department || !role || !workStartTime || !workEndTime || !lunchStartTime || !lunchEndTime) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                try {
+                    await db.collection("users").add({
+                        fullName,
+                        department,
+                        role,
+                        workStartTime,
+                        workEndTime,
+                        lunchStartTime,
+                        lunchEndTime,
+                        vacationForecast: vacationForecast || null, // Armazena null se vazio
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp() // Adiciona timestamp de criação
+                    });
+                    alert('Usuário adicionado com sucesso!');
+                    addUserForm.reset(); // Limpa o formulário
+                } catch (error) {
+                    console.error("Erro ao adicionar usuário: ", error);
+                    alert('Erro ao adicionar usuário. Verifique o console para mais detalhes.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

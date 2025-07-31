@@ -3,180 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stake Pro - Login</title>
+    <title>Stake Pro - Início</title>
+    <!-- Inclui o Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <!-- Configuração do Tailwind para usar as fontes Inter e Montserrat e cores personalizadas -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'], // Adiciona Montserrat
+                    },
+                    colors: {
+                        primary: '#0EA5E9', // sky-500
+                        secondary: '#0284C7', // sky-600
+                        accentGreen: '#22C55E', // green-500
+                        slate700: '#334155', // slate-700
+                        slate800: '#1E293B', // slate-800
+                        slate900: '#0F172A', // slate-900
+                    },
+                    keyframes: {
+                        pulse: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.02)' },
+                        },
+                        'pulse-slow': { // Novo keyframe para o logo
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.01)' }, // Pulso mais sutil
+                        }
+                    },
+                    animation: {
+                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'pulse-slow': 'pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Links para as fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; overflow: hidden; }
-        #backgroundCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .logotext-stake { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.75rem; letter-spacing: -0.05em; line-height: 1; }
-        .logotext-sub { font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 1.15rem; color: #cbd5e1; line-height: 1.2; }
-        .form-input-group { position: relative; }
-        .form-input-icon { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
-        .password-toggle-icon { position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
-        /* Estilo para o texto do CAPTCHA para dificultar a leitura por bots */
-        #captchaText {
-            font-family: 'Courier New', Courier, monospace;
-            letter-spacing: 8px;
-            text-decoration: line-through;
-            font-style: italic;
-            color: #94a3b8; /* slate-400 */
-            user-select: none; /* Impede que o texto seja selecionado */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        /* Estilos específicos para o canvas de fundo e texto do logo */
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Garante que o canvas fique atrás do conteúdo */
+        }
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 2.25rem;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+        .logotext-sub {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #cbd5e1; /* slate-300 */
+            line-height: 1.2;
+        }
+        /* Efeito de pressão para o botão CTA */
+        .cta-button:active {
+            transform: scale(0.98); /* Diminui ligeiramente ao clicar */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra interna para efeito de pressionado */
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen p-4">
+<body class="bg-slate-900 text-white flex flex-col min-h-screen antialiased">
 
+    <!-- Canvas de fundo para a animação -->
     <canvas id="backgroundCanvas"></canvas>
 
-    <div id="loginContainer" class="relative bg-slate-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
-        <div class="flex justify-center items-center mb-6">
-            <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><defs><filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter><linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient><linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient><linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient><linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient></defs><g filter="url(#dropshadow)"><path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/><path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/><path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/><path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/><path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/><circle cx="50" cy="50" r="5" fill="#FFFFFF"/><circle cx="25" cy="25" r="5" fill="#FFFFFF"/><circle cx="75" cy="25" r="5" fill="#FFFFFF"/><circle cx="25" cy="75" r="5" fill="#FFFFFF"/><circle cx="75" cy="75" r="5" fill="#FFFFFF"/></g></svg>
-            <div class="text-left"><h1 class="text-white logotext-stake">Stake <span class="text-green-500">Pro</span></h1><p class="logotext-sub">Projects and Process</p></div>
-        </div>
-        <form id="loginForm" novalidate>
-            <div class="mb-6 form-input-group">
-                <label for="email" class="sr-only">Email</label>
-                <div class="form-input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg></div>
-                <input type="email" id="email" name="email" value="" placeholder="admin@admin.com" required class="w-full pl-14 pr-4 py-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 text-white placeholder-slate-400">
+    <!-- Container principal que flutua sobre o canvas -->
+    <div class="relative z-0 flex-grow flex flex-col items-center justify-start w-full">
+
+        <!-- Cabeçalho -->
+        <header id="mainHeader" class="bg-slate-800/50 backdrop-blur-sm shadow-lg py-3 w-full rounded-b-xl mb-6 transition-all duration-700 ease-out opacity-0 translate-y-4">
+            <div class="max-w-screen-xl mx-auto px-6 md:px-8 flex justify-between items-center">
+                <div class="flex items-center">
+                    <!-- Logo similar ao do login -->
+                    <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2 animate-pulse-slow" aria-hidden="true">
+                        <defs>
+                            <filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter>
+                            <linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient>
+                            <linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient>
+                            <linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient>
+                            <linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient>
+                        </defs>
+                        <g filter="url(#dropshadow)">
+                            <path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/>
+                            <path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/>
+                            <path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/>
+                            <path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/>
+                            <path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/>
+                            <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
+                            <circle cx="25" cy="25" r="5" fill="#FFFFFF"/>
+                            <circle cx="75" cy="25" r="5" fill="#FFFFFF"/>
+                            <circle cx="25" cy="75" r="5" fill="#FFFFFF"/>
+                            <circle cx="75" cy="75" r="5" fill="#FFFFFF"/>
+                        </g>
+                    </svg>
+                    <div class="text-left">
+                        <h1 class="text-white logotext-stake">Stake <span class="text-accentGreen">Pro</span></h1>
+                        <p class="logotext-sub">Projects and Process</p>
+                    </div>
+                </div>
+                <nav>
+                    <a href="login.html" class="px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-secondary transition duration-300 ease-in-out" aria-label="Ir para a página de Login">Login</a>
+                </nav>
             </div>
-            <div class="mb-6 form-input-group">
-                <label for="password" class="sr-only">Senha</label>
-                <div class="form-input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v2H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2V10a2 2 0 00-2-2h-1V6a4 4 0 00-4-4zm-2 6V6a2 2 0 114 0v2H8z" clip-rule="evenodd"/></svg></div>
-                <input type="password" id="password" name="password" value="" placeholder="••••••••" required class="w-full pl-14 pr-12 py-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 text-white placeholder-slate-400">
-                <div id="passwordToggle" class="password-toggle-icon"><svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg><svg id="eyeOffIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.052 10.052 0 013.41-4.825M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c1.13 0 2.212.204 3.218.584m4.364 4.364A10.052 10.052 0 0112 19c-1.13 0-2.212-.204-3.218-.584m-4.364-4.364L2.458 12" /></svg></div>
-            </div>
-            
-            <div class="mb-4">
-                <div class="flex items-center justify-between gap-3 p-2 rounded-lg bg-slate-700 border border-slate-600">
-                    <div id="captchaText" class="flex-grow text-center text-2xl">
-                        </div>
-                    <button type="button" id="refreshCaptcha" title="Gerar novo código" class="p-2 rounded-md hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-transform transform hover:rotate-45">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+        </header>
+
+        <!-- Conteúdo Principal -->
+        <main class="flex-grow flex items-center justify-center p-4 md:p-8 w-full">
+            <div id="mainContentBlock" class="bg-slate-800/50 backdrop-blur-sm p-6 md:p-10 rounded-2xl shadow-2xl text-center w-full max-w-screen-xl border border-slate-700 transition-all duration-700 ease-out opacity-0 translate-y-4 hover:shadow-2xl hover:scale-[1.01]">
+                <!-- Novo Ícone de Projeto e Processo com Animação -->
+                <svg id="projectIconSvg" width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto mb-6 text-primary" aria-hidden="true">
+                    <defs>
+                        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/>
+                        </filter>
+                    </defs>
+
+                    <g>
+                        <rect id="taskRect1" x="10" y="50" width="40" height="10" rx="2" fill="rgb(239, 68, 68)" filter="url(#shadow)"/>
+                        <rect id="taskRect2" x="40" y="35" width="40" height="10" rx="2" fill="rgb(239, 68, 68)" filter="url(#shadow)"/>
+                        <rect id="taskRect3" x="25" y="20" width="40" height="10" rx="2" fill="rgb(239, 68, 68)" filter="url(#shadow)"/>
+                    </g>
+                    <!-- Seta de progresso, inicialmente oculta -->
+                    <path id="progressArrow" d="M40 15 L35 20 L40 10 L45 20 Z" fill="#cbd5e1" opacity="0" class="transition-opacity duration-500 ease-in-out"/>
+                </svg>
+
+                <h2 id="dynamicHeading" class="text-3xl md:text-4xl lg:text-3xl font-extrabold text-white mb-6 leading-tight transition-all duration-700 ease-in-out">
+                    Organize seus projetos, alcance seus objetivos.
+                </h2>
+                <p class="text-base md:text-lg lg:text-base text-slate-300 mb-8">
+                    Simplifique o planejamento, acompanhamento e execução de todas as suas tarefas e projetos com nossa plataforma intuitiva.
+                </p>
+                <div class="flex flex-col items-center">
+                    <a href="login.html" class="px-8 py-3 bg-primary text-white font-bold rounded-lg shadow-lg hover:bg-secondary transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center animate-pulse cta-button" aria-label="Comece a usar agora a plataforma">
+                        Comece Agora
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
                         </svg>
-                    </button>
+                    </a>
                 </div>
             </div>
-            <div class="mb-6 form-input-group">
-                    <label for="captchaInput" class="sr-only">Digite o CAPTCHA</label>
-                    <div class="form-input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 0118 8zm-6-4a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd" /></svg></div>
-                    <input type="text" id="captchaInput" name="captchaInput" placeholder="Digite o texto acima" required class="w-full pl-14 pr-4 py-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 text-white placeholder-slate-400">
+        </main>
+
+        <!-- Rodapé -->
+        <footer id="mainFooter" class="bg-slate-800/50 backdrop-blur-sm text-white py-4 w-full rounded-t-xl mt-6 transition-all duration-700 ease-out opacity-0 translate-y-4">
+            <div class="max-w-screen-xl mx-auto px-6 md:px-8 text-center text-sm">
+                <p>&copy; 2025 Stake Pro. Todos os direitos reservados.</p>
             </div>
-            <button type="submit" id="loginButton" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition transform hover:scale-105 shadow-lg">Entrar</button>
-        </form>
-        <div id="messageBox" class="text-white text-center py-3 px-4 rounded-lg shadow-lg mt-6 hidden transition-all duration-300"></div>
+        </footer>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script>
-        // Suas configurações do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
-            authDomain: "stake-pro-db.firebaseapp.com",
-            projectId: "stake-pro-db",
-            storageBucket: "stake-pro-db.firebasestorage.app",
-            messagingSenderId: "569517541701",
-            appId: "1:569517541701:web:11b31335fca1d5a708562c"
-        };
-
-        // Inicialize o Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); // Obtenha a instância de autenticação
-
         document.addEventListener('DOMContentLoaded', () => {
-            const loginForm = document.getElementById('loginForm');
-            const loginButton = document.getElementById('loginButton');
-            const messageBox = document.getElementById('messageBox');
-            
-            // --- LÓGICA DO CAPTCHA ---
-            const captchaTextBox = document.getElementById('captchaText');
-            const captchaInputBox = document.getElementById('captchaInput');
-            const refreshCaptchaButton = document.getElementById('refreshCaptcha');
-            let currentCaptcha = '';
-
-            function generateAndDisplayCaptcha() {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                let captcha = '';
-                for (let i = 0; i < 6; i++) {
-                    captcha += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                currentCaptcha = captcha;
-                captchaTextBox.textContent = currentCaptcha;
-                captchaInputBox.value = '';
-            }
-
-            refreshCaptchaButton.addEventListener('click', generateAndDisplayCaptcha);
-            generateAndDisplayCaptcha();
-            // --- FIM DA LÓGICA DO CAPTCHA ---
-
-
-            function showMessage(message, type = 'info') {
-                messageBox.textContent = message;
-                messageBox.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'bg-sky-600');
-                if (type === 'error') messageBox.classList.add('bg-red-500');
-                else if (type === 'success') messageBox.classList.add('bg-green-500');
-                else messageBox.classList.add('bg-sky-600');
-                setTimeout(() => messageBox.classList.add('hidden'), 3000);
-            }
-
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                if (captchaInputBox.value.toLowerCase() !== currentCaptcha.toLowerCase()) {
-                    showMessage('Texto do CAPTCHA incorreto.', 'error');
-                    generateAndDisplayCaptcha();
-                    return;
-                }
-                
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-
-                loginButton.disabled = true;
-                loginButton.textContent = 'Verificando...';
-
-                try {
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
-
-                    showMessage('Login bem-sucedido! Redirecionando...', 'success');
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('loggedInUserEmail', user.email);
-                    localStorage.setItem('loggedInUserName', user.displayName || user.email); 
-                    
-                    setTimeout(() => {
-                        window.location.href = 'home.html'; // <<< CORRIGIDO PARA home.html
-                    }, 1000);
-                } catch (error) {
-                    let errorMessage = 'Email ou senha inválidos.';
-                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                        errorMessage = 'Email ou senha inválidos.';
-                    } else if (error.code === 'auth/invalid-email') {
-                        errorMessage = 'Formato de email inválido.';
-                    } else {
-                        errorMessage = `Erro no login: ${error.message}`;
-                        console.error('Erro no processo de login:', error);
-                    }
-                    showMessage(errorMessage, 'error');
-                    loginButton.disabled = false;
-                    loginButton.textContent = 'Entrar';
-                    generateAndDisplayCaptcha(); // Gera novo CAPTCHA em caso de erro
-                }
-            });
-
-            // Lógica do toggle de senha
-            const passwordInput = document.getElementById('password');
-            const passwordToggle = document.getElementById('passwordToggle');
-            passwordToggle.addEventListener('click', () => {
-                const isPassword = passwordInput.type === 'password';
-                passwordInput.type = isPassword ? 'text' : 'password';
-                document.getElementById('eyeIcon').classList.toggle('hidden', isPassword);
-                document.getElementById('eyeOffIcon').classList.toggle('hidden', !isPassword);
-            });
-            
-            // --- CÓDIGO DA ANIMAÇÃO GANTT/BPM RESTAURADO ---
             const canvas = document.getElementById('backgroundCanvas');
             const ctx = canvas.getContext('2d');
             let animationFrameId;
@@ -215,7 +204,150 @@
                 drawBackgroundElements();
                 animationFrameId = requestAnimationFrame(animateBackground);
             }
-            
+
+            // Animação de entrada dos blocos de conteúdo
+            const mainContentBlock = document.getElementById('mainContentBlock');
+            const mainHeader = document.getElementById('mainHeader');
+            const mainFooter = document.getElementById('mainFooter');
+
+            setTimeout(() => {
+                mainContentBlock.classList.remove('opacity-0', 'translate-y-4');
+                mainContentBlock.classList.add('opacity-100', 'translate-y-0');
+
+                mainHeader.classList.remove('opacity-0', 'translate-y-4');
+                mainHeader.classList.add('opacity-100', 'translate-y-0');
+
+                mainFooter.classList.remove('opacity-0', 'translate-y-4');
+                mainFooter.classList.add('opacity-100', 'translate-y-0');
+            }, 300); // Pequeno atraso para as animações começarem após o carregamento inicial
+
+            // Lógica para alternar o texto do cabeçalho principal
+            const dynamicHeading = document.getElementById('dynamicHeading');
+            const phrases = [
+                "Organize seus projetos, alcance seus objetivos.",
+                "Otimize seus processos, transforme sua gestão."
+            ];
+            let currentPhraseIndex = 0;
+
+            function cycleHeadingText() {
+                dynamicHeading.classList.remove('opacity-100');
+                dynamicHeading.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
+                    dynamicHeading.textContent = phrases[currentPhraseIndex];
+                    dynamicHeading.classList.remove('opacity-0');
+                    dynamicHeading.classList.add('opacity-100');
+                }, 700); // Tempo para a transição de saída completar antes de mudar o texto
+            }
+
+            // Lógica para alternar o estado do ícone de projeto/processo
+            const projectIconSvg = document.getElementById('projectIconSvg');
+            const taskRect1 = document.getElementById('taskRect1');
+            const taskRect2 = document.getElementById('taskRect2');
+            const taskRect3 = document.getElementById('taskRect3');
+            const progressArrow = document.getElementById('progressArrow');
+
+            const tasks = [
+                { rect: taskRect1, startX: 10, endX: 20, startY: 50, endY: 50 },
+                { rect: taskRect2, startX: 40, endX: 20, startY: 35, endY: 35 },
+                { rect: taskRect3, startX: 25, endX: 20, startY: 20, endY: 20 }
+            ];
+
+            const redColor = { r: 239, g: 68, b: 68 }; // red-500
+            const greenColor = { r: 34, g: 197, b: 94 }; // green-500
+
+            function interpolateColor(color1, color2, factor) {
+                const r = Math.round(color1.r + factor * (color2.r - color1.r));
+                const g = Math.round(color1.g + factor * (color2.g - color1.g));
+                const b = Math.round(color1.b + factor * (color2.b - color1.b));
+                return `rgb(${r},${g},${b})`;
+            }
+
+            let animationStartTimeIcon = null; // Separate timer for icon animation
+            const transitionDurationIcon = 1500; // 1.5 seconds for icon transition
+            const holdDurationIcon = 1500; // 1.5 seconds hold for each icon state
+            let currentIconPhase = 'delayed'; // 'delayed', 'toOrganized', 'organized', 'toDelayed'
+
+            function animateProjectIcon(currentTime) {
+                if (!animationStartTimeIcon) {
+                    animationStartTimeIcon = currentTime;
+                }
+
+                const elapsed = currentTime - animationStartTimeIcon;
+                let progress = 0;
+
+                switch (currentIconPhase) {
+                    case 'delayed':
+                        // Ensure initial state (red, scattered)
+                        tasks.forEach(task => {
+                            task.rect.setAttribute('x', task.startX);
+                            task.rect.setAttribute('fill', `rgb(${redColor.r},${redColor.g},${redColor.b})`);
+                        });
+                        progressArrow.style.opacity = 0; // Hide arrow
+
+                        if (elapsed >= holdDurationIcon) {
+                            currentIconPhase = 'toOrganized';
+                            animationStartTimeIcon = currentTime; // Reset timer for next phase
+                        }
+                        break;
+
+                    case 'toOrganized':
+                        progress = Math.min(1, elapsed / transitionDurationIcon);
+                        tasks.forEach(task => {
+                            const currentX = task.startX + progress * (task.endX - task.startX);
+                            const currentColor = interpolateColor(redColor, greenColor, progress);
+                            task.rect.setAttribute('x', currentX);
+                            task.rect.setAttribute('fill', currentColor);
+                        });
+                        progressArrow.style.opacity = progress; // Fade in arrow
+
+                        if (progress === 1) {
+                            currentIconPhase = 'organized';
+                            animationStartTimeIcon = currentTime; // Reset timer for next phase
+                        }
+                        break;
+
+                    case 'organized':
+                        // Ensure organized state (green, aligned)
+                        tasks.forEach(task => {
+                            task.rect.setAttribute('x', task.endX);
+                            task.rect.setAttribute('fill', `rgb(${greenColor.r},${greenColor.g},${greenColor.b})`);
+                        });
+                        progressArrow.style.opacity = 1; // Ensure arrow is visible
+
+                        if (elapsed >= holdDurationIcon) {
+                            currentIconPhase = 'toDelayed';
+                            animationStartTimeIcon = currentTime; // Reset timer for next phase
+                        }
+                        break;
+
+                    case 'toDelayed':
+                        progress = Math.min(1, elapsed / transitionDurationIcon);
+                        tasks.forEach(task => {
+                            const currentX = task.endX + progress * (task.startX - task.endX);
+                            const currentColor = interpolateColor(greenColor, redColor, progress);
+                            task.rect.setAttribute('x', currentX);
+                            task.rect.setAttribute('fill', currentColor);
+                        });
+                        progressArrow.style.opacity = 1 - progress; // Fade out arrow
+
+                        if (progress === 1) {
+                            currentIconPhase = 'delayed';
+                            animationStartTimeIcon = currentTime; // Reset timer for next phase
+                        }
+                        break;
+                }
+
+                requestAnimationFrame(animateProjectIcon);
+            }
+
+            // Inicia o ciclo de texto após um pequeno atraso
+            setInterval(cycleHeadingText, 5000); // Altera o texto a cada 5 segundos
+
+            // Inicia a animação do ícone
+            requestAnimationFrame(animateProjectIcon);
+
             resizeAnimationCanvas();
             animateBackground();
             window.addEventListener('resize', resizeAnimationCanvas);

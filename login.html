@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Login</title>
+    <!-- Inclui o Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind para usar as fontes Inter e Montserrat e cores personalizadas -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0EA5E9', // sky-500
+                        secondary: '#0284C7', // sky-600
+                        accentGreen: '#22C55E', // green-500
+                        slate700: '#334155', // slate-700
+                        slate800: '#1E293B', // slate-800
+                        slate900: '#0F172A', // slate-900
+                    },
+                    keyframes: {
+                        pulse: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.02)' },
+                        },
+                        'pulse-slow': {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.01)' },
+                        }
+                    },
+                    animation: {
+                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'pulse-slow': 'pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Links para as fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow: hidden; }
+        #backgroundCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .logotext-stake { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.25rem; letter-spacing: -0.05em; line-height: 1; }
+        .logotext-sub { font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 1rem; color: #cbd5e1; line-height: 1.2; }
+        .form-input-group { position: relative; }
+        .form-input-icon { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
+        .password-toggle-icon { position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
+        /* Estilo para o texto do CAPTCHA para dificultar a leitura por bots */
+        #captchaText {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 8px;
+            color: #E2E8F0; /* Cor mais clara para garantir visibilidade (slate-200) */
+            user-select: none; /* Impede que o texto seja selecionado */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            /* Nova adição para a tarja sutil */
+            background-image: repeating-linear-gradient(
+                0deg, /* Linhas horizontais */
+                transparent, transparent 9px, /* 9px transparente */
+                rgba(255, 255, 255, 0.08) 10px, rgba(255, 255, 255, 0.08) 11px, /* 1px de tarja clara */
+                transparent 12px, transparent 20px /* 8px transparente */
+            );
+            background-size: 100% 20px; /* Altura do padrão repetitivo */
+            background-position: 0 0; /* Começa do topo */
+            background-repeat: repeat-y; /* Repete verticalmente */
+        }
+        /* Efeito de pressão para o botão CTA */
+        .cta-button:active {
+            transform: scale(0.98); /* Diminui ligeiramente ao clicar */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra interna para efeito de pressionado */
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <canvas id="backgroundCanvas"></canvas>
+
+    <div id="loginContainer" class="relative bg-slate-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
+        <div class="flex justify-center items-center mb-6">
+            <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2"><defs><filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter><linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient><linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient><linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient><linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient></defs><g filter="url(#dropshadow)"><path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/><path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/><path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/><path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/><path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/><circle cx="50" cy="50" r="5" fill="#FFFFFF"/><circle cx="25" cy="25" r="5" fill="#FFFFFF"/><circle cx="75" cy="25" r="5" fill="#FFFFFF"/><circle cx="25" cy="75" r="5" fill="#FFFFFF"/><circle cx="75" cy="75" r="5" fill="#FFFFFF"/></g></svg>
+            <div class="text-left"><h1 class="text-white logotext-stake">Stake <span class="text-accentGreen">Pro</span></h1><p class="logotext-sub">Projects and Process</p></div>
+        </div>
+        <form id="loginForm" novalidate>
+            <div class="mb-6 form-input-group">
+                <label for="email" class="sr-only">Email</label>
+                <div class="form-input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg></div>
+                <input type="email" id="email" name="email" value="" placeholder="admin@admin.com" required class="w-full pl-14 pr-4 py-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 text-white placeholder-slate-400">
+            </div>
+            <div class="mb-6 form-input-group">
+                <label for="password" class="sr-only">Senha</label>
+                <div class="form-input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v2H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2V10a2 2 0 002-2h-1V6a4 4 0 00-4-4zm-2 6V6a2 2 0 114 0v2H8z" clip-rule="evenodd"/></svg></div>
+                <input type="password" id="password" name="password" value="" placeholder="••••••••" required class="w-full pl-14 pr-12 py-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 text-white placeholder-slate-400">
+                <div id="passwordToggle" class="password-toggle-icon"><svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg><svg id="eyeOffIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.052 10.052 0 013.41-4.825M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c1.13 0 2.212.204 3.218.584m4.364 4.364A10.052 10.052 0 0112 19c-1.13 0-2.212-.204-3.218-.584m-4.364-4.364L2.458 12" /></svg></div>
+            </div>
+
+            <div class="mb-4">
+                <div class="flex items-center justify-between gap-3 p-2 rounded-lg bg-slate-700 border border-slate-600">
+                    <div id="captchaText" class="flex-grow text-center text-2xl">
+                    </div>
+                    <button type="button" id="refreshCaptcha" title="Gerar novo código" class="p-2 rounded-md hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-transform transform hover:rotate-45">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="mb-6 form-input-group">
+                <label for="captchaInput" class="sr-only">Digite o CAPTCHA</label>
+                <div class="form-input-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 0118 8zm-6-4a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd" /></svg></div>
+                <input type="text" id="captchaInput" name="captchaInput" placeholder="Digite o texto acima" required class="w-full pl-14 pr-4 py-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 text-white placeholder-slate-400">
+            </div>
+            <button type="submit" id="loginButton" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition transform hover:scale-105 shadow-lg">Entrar</button>
+        </form>
+        <div id="messageBox" class="text-white text-center py-3 px-4 rounded-lg shadow-lg mt-6 hidden transition-all duration-300"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script>
+        // Suas configurações do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
+
+        // Inicialize o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); // Obtenha a instância de autenticação
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const loginButton = document.getElementById('loginButton');
+            const messageBox = document.getElementById('messageBox');
+
+            // --- LÓGICA DO CAPTCHA ---
+            const captchaTextBox = document.getElementById('captchaText');
+            const captchaInputBox = document.getElementById('captchaInput');
+            const refreshCaptchaButton = document.getElementById('refreshCaptcha');
+            let currentCaptcha = '';
+
+            function generateAndDisplayCaptcha() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let captcha = '';
+                for (let i = 0; i < 6; i++) {
+                    captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                currentCaptcha = captcha;
+                captchaTextBox.textContent = currentCaptcha; // Garante que o texto seja exibido
+                captchaInputBox.value = '';
+            }
+
+            refreshCaptchaButton.addEventListener('click', generateAndDisplayCaptcha);
+            generateAndDisplayCaptcha(); // Gera o CAPTCHA na carga da página
+            // --- FIM DA LÓGICA DO CAPTCHA ---
+
+            function showMessage(message, type = 'info') {
+                messageBox.textContent = message;
+                messageBox.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'bg-sky-600');
+                if (type === 'error') messageBox.classList.add('bg-red-500');
+                else if (type === 'success') messageBox.classList.add('bg-green-500');
+                else messageBox.classList.add('bg-sky-600');
+                setTimeout(() => messageBox.classList.add('hidden'), 3000);
+            }
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (captchaInputBox.value.toLowerCase() !== currentCaptcha.toLowerCase()) {
+                    showMessage('Texto do CAPTCHA incorreto.', 'error');
+                    generateAndDisplayCaptcha();
+                    return;
+                }
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                loginButton.disabled = true;
+                loginButton.textContent = 'Verificando...';
+
+                try {
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    showMessage('Login bem-sucedido! Redirecionando...', 'success');
+                    // Armazena o estado de login no localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('loggedInUserEmail', user.email);
+                    localStorage.setItem('loggedInUserName', user.displayName || user.email);
+
+                    setTimeout(() => {
+                        window.location.href = 'home.html'; // Redireciona para home.html
+                    }, 1000);
+                } catch (error) {
+                    let errorMessage = 'Ocorreu um erro desconhecido. Tente novamente.'; // Mensagem padrão para outros erros
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-login-credentials') {
+                        errorMessage = 'E-mail ou senha inválida.'; // Mensagem específica para credenciais inválidas
+                    } else {
+                        console.error('Erro no processo de login:', error); // Log do erro completo para depuração
+                    }
+                    showMessage(errorMessage, 'error');
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Entrar';
+                    generateAndDisplayCaptcha(); // Gera novo CAPTCHA em caso de erro
+                }
+            });
+
+            // Lógica do toggle de senha
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('passwordToggle');
+            passwordToggle.addEventListener('click', () => {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                document.getElementById('eyeIcon').classList.toggle('hidden', isPassword);
+                document.getElementById('eyeOffIcon').classList.toggle('hidden', !isPassword);
+            });
+
+            // --- CÓDIGO DA ANIMAÇÃO GANTT/BPM ---
+            const canvas = document.getElementById('backgroundCanvas');
+            const ctx = canvas.getContext('2d');
+            let animationFrameId;
+            let scrollOffset = 0;
+            const ganttSpeed = 0.1;
+            const barHeight = 20, barGap = 40, numBarsPerLine = 3, numLines = 8;
+            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)', particle: 'rgba(180, 200, 255, 0.05)', line: 'rgba(180, 200, 255, 0.08)', bpmIcon: 'rgba(96, 165, 250, 0.1)' };
+            const bars = [], barColors = [colors.bar1, colors.bar2, colors.bar3];
+            for (let i = 0; i < numLines * numBarsPerLine; i++) { bars.push({ width: (Math.random() * 0.2 + 0.1) * window.innerWidth, color: barColors[Math.floor(Math.random() * barColors.length)], initialXOffset: Math.random() * window.innerWidth }); }
+            const numParticles = 50, connectionDistance = 120, particles = [], numBPMIcons = 10, bpmIcons = [];
+
+            function initializeDynamicElements() {
+                particles.length = 0;
+                for (let i = 0; i < numParticles; i++) { particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 1, speed: Math.random() * 0.4 + 0.1, angle: Math.random() * Math.PI * 2, color: colors.particle }); }
+                bpmIcons.length = 0;
+                const iconTypes = ['circle', 'square', 'diamond'];
+                for (let i = 0; i < numBPMIcons; i++) { bpmIcons.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 15, speed: Math.random() * 0.2 + 0.1, type: iconTypes[Math.floor(Math.random() * iconTypes.length)], rotation: Math.random() * Math.PI * 2, rotationSpeed: (Math.random() - 0.5) * 0.02, directionX: Math.random() > 0.5 ? 1 : -1, directionY: Math.random() > 0.5 ? 1 : -1, color: colors.bpmIcon }); }
+            }
+
+            function resizeAnimationCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initializeDynamicElements(); drawBackgroundElements(); }
+            function roundRect(ctx, x, y, width, height, radius) { ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
+            function drawBPMIcon(ctx, icon) { ctx.save(); ctx.translate(icon.x, icon.y); ctx.rotate(icon.rotation); ctx.fillStyle = icon.color; const halfSize = icon.size / 2; switch (icon.type) { case 'circle': ctx.beginPath(); ctx.arc(0, 0, halfSize, 0, Math.PI * 2); ctx.fill(); break; case 'square': ctx.fillRect(-halfSize, -halfSize, icon.size, icon.size); break; case 'diamond': ctx.beginPath(); ctx.moveTo(0, -halfSize); ctx.lineTo(halfSize, 0); ctx.lineTo(0, halfSize); ctx.lineTo(-halfSize, 0); ctx.closePath(); ctx.fill(); break; } ctx.restore(); }
+
+            function drawBackgroundElements() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < numLines; i++) { const y = (i * (barHeight + barGap)) + (barGap / 2); for (let j = 0; j < numBarsPerLine; j++) { const bar = bars[i * numBarsPerLine + j]; let x = bar.initialXOffset + scrollOffset; if (x > canvas.width) x -= (canvas.width + bar.width); ctx.fillStyle = bar.color; roundRect(ctx, x, y, bar.width, barHeight, 5); } }
+                particles.forEach((p1, i) => { ctx.fillStyle = p1.color; ctx.beginPath(); ctx.arc(p1.x, p1.y, p1.size, 0, Math.PI * 2); ctx.fill(); for (let j = i + 1; j < particles.length; j++) { const p2 = particles[j]; const distance = Math.hypot(p1.x - p2.x, p1.y - p2.y); if (distance < connectionDistance) { ctx.strokeStyle = colors.line; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } } });
+                bpmIcons.forEach(icon => drawBPMIcon(ctx, icon));
+            }
+
+            function animateBackground() {
+                scrollOffset += ganttSpeed;
+                if (scrollOffset > canvas.width) scrollOffset = 0;
+                particles.forEach(p => { p.x += p.speed * Math.cos(p.angle); p.y += p.speed * Math.sin(p.angle); if (p.x > canvas.width + p.size) p.x = -p.size; if (p.x < -p.size) p.x = canvas.width + p.size; if (p.y > canvas.height + p.size) p.y = -p.size; if (p.y < -p.size) p.y = canvas.height + p.size; });
+                bpmIcons.forEach(icon => { icon.x += icon.speed * icon.directionX; icon.y += icon.speed * icon.directionY; icon.rotation += icon.rotationSpeed; if (icon.x > canvas.width + icon.size || icon.x < -icon.size) icon.directionX *= -1; if (icon.y > canvas.height + icon.size || icon.y < -icon.size) icon.directionY *= -1; });
+                drawBackgroundElements();
+                animationFrameId = requestAnimationFrame(animateBackground);
+            }
+
+            resizeAnimationCanvas();
+            animateBackground();
+            window.addEventListener('resize', resizeAnimationCanvas);
+        });
+    </script>
+</body>
+</html>
