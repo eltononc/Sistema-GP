@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stake Pro - Home</title>
-    <!-- Inclui o Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configuração do Tailwind para usar as fontes Inter e Montserrat e cores personalizadas -->
+
     <script>
         tailwind.config = {
             theme: {
@@ -27,47 +26,10 @@
             }
         }
     </script>
-    <!-- Links para as fontes -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0F172A; /* slate-900 */
-            color: #E2E8F0; /* slate-200 */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        .logotext-stake {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 800;
-            font-size: 2.25rem;
-            letter-spacing: -0.05em;
-            line-height: 1;
-        }
-        .logotext-sub {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            font-size: 1rem;
-            color: #cbd5e1; /* slate-300 */
-            line-height: 1.2;
-        }
-        /* Estilos específicos para o canvas de fundo */
-        #backgroundCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* Garante que o canvas fique atrás do conteúdo */
-        }
-    </style>
 </head>
 <body class="bg-slate-900 text-white flex min-h-screen antialiased">
 
-    <!-- Canvas de fundo para a animação (agora estático) -->
+    
     <canvas id="backgroundCanvas"></canvas>
 
     <div class="flex flex-1">
@@ -115,6 +77,19 @@
                         Início
                     </div>
                 </a>
+                <a href="departamentos.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm-6-4a4 4 0 00-4-4H3"></path></svg>
+                        Departamento 
+                    </div>
+                </a>
+                <div class="dropdown">
+                    <button onclick="dropdown()" class="dropbtn">Dropdown</button>
+                    <div id="myDropdown" class="dropdown-content">
+                    <a href="#">Cadastrar/Gerenciar</a>
+                    <a href="#">Relatórios</a>
+                    </div>
+                </div>
                 <a href="usuarios.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
                     <div class="flex items-center">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm-6-4a4 4 0 00-4-4H3"></path></svg>
@@ -372,3 +347,39 @@
     </script>
 </body>
 </html>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; 
+            color: #E2E8F0; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 2.25rem;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+        .logotext-sub {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #cbd5e1; 
+            line-height: 1.2;
+        }
+        
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; 
+        }
+    </style>
