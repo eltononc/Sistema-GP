@@ -3,460 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stake Pro - Home</title>
+    <title>Stake Pro - Início</title>
+    <!-- Incluindo Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-<script>
-  function toggleDropdown(id) {
-    const menu = document.getElementById(`dropdownMenu-${id}`);
-    const icon = document.querySelector(`#dropdownButton-${id} svg`);
-
-    icon.classList.toggle("rotate-180");
-    menu.classList.toggle("hidden");
-  }
-
-  window.addEventListener('click', function (e) {
-    document.querySelectorAll("[id^='dropdownButton-']").forEach(button => {
-      const id = button.id.replace('dropdownButton-', '');
-      const menu = document.getElementById(`dropdownMenu-${id}`);
-      if (!button.contains(e.target) && !menu.contains(e.target)) {
-        menu.classList.add('hidden');
-        const icon = button.querySelector("svg");
-        icon.classList.remove("rotate-180");
-      }
-    });
-  });
-</script>
-</head>
-<body class="bg-slate-900 text-white flex min-h-screen antialiased">
-
+    <!-- Links para as fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
     
-    <canvas id="backgroundCanvas"></canvas>
-
-    <div class="flex flex-1">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="bg-slate-800/50 backdrop-blur-sm shadow-lg w-56 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-50 flex flex-col">
-            <div class="flex items-center justify-between px-4">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2" aria-hidden="true">
-                        <defs>
-                            <filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter>
-                            <linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient>
-                            <linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient>
-                            <linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient>
-                            <linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient>
-                        </defs>
-                        <g filter="url(#dropshadow)">
-                            <path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/>
-                            <path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/>
-                            <path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/>
-                            <path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/>
-                            <path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/>
-                            <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
-                            <circle cx="25" cy="25" r="5" fill="#FFFFFF"/>
-                            <circle cx="75" cy="25" r="5" fill="#FFFFFF"/>
-                            <circle cx="25" cy="75" r="5" fill="#FFFFFF"/>
-                            <circle cx="75" cy="75" r="5" fill="#FFFFFF"/>
-                        </g>
-                    </svg>
-                    <div class="text-left">
-                        <h1 class="text-white logotext-stake text-xl">Stake <span class="text-accentGreen">Pro</span></h1>
-                        <p class="logotext-sub text-xs">Projects and Process</p>
-                    </div>
-                </div>
-                <!-- Botão de fechar para mobile -->
-                <button id="sidebarCloseButton" class="md:hidden text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <nav>
-                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                        Início
-                    </div>
-                </a>
-                <!-- Projetos -->
-                <div class="relative inline-block text-left">
-                    <button onclick="toggleDropdown('projetos')" id="dropdownButton-projetos"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white w-full">
-                    <svg class="h-5 w-5 mr-3 duration-500 ease-in-out" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
-                        Projetos
-                    </button>
-                <div id="dropdownMenu-projetos"
-                        class="hidden mt-1 bg-none rounded-md shadow-lg w-44">
-                        <a href="#" class="block px-4 py-4 text-sm text-white-700 hover:bg-gray-900">Cadastrar/Gerenciar</a>
-                        <a href="#" class="block px-4 py-4 text-sm text-white-700 hover:bg-gray-900">Relatórios</a>
-                    </div>
-                </div>
-                <!-- Processos -->
-                <div class="relative inline-block text-left">
-                    <button onclick="toggleDropdown('processos')" id="dropdownButton-processos"
-                    class="flex items-center py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white w-full">
-                    <svg class="h-5 w-5 mr-3 duration-500 ease-in-out" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
-                        Processos
-                    </button>
-                <div id="dropdownMenu-processos"
-                        class="hidden mt-1 bg-none rounded-md shadow-lg w-44">
-                        <a href="#" class="block px-4 py-4 text-sm text-white-700 hover:bg-gray-900">Cadastrar/Gerenciar</a>
-                        <a href="#" class="block px-4 py-4 text-sm text-white-700 hover:bg-gray-900">Relatórios</a>
-                    </div>
-                </div>
-                <a href="usuarios.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm-6-4a4 4 0 00-4-4H3"></path></svg>
-                        Usuários
-                    </div>
-                </a>
-                <a href="departamentos.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm-6-4a4 4 0 00-4-4H3"></path></svg>
-                        Departamentos
-                    </div>
-                </a>
-                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        Portfólios
-                    </div>
-                </a>
-                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        Configurações
-                    </div>
-                </a>
-                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Ajuda
-                    </div>
-                </a>
-                <button id="logoutButtonSidebar" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-red-700 hover:text-white w-full text-left mt-4">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                        Sair
-                    </div>
-                </button>
-            </nav>
-
-            
-        </aside>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <!-- Conteúdo Principal da Home -->
-            <main class="flex-grow flex items-center justify-center p-4 md:p-8 w-full">
-                <div class="bg-slate-800/50 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl text-center w-full max-w-screen-xl border border-slate-700">
-                    <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
-                        Bem-vindo(a) ao Stake Pro!
-                    </h2>
-                    <p class="text-lg text-slate-300 mb-8">
-                        Sua plataforma completa para gestão de projetos e otimização de processos.
-                    </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Card de Exemplo 1 -->
-                        <div class="bg-slate-700/50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
-                            <h3 class="text-xl font-bold text-white mb-3">Meus Projetos</h3>
-                            <p class="text-slate-300">Acompanhe o status de todos os seus projetos ativos.</p>
-                            <a href="#" class="mt-4 inline-block text-primary hover:text-secondary font-semibold">Ver Projetos &rarr;</a>
-                        </div>
-                        <!-- Card de Exemplo 2 -->
-                        <div class="bg-slate-700/50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
-                            <h3 class="text-xl font-bold text-white mb-3">Visão Geral de Processos</h3>
-                            <p class="text-slate-300">Visualize e otimize seus fluxos de trabalho.</p>
-                            <a href="#" class="mt-4 inline-block text-primary hover:text-secondary font-semibold">Ver Processos &rarr;</a>
-                        </div>
-                        <!-- Card de Exemplo 3 -->
-                        <div class="bg-slate-700/50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out transform hover:-translate-y-1">
-                            <h3 class="text-xl font-bold text-white mb-3">Relatórios e Análises</h3>
-                            <p class="text-slate-300">Obtenha insights valiosos sobre seu desempenho.</p>
-                            <a href="#" class="mt-4 inline-block text-primary hover:text-secondary font-semibold">Gerar Relatórios &rarr;</a>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <!-- Rodapé -->
-            <footer class="bg-slate-800/50 backdrop-blur-sm text-white py-4 w-full rounded-t-xl mt-6 md:rounded-none md:rounded-tl-xl">
-                <div class="max-w-screen-xl mx-auto px-6 md:px-8 text-center text-sm">
-                    <p>&copy; 2025 Stake Pro. Todos os direitos reservados.</p>
-                </div>
-            </footer>
-        </div>
-    </div>
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script>
-        // Suas configurações do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
-            authDomain: "stake-pro-db.firebaseapp.com",
-            projectId: "stake-pro-db",
-            storageBucket: "stake-pro-db.firebasestorage.app",
-            messagingSenderId: "569517541701",
-            appId: "1:569517541701:web:11b31335fca1d5a708562c"
-        };
-
-        // Inicialize o Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); // Obtenha a instância de autenticação
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const logoutButton = document.getElementById('logoutButton');
-            const logoutButtonSidebar = document.getElementById('logoutButtonSidebar'); // Novo botão de logout na sidebar
-
-            // Verifica o status de autenticação ao carregar a página
-            auth.onAuthStateChanged(user => {
-                if (!user) {
-                    // Se o usuário não estiver logado, redireciona para a página de login
-                    window.location.href = 'index.html';
-                }
-            });
-
-            const handleLogout = async () => {
-                try {
-                    await auth.signOut(); // Faz logout do Firebase
-                    localStorage.removeItem('isLoggedIn'); // Limpa o estado no localStorage
-                    localStorage.removeItem('loggedInUserEmail');
-                    localStorage.removeItem('loggedInUserName');
-                    window.location.href = 'index.html'; // Redireciona de volta para a tela de login
-                } catch (error) {
-                    console.error("Erro ao fazer logout:", error);
-                    alert("Ocorreu um erro ao fazer logout. Tente novamente."); // Usar um modal customizado em produção
-                }
-            };
-
-            logoutButton.addEventListener('click', handleLogout);
-            logoutButtonSidebar.addEventListener('click', handleLogout); // Adiciona evento para o novo botão
-
-            // --- Lógica do Fundo Gantt Estático ---
-            const canvas = document.getElementById('backgroundCanvas');
-            const ctx = canvas.getContext('2d');
-            // Removido animationFrameId e scrollOffset, pois não há animação de rolagem
-
-            const ganttSpeed = 0.1; // Mantido para consistência, mas não usado para movimento
-            const barHeight = 20, barGap = 40, numBarsPerLine = 3, numLines = 8;
-            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)', particle: 'rgba(180, 200, 255, 0.05)', line: 'rgba(180, 200, 255, 0.08)', bpmIcon: 'rgba(96, 165, 250, 0.1)' };
-            const bars = [], barColors = [colors.bar1, colors.bar2, colors.bar3];
-            for (let i = 0; i < numLines * numBarsPerLine; i++) { bars.push({ width: (Math.random() * 0.2 + 0.1) * window.innerWidth, color: barColors[Math.floor(Math.random() * barColors.length)], initialXOffset: Math.random() * window.innerWidth }); }
-            const numParticles = 50, connectionDistance = 120, particles = [], numBPMIcons = 10, bpmIcons = [];
-
-            function initializeDynamicElements() {
-                particles.length = 0;
-                for (let i = 0; i < numParticles; i++) { particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 1, speed: Math.random() * 0.4 + 0.1, angle: Math.random() * Math.PI * 2, color: colors.particle }); }
-                bpmIcons.length = 0;
-                const iconTypes = ['circle', 'square', 'diamond'];
-                for (let i = 0; i < numBPMIcons; i++) { bpmIcons.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 15, speed: Math.random() * 0.2 + 0.1, type: iconTypes[Math.floor(Math.random() * iconTypes.length)], rotation: Math.random() * Math.PI * 2, rotationSpeed: (Math.random() - 0.5) * 0.02, directionX: Math.random() > 0.5 ? 1 : -1, directionY: Math.random() > 0.5 ? 1 : -1, color: colors.bpmIcon }); }
-            }
-
-            function roundRect(ctx, x, y, width, height, radius) {
-                ctx.beginPath();
-                ctx.moveTo(x + radius, y);
-                ctx.arcTo(x + width, y, x + width, y + height, radius);
-                ctx.arcTo(x + width, y + height, x, y + height, radius);
-                ctx.arcTo(x, y + height, x, y, radius);
-                ctx.arcTo(x, y, x + width, y, radius);
-                ctx.closePath();
-                ctx.fill();
-            }
-
-            function drawBPMIcon(ctx, icon) {
-                ctx.save();
-                ctx.translate(icon.x, icon.y);
-                ctx.rotate(icon.rotation);
-                ctx.fillStyle = icon.color;
-                const halfSize = icon.size / 2;
-                switch (icon.type) {
-                    case 'circle':
-                        ctx.beginPath();
-                        ctx.arc(0, 0, halfSize, 0, Math.PI * 2);
-                        ctx.fill();
-                        break;
-                    case 'square':
-                        ctx.fillRect(-halfSize, -halfSize, icon.size, icon.size);
-                        break;
-                    case 'diamond':
-                        ctx.beginPath();
-                        ctx.moveTo(0, -halfSize);
-                        ctx.lineTo(halfSize, 0);
-                        ctx.lineTo(0, halfSize);
-                        ctx.lineTo(-halfSize, 0);
-                        ctx.closePath();
-                        ctx.fill();
-                        break;
-                }
-                ctx.restore();
-            }
-
-            function drawBackgroundElements() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                // Desenha as barras de Gantt estaticamente
-                for (let i = 0; i < numLines; i++) {
-                    const y = (i * (barHeight + barGap)) + (barGap / 2);
-                    for (let j = 0; j < numBarsPerLine; j++) {
-                        const bar = bars[i * numBarsPerLine + j];
-                        // Posição X fixa, não rolante
-                        const x = bar.initialXOffset % canvas.width;
-                        ctx.fillStyle = bar.color;
-                        roundRect(ctx, x, y, bar.width, barHeight, 5);
-                    }
-                }
-                // Desenha as partículas estaticamente
-                particles.forEach((p1, i) => {
-                    ctx.fillStyle = p1.color;
-                    ctx.beginPath();
-                    ctx.arc(p1.x, p1.y, p1.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const p2 = particles[j];
-                        const distance = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-                        if (distance < connectionDistance) {
-                            ctx.strokeStyle = colors.line;
-                            ctx.lineWidth = 0.5;
-                            ctx.beginPath();
-                            ctx.moveTo(p1.x, p1.y);
-                            ctx.lineTo(p2.x, p2.y);
-                            ctx.stroke();
-                        }
-                    }
-                });
-                // Desenha os ícones BPM estaticamente
-                bpmIcons.forEach(icon => drawBPMIcon(ctx, icon));
-            }
-
-            function resizeAnimationCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                initializeDynamicElements(); // Re-inicializa para novas posições estáticas no redimensionamento
-                drawBackgroundElements(); // Redesenha o fundo estático
-            }
-
-            resizeAnimationCanvas(); // Desenha o fundo uma vez ao carregar
-            window.addEventListener('resize', resizeAnimationCanvas); // Redesenha ao redimensionar
-            // --- Fim da Lógica do Fundo Gantt Estático ---
-
-            // Lógica do Sidebar
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
-
-            // Event listeners para os botões
-            sidebarToggleButton.addEventListener('click', () => {
-                sidebar.classList.remove('-translate-x-full');
-            });
-
-            sidebarCloseButton.addEventListener('click', () => {
-                sidebar.classList.add('-translate-x-full');
-            });
-
-            // Fechar sidebar ao clicar fora dela em telas pequenas
-            document.addEventListener('click', (event) => {
-                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
-                    sidebar.classList.add('-translate-x-full');
-                }
-            });
-
-            // Ajustar sidebar em redimensionamento
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('-translate-x-full');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                }
-                
-            });
-        });
-    </script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        montserrat: ['Montserrat', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#0EA5E9', // sky-500
-                        secondary: '#0284C7', // sky-600
-                        accentGreen: '#22C55E', // green-500
-                        slate700: '#334155', // slate-700
-                        slate800: '#1E293B', // slate-800
-                        slate900: '#0F172A', // slate-900
-                    }
-                }
-            }
-        }
-    </script>
-</body>
-</html>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
     <style>
+        /* Estilos base */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0F172A; 
-            color: #E2E8F0; 
+            background-color: #0F172A;
+            color: #E2E8F0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
+        /* Estilo do texto do logo ajustado */
         .logotext-stake {
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
-            font-size: 2.25rem;
-            letter-spacing: -0.05em;
+            font-size: 1.75rem; /* Menor que o anterior */
             line-height: 1;
+            letter-spacing: -0.05em;
         }
+        /* Estilo do sub-título ajustado */
         .logotext-sub {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            font-size: 1rem;
-            color: #cbd5e1; 
-            line-height: 1.2;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.65rem; /* Menor que o anterior */
+            color: #94A3B8;
         }
-        
         #backgroundCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; 
+            z-index: -1;
+            opacity: 0.15; /* Opacidade ajustada para a animação */
+        }
+        .glass-effect {
+            background-color: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+        }
+        .sidebar-link.active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid #0EA5E9;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+        .sidebar-link:not(.active):hover {
+            background-color: rgba(30, 41, 59, 0.6);
+            transform: scale(1.02);
+        }
+        .sidebar-link, .sidebar-link-button {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link-button:hover {
+            transform: scale(1.02);
+        }
+        .title-6 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            position: relative;
+            padding-bottom: 0.5rem;
+            width: fit-content;
+            margin-right: auto;
+        }
+        .title-6::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0EA5E9, #22C55E);
+        }
+        .btn-liquid-fill {
+            position: relative;
+            background: transparent;
+            border: 1px solid #06B6D4;
+            color: #06B6D4;
+            overflow: hidden;
+            z-index: 10;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+        }
+        .btn-liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #06B6D4;
+            transition: transform 0.5s ease;
+            z-index: -1;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        .btn-liquid-fill:hover::before {
+            transform: scaleX(1);
+        }
+        .btn-liquid-fill:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-liquid-fill svg {
+            transition: color 0.3s ease;
+        }
+        .btn-liquid-fill:hover svg {
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+
+    <!-- Canvas para o fundo de animação Gantt -->
+    <canvas id="backgroundCanvas"></canvas>
+
+    <!-- Botão para abrir sidebar em telas pequenas -->
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
+    <div class="flex flex-1">
+        <!-- Sidebar (Barra Lateral) -->
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <!-- Logo do Stake Pro ATUALIZADO -->
+                <div class="flex items-center">
+                    <!-- A imagem agora é redonda -->
+                    <img src="https://stakepro.netlify.app/logo" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <!-- O título foi redimensionado -->
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Projects & Process</p>
+                    </div>
+                </div>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1">
+                <a href="home.html" class="sidebar-link active flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Início
+                </a>
+                
+                <a href="departamentos.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"></path><path d="M2 7l10 5 10-5"></path><path d="M12 22V12"></path><path d="M22 7l-10 5"></path><path d="M2 17l10-5"></path>
+                    </svg>
+                    Departamentos
+                </a>
+
+                <a href="calendarios.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Calendários
+                </a>
+                
+                <button id="logoutButtonSidebar" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200 w-full text-left mt-6 hover:bg-red-700/50 text-red-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Sair
+                </button>
+            </nav>
+        </aside>
+    
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 flex flex-col p-4 md:p-8 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-6 md:p-10 rounded-2xl shadow-2xl w-full border border-slate-700 max-w-7xl mx-auto">
+                
+                <div class="mb-8">
+                    <h2 class="title-6">
+                        Bem-vindo ao Stake Pro
+                    </h2>
+                </div>
+                
+                <div class="text-lg text-slate-300 mb-8">
+                    <p>
+                        Esta é a página inicial do seu sistema de gestão de projetos e processos. Use o menu lateral para navegar entre os módulos.
+                    </p>
+                </div>
+
+                <!-- Adicione mais conteúdo à sua página inicial aqui -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <h3 class="font-bold text-sky-400 text-xl mb-2">Seus Projetos Ativos</h3>
+                        <p class="text-slate-400">Aqui você verá uma visão geral dos projetos em andamento, com status e prazos.</p>
+                        <a href="#" class="mt-4 inline-block text-sm font-semibold text-white bg-sky-600 px-4 py-2 rounded-lg hover:bg-sky-700 transition-colors">Ver Projetos</a>
+                    </div>
+
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <h3 class="font-bold text-green-400 text-xl mb-2">Processos Pendentes</h3>
+                        <p class="text-slate-400">Monitore os processos que exigem sua atenção ou aprovação.</p>
+                        <a href="#" class="mt-4 inline-block text-sm font-semibold text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Ver Processos</a>
+                    </div>
+                    
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <h3 class="font-bold text-yellow-400 text-xl mb-2">Próximos Feriados</h3>
+                        <p class="text-slate-400">Fique de olho nos feriados e dias não úteis configurados para o ano.</p>
+                        <a href="calendarios.html" class="mt-4 inline-block text-sm font-semibold text-white bg-yellow-600 px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">Ver Calendário</a>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-6 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h3 class="font-bold text-xl text-white mb-4">Atualizações Recentes</h3>
+                    <ul class="space-y-4">
+                        <li class="p-4 bg-slate-900 rounded-lg">
+                            <p class="text-sm font-semibold text-slate-300">Nova tarefa "Planejar Lançamento" adicionada ao Projeto X.</p>
+                            <p class="text-xs text-slate-500 mt-1">20 de jul. de 2025 - por João Silva</p>
+                        </li>
+                         <li class="p-4 bg-slate-900 rounded-lg">
+                            <p class="text-sm font-semibold text-slate-300">Processo "Aprovação de Orçamento" concluído com sucesso.</p>
+                            <p class="text-xs text-slate-500 mt-1">19 de jul. de 2025 - por Maria Santos</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Script de animação e lógica da sidebar -->
+    <script type="module">
+        // LÓGICA DA ANIMAÇÃO DE FUNDO
+        function initializeGanttBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let bars = [];
+            const barCount = 30;
+            const barHeight = 4;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            function createBars() {
+                bars = [];
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                gradient.addColorStop(0, '#0EA5E9');
+                gradient.addColorStop(1, '#22C55E');
+
+                for (let i = 0; i < barCount; i++) {
+                    bars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        length: Math.random() * 200 + 50,
+                        speed: Math.random() * 0.5 + 0.2,
+                        color: gradient
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                bars.forEach(bar => {
+                    bar.x += bar.speed;
+                    if (bar.x > canvas.width) {
+                        bar.x = -bar.length;
+                        bar.y = Math.random() * canvas.height;
+                    }
+                    ctx.fillStyle = bar.color;
+                    ctx.fillRect(bar.x, bar.y, bar.length, barHeight);
+                });
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                createBars();
+            });
+
+            resizeCanvas();
+            createBars();
+            animate();
         }
 
-/* Dropdown */
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-  }
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGanttBackground();
 
-  .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
+            const sidebar = document.getElementById('sidebar-container');
+            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
 
-  .dropdown-content a:hover {
-    background-color: #ddd;
-  }
-
-  .show {
-    display: block;
-  }
-
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-    </style>
+            sidebarToggleButton?.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+            sidebarCloseButton?.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
