@@ -199,7 +199,7 @@
                 <!-- Logo do Stake Pro ATUALIZADO -->
                 <div class="flex items-center">
                     <!-- A imagem agora é redonda -->
-                    <img src="https://stakepro.netlify.app/logo" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
                     <div>
                         <!-- O título foi redimensionado -->
                         <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
@@ -249,7 +249,7 @@
         </aside>
     
         <!-- Conteúdo Principal -->
-        <main class="flex-1 flex flex-col p-4 transition-all duration-300 ease-in-out">
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
             <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
                 
                 <div id="mainContentHeader" class="flex justify-between items-center mb-6">
@@ -430,8 +430,15 @@
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let app, db, auth, userId;
@@ -554,43 +561,49 @@
         }
 
         async function rolloverCalendar(id) {
-            const originalCalendar = allCalendars.find(c => c.id === id);
-            if (!originalCalendar) {
-                showAlert("Calendário original não encontrado.");
-                return;
-            }
+    const originalCalendar = allCalendars.find(c => c.id === id);
+    if (!originalCalendar) {
+        showAlert("Calendário original não encontrado.");
+        return;
+    }
 
-            const newYear = originalCalendar.year + 1;
+    const newYear = originalCalendar.year + 1;
+    const newName = `${originalCalendar.name.replace(/\d{4}$/, '').trim()} ${newYear}`;
+
+    showConfirmation(`Deseja criar um novo calendário para ${newYear} baseado em "${originalCalendar.name}"? Os feriados manuais não serão copiados.`, async () => {
+        try {
+            // Fetch holidays for the new year
+            const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${newYear}`);
+            if (!response.ok) throw new Error('Não foi possível buscar os feriados para o novo ano.');
+            const holidays = await response.json();
             
-            showConfirmation(`Deseja criar um novo calendário para ${newYear} baseado em "${originalCalendar.name}"? Os feriados manuais não serão copiados.`, async () => {
-                try {
-                    // Fetch holidays for the new year
-                    const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${newYear}`);
-                    if (!response.ok) throw new Error('Não foi possível buscar os feriados para o novo ano.');
-                    const holidays = await response.json();
-                    
-                    const newNonWorkingDays = new Map();
-                    holidays.forEach(holiday => {
-                        newNonWorkingDays.set(holiday.date, { name: holiday.name, type: 'national', isRemoved: false });
-                    });
-
-                    const newCalendarData = {
-                        name: originalCalendar.name,
-                        year: newYear,
-                        manager: originalCalendar.manager,
-                        nonWorkingDays: JSON.stringify(Array.from(newNonWorkingDays.entries())),
-                        status: 'Pendente'
-                    };
-
-                    await addDoc(collection(db, `artifacts/${appId}/public/data/calendars`), newCalendarData);
-                    showAlert(`Calendário para ${newYear} criado com sucesso! O gestor precisa adicionar os feriados da empresa.`);
-
-                } catch (error) {
-                    console.error("Erro na virada de ano do calendário:", error);
-                    showAlert("Ocorreu um erro ao criar o calendário do próximo ano.");
-                }
+            const newNonWorkingDays = new Map();
+            holidays.forEach(holiday => {
+                newNonWorkingDays.set(holiday.date, { name: holiday.name, type: 'national', isRemoved: false });
             });
+
+            const newCalendarData = {
+                name: newName,
+                year: newYear,
+                manager: originalCalendar.manager,
+                nonWorkingDays: JSON.stringify(Array.from(newNonWorkingDays.entries())),
+                status: 'Pendente'
+            };
+
+            await addDoc(collection(db, `artifacts/${appId}/public/data/calendars`), newCalendarData);
+
+            // Update original calendar status to 'Concluído'
+            const originalDocRef = doc(db, `artifacts/${appId}/public/data/calendars`, id);
+            await setDoc(originalDocRef, { status: 'Concluído' }, { merge: true });
+
+            showAlert(`Calendário para ${newYear} criado com sucesso! O calendário de ${originalCalendar.year} foi marcado como Concluído.`);
+
+        } catch (error) {
+            console.error("Erro na virada de ano do calendário:", error);
+            showAlert("Ocorreu um erro ao criar o calendário do próximo ano.");
         }
+    });
+}
 
         // --- LÓGICA DO CALENDÁRIO ---
         function renderYearCalendar(year) {
