@@ -25,14 +25,14 @@
         .logotext-stake {
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
-            font-size: 2rem;
+            font-size: 1.75rem; /* Menor que o anterior */
             line-height: 1;
             letter-spacing: -0.05em;
         }
         .logotext-sub {
             font-family: 'Inter', sans-serif;
             font-weight: 400;
-            font-size: 0.75rem;
+            font-size: 0.65rem; /* Menor que o anterior */
             color: #94A3B8;
         }
         #backgroundCanvas {
@@ -42,7 +42,7 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.7;
+            opacity: 0.15;
         }
         .glass-effect {
             background-color: rgba(30, 41, 59, 0.4);
@@ -210,9 +210,28 @@
         .remove-tag-btn:hover {
             color: #e2e8f0;
         }
+        .table-cell-responsive {
+            word-break: break-word;
+            padding-left: 1.5rem; /* Default px-6 */
+            padding-right: 1.5rem; /* Default px-6 */
+        }
+
+        /* Apply smaller padding on medium screens and below */
+        @media (max-width: 1023px) { /* Corresponds to Tailwind's 'lg' breakpoint */
+            .table-cell-responsive {
+                padding-left: 0.75rem; /* px-3 */
+                padding-right: 0.75rem; /* px-3 */
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+    <script>
+        // Verifica o estado de login ao carregar a página
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html'; // Redireciona para a página de login se não estiver logado
+        }
+    </script>
 
     <!-- Canvas para o fundo de animação Gantt -->
     <canvas id="backgroundCanvas"></canvas>
@@ -226,24 +245,12 @@
         <!-- Sidebar (Barra Lateral) -->
         <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
             <div class="flex items-center justify-between px-4">
-                <!-- Logo do Stake Pro -->
+                <!-- Logo do Stake Pro ATUALIZADO -->
                 <div class="flex items-center">
-                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-3">
-                        <path d="M50 5 L5 50 L50 95 L95 50 L50 5 Z" stroke="url(#logo-gradient)" stroke-width="5" fill="none"/>
-                        <path d="M50 50 L75 25 L95 50 L75 75 L50 50 Z" fill="url(#logo-gradient-small)"/>
-                        <path d="M50 50 L25 25 L5 50 L25 75 L50 50 Z" fill="url(#logo-gradient-small)"/>
-                        <defs>
-                            <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#0EA5E9" />
-                                <stop offset="100%" stop-color="#22C55E" />
-                            </linearGradient>
-                            <linearGradient id="logo-gradient-small" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#22C55E" />
-                                <stop offset="100%" stop-color="#0EA5E9" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+                    <!-- A imagem agora é redonda -->
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
                     <div>
+                        <!-- O título foi redimensionado -->
                         <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
                         <p class="logotext-sub">Projects & Process</p>
                     </div>
@@ -257,7 +264,7 @@
             </div>
 
             <nav class="flex-1">
-                <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                <a href="home.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -279,6 +286,16 @@
                     Calendários
                 </a>
                 
+                <a href="usuarios.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Usuários
+                </a>
+
                 <button id="logoutButtonSidebar" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200 w-full text-left mt-6 hover:bg-red-700/50 text-red-400 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -468,6 +485,7 @@
                                     <th scope="col" class="px-6 py-3">Status</th>
                                     <th scope="col" class="px-6 py-3">Nome do Departamento</th>
                                     <th scope="col" class="px-6 py-3">Gestor</th>
+                                    <th scope="col" class="px-6 py-3">Carga Semanal</th>
                                     <th scope="col" class="px-6 py-3">Dias de Trabalho</th>
                                     <th scope="col" class="px-6 py-3 text-right">Ações</th>
                                 </tr>
@@ -483,8 +501,32 @@
         </main>
     </div>
     
+    <!-- Modal de Alerta Genérico -->
+    <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
+            <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
+            <p id="alertModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-center">
+                <button id="alertModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação Genérico -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
+            <p id="confirmationModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirmationModalCancelBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="confirmationModalConfirmBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script type="module">
+        import { renderSidebar } from './sidebar.js';
         // Importa as funções do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc, deleteDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -492,15 +534,25 @@
 
         // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let app, db, auth, userId;
         let isAuthReady = false;
         let allDepartments = [];
+        let confirmCallback = null; // Adicionado para os modais
 
         // --- INICIALIZAÇÃO DO FIREBASE ---
         try {
+            console.log("Initializing Firebase with config:", firebaseConfig);
+            console.log("Using appId:", appId);
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
@@ -569,6 +621,30 @@
             window.addEventListener('resize', resizeAnimationCanvas);
         }
 
+        function showConfirmation(message, callback) {
+            document.getElementById('confirmationModalMessage').textContent = message;
+            document.getElementById('confirmationModal').classList.remove('hidden');
+            document.getElementById('confirmationModal').classList.add('flex');
+            confirmCallback = callback; // Armazena o callback
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmationModal').classList.add('hidden');
+            document.getElementById('confirmationModal').classList.remove('flex');
+            confirmCallback = null; // Limpa o callback
+        }
+
+        function showAlert(message) {
+            document.getElementById('alertModalMessage').textContent = message;
+            document.getElementById('alertModal').classList.remove('hidden');
+            document.getElementById('alertModal').classList.add('flex');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.add('hidden');
+            document.getElementById('alertModal').classList.remove('flex');
+        }
+
         // --- FUNÇÕES DO FIRESTORE (CRUD) ---
         async function saveDepartment() {
             const departmentId = document.getElementById('departmentId').value;
@@ -609,7 +685,7 @@
             }
 
             if (departmentName === "") {
-                alert("O nome do departamento é obrigatório.");
+                showAlert("O nome do departamento é obrigatório."); // Usar showAlert
                 return;
             }
 
@@ -623,7 +699,7 @@
                     toggleForm(false);
                 } catch (error) {
                     console.error("Erro ao atualizar departamento:", error);
-                    alert("Ocorreu um erro ao atualizar. Tente novamente.");
+                    showAlert("Ocorreu um erro ao atualizar. Tente novamente.");
                 }
             } else {
                 departmentData.status = 'Ativo'; // Default status for new departments
@@ -640,7 +716,7 @@
                     toggleForm(false);
                 } catch (error) {
                     console.error("Erro ao adicionar departamento:", error);
-                    alert("Ocorreu um erro ao salvar. Tente novamente.");
+                    showAlert("Ocorreu um erro ao salvar. Tente novamente.");
                 }
             }
         }
@@ -648,16 +724,17 @@
         async function deleteDepartment(id) {
             if (!isAuthReady) {
                 console.error("Autenticação não está pronta.");
+                showAlert("Autenticação não está pronta. Tente novamente."); // Usar showAlert
                 return;
             }
-            if (confirm(`Tem certeza que deseja excluir o departamento com ID ${id}?`)) {
+            showConfirmation(`Tem certeza que deseja excluir o departamento com ID ${id}?`, async () => { // Usar showConfirmation
                 try {
                     await deleteDoc(doc(db, `artifacts/${appId}/public/data/departments`, id));
                 } catch (error) {
                     console.error("Erro ao deletar departamento:", error);
-                    alert("Ocorreu um erro ao excluir. Tente novamente.");
+                    showAlert("Ocorreu um erro ao excluir. Tente novamente.");
                 }
-            }
+            });
         }
         
         // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
@@ -694,6 +771,56 @@
             const hours = Math.floor(totalMinutes / 60);
             const minutes = totalMinutes % 60;
             return `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
+        }
+
+        function calculateDepartmentWeeklyHours(department) {
+            const toMinutes = (timeStr) => {
+                if (!timeStr) return 0;
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+
+            let totalWeeklyMinutes = 0;
+            const weekdays = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+            const weekends = ['sabado', 'domingo'];
+
+            const workDays = department.workDays || [];
+            const weekdayCount = workDays.filter(day => weekdays.includes(day)).length;
+            const weekendCount = workDays.filter(day => weekends.includes(day)).length;
+
+            if (department.workHours) {
+                const startWork = toMinutes(department.workHours.start);
+                const endWork = toMinutes(department.workHours.end);
+                let dailyMinutes = 0;
+                if (department.noBreakWeekday) {
+                    if (endWork > startWork) dailyMinutes = endWork - startWork;
+                } else {
+                    const startLunch = toMinutes(department.workHours.lunchStart);
+                    const endLunch = toMinutes(department.workHours.lunchEnd);
+                    if (endWork > endLunch && endLunch > startLunch && startLunch > startWork) {
+                        dailyMinutes = (startLunch - startWork) + (endWork - endLunch);
+                    }
+                }
+                totalWeeklyMinutes += weekdayCount * dailyMinutes;
+            }
+
+            if (department.weekendWorkHours && weekendCount > 0) {
+                const startWork = toMinutes(department.weekendWorkHours.start);
+                const endWork = toMinutes(department.weekendWorkHours.end);
+                let dailyMinutes = 0;
+                if (department.noBreakWeekend) {
+                    if (endWork > startWork) dailyMinutes = endWork - startWork;
+                } else {
+                    const startLunch = toMinutes(department.weekendWorkHours.lunchStart);
+                    const endLunch = toMinutes(department.weekendWorkHours.lunchEnd);
+                    if (endWork > endLunch && endLunch > startLunch && startLunch > startWork) {
+                        dailyMinutes = (startLunch - startWork) + (endWork - endLunch);
+                    }
+                }
+                totalWeeklyMinutes += weekendCount * dailyMinutes;
+            }
+
+            return formatMinutesToHours(totalWeeklyMinutes);
         }
 
         function calculateAndDisplayDailyWorkHours(isWeekend) {
@@ -780,25 +907,43 @@
             container.appendChild(tag);
         }
 
-        function populateCalendarsDropdown() {
+        async function populateCalendarsDropdown() {
             const calendarSelect = document.getElementById('departmentCalendar');
             if (!calendarSelect) return;
 
-            // TODO: In the future, fetch this from Firestore collection `artifacts/${appId}/public/data/calendars`
-            const calendars = [
-                { id: 'cal_default', name: 'Padrão Nacional' },
-                { id: 'cal_sp_capital', name: 'Filial São Paulo (Capital)' },
-                { id: 'cal_mg_bh', name: 'Filial Belo Horizonte' }
-            ];
+            calendarSelect.innerHTML = '<option value="">Carregando calendários...</option>';
 
-            calendarSelect.innerHTML = '<option value="">Selecione um calendário</option>'; // Clear previous options
+            try {
+                const calendarsColRef = collection(db, `artifacts/${appId}/public/data/calendars`);
+                const querySnapshot = await getDocs(calendarsColRef);
+                const activeCalendars = [];
+                querySnapshot.forEach((doc) => {
+                    const calendar = doc.data();
+                    if (calendar.status === 'Ativo') {
+                        activeCalendars.push({ id: doc.id, ...calendar });
+                    }
+                });
 
-            calendars.forEach(cal => {
-                const option = document.createElement('option');
-                option.value = cal.id;
-                option.textContent = cal.name;
-                calendarSelect.appendChild(option);
-            });
+                calendarSelect.innerHTML = '<option value="">Selecione um calendário</option>';
+
+                if (activeCalendars.length === 0) {
+                    calendarSelect.innerHTML = '<option value="">Nenhum calendário ativo encontrado</option>';
+                    return;
+                }
+                
+                activeCalendars.sort((a, b) => a.name.localeCompare(b.name));
+
+                activeCalendars.forEach(cal => {
+                    const option = document.createElement('option');
+                    option.value = cal.id;
+                    option.textContent = cal.name;
+                    calendarSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar calendários:", error);
+                calendarSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
         }
 
         function renderDepartments(departments) {
@@ -825,14 +970,16 @@
                 const status = dept.status || 'Ativo';
                 const statusColor = status === 'Ativo' ? 'bg-green-500/20 text-green-400' : 'bg-slate-500/20 text-slate-400';
                 const formattedDays = dept.workDays && dept.workDays.length > 0 ? dept.workDays.map(day => dayMap[day] || day).join(', ') : 'N/A';
+                const weeklyHours = calculateDepartmentWeeklyHours(dept);
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">${dept.id}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
-                    <td class="px-6 py-4">${dept.name}</td>
-                    <td class="px-6 py-4">${dept.manager || 'N/A'}</td>
-                    <td class="px-6 py-4">${formattedDays}</td>
-                    <td class="px-6 py-4 text-right">
+                    <td class="px-6 py-4 font-medium text-white table-cell-responsive">${dept.id}</td>
+                    <td class="px-6 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
+                    <td class="px-6 py-4 table-cell-responsive">${dept.name}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${dept.manager || 'N/A'}</td>
+                    <td class="px-6 py-4 font-semibold text-sky-400 table-cell-responsive">${weeklyHours}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${formattedDays}</td>
+                    <td class="px-6 py-4 text-right table-cell-responsive">
                         <div class="flex items-center justify-end gap-4">
                             <button class="text-sky-400 hover:text-sky-500 edit-btn transition-transform hover:scale-110" data-id="${dept.id}" title="Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -859,7 +1006,7 @@
             renderDepartments(filtered);
         }
 
-        function toggleForm(show, department = null) {
+        async function toggleForm(show, department = null) {
             const cadastroForm = document.getElementById('cadastroFormContainer');
             const listContainer = document.getElementById('departamentosListContainer');
             const searchContainer = document.getElementById('search-form-container');
@@ -881,11 +1028,13 @@
             handleNoBreakToggle(true);
 
             if (show) {
+                populateCalendarsDropdown(); // Popular o dropdown de calendários
                 listContainer.classList.add('hidden');
                 searchContainer.classList.add('hidden');
                 cadastroForm.classList.remove('hidden');
 
                 if (department) { // Edit mode
+                    await populateCalendarsDropdown(); // Aguarda os calendários carregarem
                     formTitleEl.textContent = 'Editar Departamento';
                     saveButton.textContent = 'Atualizar';
                     statusContainer.classList.remove('hidden');
@@ -939,7 +1088,6 @@
         // --- LÓGICA PRINCIPAL (DOM READY) ---
         document.addEventListener('DOMContentLoaded', () => {
             initializeGanttBackground();
-            populateCalendarsDropdown();
 
             const sidebar = document.getElementById('sidebar-container');
             const sidebarToggleButton = document.getElementById('sidebarToggleButton');
@@ -952,6 +1100,9 @@
                     sidebar.classList.add('-translate-x-full');
                 }
             });
+
+            // Render sidebar
+            renderSidebar(window.location.pathname);
 
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
@@ -968,18 +1119,28 @@
 
                 const departmentsColRef = collection(db, `artifacts/${appId}/public/data/departments`);
                 onSnapshot(departmentsColRef, (snapshot) => {
+                    console.log("Departments data received:", snapshot.docs.length, "documents");
                     allDepartments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     filterAndRenderDepartments();
                 }, (error) => {
                     console.error("Erro ao carregar departamentos:", error);
-                    document.getElementById('departmentsTableBody').innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-400">Erro ao carregar dados.</td></tr>';
+                    document.getElementById('departmentsTableBody').innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-400">Erro ao carregar dados. Verifique o console para detalhes.</td></tr>';
                 });
             });
 
             // Event Listeners
-            document.getElementById('showFormButton').addEventListener('click', () => toggleForm(true, null));
-            document.getElementById('cancelButton').addEventListener('click', () => toggleForm(false));
-            document.getElementById('saveDepartmentButton').addEventListener('click', saveDepartment);
+            document.getElementById('showFormButton').addEventListener('click', () => {
+                console.log("Show Form button clicked.");
+                toggleForm(true, null);
+            });
+            document.getElementById('cancelButton').addEventListener('click', () => {
+                console.log("Cancel button clicked.");
+                toggleForm(false);
+            });
+            document.getElementById('saveDepartmentButton').addEventListener('click', () => {
+                console.log("Save Department button clicked.");
+                saveDepartment();
+            });
             document.getElementById('searchDepartmentsInput').addEventListener('input', filterAndRenderDepartments);
             
             document.getElementById('functionInput').addEventListener('keydown', (e) => {
@@ -1015,11 +1176,28 @@
                 const editButton = e.target.closest('.edit-btn');
                 if (editButton) {
                     const id = editButton.dataset.id;
-                    const departmentToEdit = allDepartments.find(dept => dept.id === id);
+                    const departmentToEdit = allDepartments.find(dept => dept.id.toString() === id.toString());
                     if (departmentToEdit) {
-                        toggleForm(true, departmentToEdit);
+                        toggleForm(true, departmentToEdit); // Chamada da função
                     }
                 }
+            });
+
+            // --- Modal Listeners ---
+            document.getElementById('confirmationModalCancelBtn').addEventListener('click', () => closeConfirmationModal());
+            document.getElementById('confirmationModalConfirmBtn').addEventListener('click', () => {
+                if (typeof confirmCallback === 'function') {
+                    confirmCallback();
+                }
+                closeConfirmationModal();
+            });
+            document.getElementById('confirmationModal').addEventListener('click', (e) => {
+                if (e.target.id === 'confirmationModal') closeConfirmationModal();
+            });
+
+            document.getElementById('alertModalOkBtn').addEventListener('click', () => closeAlertModal());
+            document.getElementById('alertModal').addEventListener('click', (e) => {
+                if (e.target.id === 'alertModal') closeAlertModal();
             });
         });
     </script>

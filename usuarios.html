@@ -4,32 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stake Pro - Usuários</title>
+    <!-- Incluindo Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Links para as fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    
     <style>
+        /* Estilos base */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0F172A; /* slate-900 */
-            color: #E2E8F0; /* slate-200 */
+            background-color: #0F172A;
+            color: #E2E8F0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
+        /* Estilo do texto do logo ajustado */
         .logotext-stake {
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
-            font-size: 2.25rem;
-            letter-spacing: -0.05em;
+            font-size: 1.75rem; /* Menor que o anterior */
             line-height: 1;
+            letter-spacing: -0.05em;
         }
+        /* Estilo do sub-título ajustado */
         .logotext-sub {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            font-size: 1rem;
-            color: #cbd5e1; /* slate-300 */
-            line-height: 1.2;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.65rem; /* Menor que o anterior */
+            color: #94A3B8;
         }
         #backgroundCanvas {
             position: fixed;
@@ -38,221 +44,331 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            opacity: 0.15; /* Opacidade ajustada para a animação */
+        }
+        .glass-effect {
+            background-color: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .sidebar-link.active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid #0EA5E9;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+        .sidebar-link:not(.active):hover {
+            background-color: rgba(30, 41, 59, 0.6);
+            transform: scale(1.02);
+        }
+        .sidebar-link, .sidebar-link-button {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link-button:hover {
+            transform: scale(1.02);
+        }
+        .title-6 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            position: relative;
+            padding-bottom: 0.5rem;
+            width: fit-content;
+            margin-right: auto;
+        }
+        .title-6::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0EA5E9, #22C55E);
+        }
+        .btn-liquid-fill {
+            position: relative;
+            background: transparent;
+            border: 1px solid #06B6D4;
+            color: #06B6D4;
+            overflow: hidden;
+            z-index: 10;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+        }
+        .btn-liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #06B6D4;
+            transition: transform 0.5s ease;
+            z-index: -1;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        .btn-liquid-fill:hover::before {
+            transform: scaleX(1);
+        }
+        .btn-liquid-fill:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+        }
+        .btn-liquid-fill svg {
+            transition: color 0.3s ease;
+        }
+        .btn-liquid-fill:hover svg {
+            color: white;
+        }
+        .table-cell-responsive {
+            word-break: break-word;
+            padding-left: 1.5rem; /* Default px-6 */
+            padding-right: 1.5rem; /* Default px-6 */
+        }
+
+        /* Apply smaller padding on medium screens and below */
+        @media (max-width: 1023px) { /* Corresponds to Tailwind's 'lg' breakpoint */
+            .table-cell-responsive {
+                padding-left: 0.75rem; /* px-3 */
+                padding-right: 0.75rem; /* px-3 */
+            }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white flex min-h-screen antialiased">
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+    <script>
+        // Verifica o estado de login ao carregar a página
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html'; // Redireciona para a página de login se não estiver logado
+        }
+    </script>
 
+    <!-- Canvas para o fundo de animação Gantt -->
     <canvas id="backgroundCanvas"></canvas>
 
+    <!-- Botão para abrir sidebar em telas pequenas -->
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
     <div class="flex flex-1">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="bg-slate-800/50 backdrop-blur-sm shadow-lg w-56 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-50 flex flex-col">
+        <!-- Sidebar (Barra Lateral) -->
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
             <div class="flex items-center justify-between px-4">
-                <!-- Logo -->
+                <!-- Logo do Stake Pro ATUALIZADO -->
                 <div class="flex items-center">
-                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2" aria-hidden="true">
-                        <defs>
-                            <filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter>
-                            <linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient>
-                            <linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient>
-                            <linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient>
-                            <linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient>
-                        </defs>
-                        <g filter="url(#dropshadow)">
-                            <path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/>
-                            <path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/>
-                            <path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/>
-                            <path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/>
-                            <path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/>
-                            <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
-                            <circle cx="25" cy="25" r="5" fill="#FFFFFF"/>
-                            <circle cx="75" cy="25" r="5" fill="#FFFFFF"/>
-                            <circle cx="25" cy="75" r="5" fill="#FFFFFF"/>
-                            <circle cx="75" cy="75" r="5" fill="#FFFFFF"/>
-                        </g>
-                    </svg>
-                    <div class="text-left">
-                        <h1 class="text-white logotext-stake text-xl">Stake <span class="text-accentGreen">Pro</span></h1>
-                        <p class="logotext-sub text-xs">Projects and Process</p>
+                    <!-- A imagem agora é redonda -->
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <!-- O título foi redimensionado -->
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Projects & Process</p>
                     </div>
                 </div>
-                <!-- Botão de fechar para mobile -->
-                <button id="sidebarCloseButton" class="md:hidden text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                 </button>
             </div>
 
-            <nav class="flex-grow">
-                <a href="home.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                        Início
-                    </div>
+            <nav class="flex-1">
+                <a href="home.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Início
                 </a>
-                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0h.01M9 15h.01M12 19v-6a2 2 0 00-2-2H8a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M12 15h.01M15 19v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M15 15h.01M18 19v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M18 15h.01M21 19v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6a2 2 0 002 2zm0 0h.01M21 15h.01"></path></svg>
-                        Projetos
-                    </div>
+                
+                <a href="departamentos.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"></path><path d="M2 7l10 5 10-5"></path><path d="M12 22V12"></path><path d="M22 7l-10 5"></path><path d="M2 17l10-5"></path>
+                    </svg>
+                    Departamentos
                 </a>
-                <a href="usuarios.html" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm-6-4a4 4 0 00-4-4H3"></path></svg>
-                        Usuários
-                    </div>
+
+                <a href="calendarios.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Calendários
                 </a>
-                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        Configurações
-                    </div>
+                
+                <a href="usuarios.html" class="sidebar-link active flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Usuários
                 </a>
-                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-slate-700 hover:text-white">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Ajuda
-                    </div>
-                </a>
-                <button id="logoutButtonSidebar" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-red-700 hover:text-white w-full text-left mt-4">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                        Sair
-                    </div>
+
+                <button id="logoutButtonSidebar" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200 w-full text-left mt-6 hover:bg-red-700/50 text-red-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Sair
                 </button>
             </nav>
         </aside>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <!-- Header for main content -->
-            <header class="bg-slate-800/50 backdrop-blur-sm shadow-lg py-3 w-full rounded-b-xl md:rounded-none md:rounded-bl-xl">
-                <div class="w-full px-6 md:px-8 flex justify-between items-center">
-                    <button id="sidebarToggleButton" class="md:hidden text-white focus:outline-none">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
-                    <div class="flex items-center md:hidden">
-                        <!-- Logo para mobile no header principal -->
-                        <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2" aria-hidden="true">
-                            <defs>
-                                <filter id="dropshadow"><feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/></filter>
-                                <linearGradient id="blueGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#007bff;stop-opacity:1" /><stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" /></linearGradient>
-                                <linearGradient id="blueGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00c0ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#007bff;stop-opacity:1" /></linearGradient>
-                                <linearGradient id="greenGradient1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#28a745;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e7e34;stop-opacity:1" /></linearGradient>
-                                <linearGradient id="greenGradient2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#32cd32;stop-opacity:1" /><stop offset="100%" style="stop-color:#28a745;stop-opacity:1" /></linearGradient>
-                            </defs>
-                            <g filter="url(#dropshadow)">
-                                <path d="M 50 5 C 20 5 5 20 5 50 C 5 80 20 95 50 95 C 80 95 95 80 95 50 C 95 20 80 5 50 5 Z" fill="url(#blueGradient1)"/>
-                                <path d="M 50 5 C 50 5 70 15 80 30 C 90 45 80 65 70 70 C 60 75 40 85 20 80 C 0 75 5 50 5 50" fill="url(#greenGradient1)"/>
-                                <path d="M 50 5 C 50 5 30 15 20 30 C 10 45 20 65 30 70 C 40 75 60 85 80 80 C 100 75 95 50 95 50" fill="url(#blueGradient2)"/>
-                                <path d="M 50 50 L 70 30 L 80 50 L 60 70 Z" fill="url(#greenGradient2)"/>
-                                <path d="M 50 50 L 30 30 L 20 50 L 40 70 Z" fill="url(#blueGradient1)"/>
-                                <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
-                                <circle cx="25" cy="25" r="5" fill="#FFFFFF"/>
-                                <circle cx="75" cy="25" r="5" fill="#FFFFFF"/>
-                                <circle cx="25" cy="75" r="5" fill="#FFFFFF"/>
-                                <circle cx="75" cy="75" r="5" fill="#FFFFFF"/>
-                            </g>
-                        </svg>
-                        <div class="text-left">
-                            <h1 class="text-white logotext-stake text-xl">Stake <span class="text-accentGreen">Pro</span></h1>
-                            <p class="logotext-sub text-xs">Projects and Process</p>
-                        </div>
-                    </div>
-                    <nav class="ml-auto">
-                        <button id="logoutButton" class="px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-secondary transition duration-300 ease-in-out" aria-label="Sair do sistema">Logout</button>
-                    </nav>
+    
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
+                
+                <div id="mainContentHeader" class="flex justify-between items-center mb-6">
+                    <h2 class="title-6">
+                        Gerenciamento de Usuários
+                    </h2>
                 </div>
-            </header>
 
-            <!-- Conteúdo Principal da Home -->
-            <main class="flex-grow flex items-center justify-center p-2 md:p-4 w-full">
-                <div class="bg-slate-800/50 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl w-full border border-slate-700">
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="text-left">
-                            <h2 class="text-3xl md:text-4xl font-extrabold text-white leading-tight">
-                                Gerenciamento de Usuários
-                            </h2>
-                            <p class="text-lg text-slate-300">
-                                Visualize e adicione usuários à sua plataforma.
-                            </p>
-                        </div>
-                        <button id="showAddUserFormButton" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out flex-shrink-0 transform hover:scale-105">
+                <div id="listContainer">
+                    <div class="flex justify-end mb-4">
+                        <button id="showAddUserFormButton" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
                             Cadastrar Usuário
                         </button>
                     </div>
+                    <div class="overflow-x-auto rounded-lg border border-slate-800">
+                        <table class="w-full text-xs text-left text-slate-400">
+                            <thead class="text-xs text-slate-200 uppercase bg-slate-800">
+                                <tr>
+                                    <th scope="col" class="px-3 py-3 w-12">ID</th>
+                                    <th scope="col" class="px-3 py-3 w-20">Status</th>
+                                    <th scope="col" class="px-3 py-3 min-w-[120px]">Nome Completo</th>
+                                    <th scope="col" class="px-3 py-3 min-w-[120px]">E-mail</th>
+                                    <th scope="col" class="px-3 py-3 min-w-[120px]">Departamento</th>
+                                    <th scope="col" class="px-3 py-3 min-w-[100px]">Função</th>
+                                    <th scope="col" class="px-3 py-3 min-w-[100px]">Perfil</th>
+                                    
+                                    <th scope="col" class="px-3 py-3 min-w-[100px]">Previsão de Férias</th>
+                                    <th scope="col" class="px-2 py-3 text-right w-16">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Usuários serão inseridos aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                    <!-- Formulário de Adição de Usuário -->
-                    <div id="addUserFormContainer" class="mb-8 p-6 bg-slate-700/50 rounded-lg shadow-md hidden">
-                        <h3 class="text-2xl font-bold text-white mb-4">Adicionar Novo Usuário</h3>
-                        <form id="addUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                            <div>
-                                <label for="fullName" class="block text-slate-300 text-sm font-bold mb-2">Nome Completo:</label>
-                                <input type="text" id="fullName" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
-                            </div>
+                <div id="formContainer" class="hidden">
+                    <input type="hidden" id="userId">
+                    <h3 id="formTitle" class="text-xl font-bold text-white mb-6">Cadastrar Novo Usuário</h3>
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <input type="text" id="fullName" placeholder="Nome Completo" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                            <input type="email" id="email" placeholder="E-mail" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
                             <div>
                                 <label for="department" class="block text-slate-300 text-sm font-bold mb-2">Departamento:</label>
-                                <input type="text" id="department" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                                <select id="department" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                                    <option value="">Carregando departamentos...</option>
+                                </select>
                             </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label for="role" class="block text-slate-300 text-sm font-bold mb-2">Função:</label>
-                                <input type="text" id="role" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                                <select id="role" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                                    <option value="">Selecione um departamento primeiro</option>
+                                </select>
                             </div>
                             <div>
-                                <label for="workStartTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Trabalho (Início):</label>
-                                <input type="time" id="workStartTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                                <label for="profile" class="block text-slate-300 text-sm font-bold mb-2">Perfil:</label>
+                                <select id="profile" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" required>
+                                    <option value="">Selecione um perfil</option>
+                                    <option value="Administrador">Administrador</option>
+                                    <option value="Gerente">Gerente</option>
+                                    <option value="Operador">Operador</option>
+                                    <option value="Cliente">Cliente</option>
+                                </select>
                             </div>
                             <div>
-                                <label for="workEndTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Trabalho (Fim):</label>
-                                <input type="time" id="workEndTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
+                                <label for="hourlyCost" class="block text-slate-300 text-sm font-bold mb-2">Custo Hora (Opcional):</label>
+                                <input type="text" id="hourlyCost" placeholder="R$ 0,00" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
                             </div>
-                            <div>
-                                <label for="lunchStartTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Almoço (Início):</label>
-                                <input type="time" id="lunchStartTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
-                            </div>
-                            <div>
-                                <label for="lunchEndTime" class="block text-slate-300 text-sm font-bold mb-2">Horário de Almoço (Fim):</label>
-                                <input type="time" id="lunchEndTime" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500" required>
-                            </div>
-                            <div>
-                                <label for="vacationForecast" class="block text-slate-300 text-sm font-bold mb-2">Previsão de Férias:</label>
-                                <input type="date" id="vacationForecast" class="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-sky-500">
-                            </div>
-                            <div class="md:col-span-2 flex justify-end">
-                                <button type="submit" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out">
-                                    Adicionar Usuário
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        
 
-                    <!-- Lista de Usuários -->
-                    <div class="mt-8">
-                        <h3 class="text-2xl font-bold text-white mb-4">Usuários Cadastrados</h3>
-                        <div id="usersList" class="text-left">
-                            <!-- Usuários serão carregados aqui pelo JavaScript -->
-                            <p class="text-slate-400">Carregando usuários...</p>
+                        <div class="pt-4 mt-4 border-t border-slate-700">
+                            <h4 class="text-lg font-bold text-sky-400 mb-4">Previsão de Férias</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="vacationStartDate" class="block text-slate-400 text-sm font-semibold mb-1">Início das Férias</label>
+                                    <input type="date" id="vacationStartDate" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" disabled>
+                                </div>
+                                <div>
+                                    <label for="vacationDays" class="block text-slate-400 text-sm font-semibold mb-1">Dias de Férias</label>
+                                    <input type="number" id="vacationDays" placeholder="Ex: 30" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" disabled>
+                                </div>
+                                <div>
+                                    <label for="vacationEndDate" class="block text-slate-400 text-sm font-semibold mb-1">Fim das Férias</label>
+                                    <input type="date" id="vacationEndDate" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" disabled>
+                                    <p id="vacationSuggestion" class="text-xs text-slate-400 mt-2">Selecione um departamento para calcular as férias.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 mt-6">
+                            <button id="cancelButton" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">
+                                Cancelar
+                            </button>
+                            <button id="saveUserButton" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">
+                                Salvar
+                            </button>
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal de Alerta Genérico -->
+    <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
+            <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
+            <p id="alertModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-center">
+                <button id="alertModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
 
-            <!-- Rodapé -->
-            <footer class="bg-slate-800/50 backdrop-blur-sm text-white py-4 w-full rounded-t-xl mt-6 md:rounded-none md:rounded-tl-xl">
-                <div class="w-full px-6 md:px-8 text-center text-sm">
-                    <p>&copy; 2025 Stake Pro. Todos os direitos reservados.</p>
-                </div>
-            </footer>
+    <!-- Modal de Confirmação Genérico -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
+            <p id="confirmationModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirmationModalCancelBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="confirmationModalConfirmBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Confirmar</button>
+            </div>
         </div>
     </div>
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script>
-        // Suas configurações do Firebase
-        const firebaseConfig = {
+    <script type="module">
+        // Importa as funções do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc, addDoc, setDoc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
             authDomain: "stake-pro-db.firebaseapp.com",
             projectId: "stake-pro-db",
@@ -260,200 +376,594 @@
             messagingSenderId: "569517541701",
             appId: "1:569517541701:web:11b31335fca1d5a708562c"
         };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // Inicialize o Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore(); // Obtenha a instância do Firestore
+        let app, db, auth, userId;
+        let allUsers = [];
+        let cachedDepartments = []; // New global variable to store departments
+        let confirmCallback = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
-            const usersListDiv = document.getElementById('usersList');
-            const addUserForm = document.getElementById('addUserForm');
-            const addUserFormContainer = document.getElementById('addUserFormContainer');
-            const showAddUserFormButton = document.getElementById('showAddUserFormButton');
+        // --- INICIALIZAÇÃO DO FIREBASE ---
+        try {
+            console.log("Initializing Firebase with config:", firebaseConfig);
+            console.log("Using appId:", appId);
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Erro ao inicializar o Firebase:", error);
+            document.body.innerHTML = "Erro na configuração do Firebase. Verifique o console.";
+        }
 
-            // Lógica de autenticação (redireciona se não estiver logado)
-            auth.onAuthStateChanged(user => {
-                if (!user) {
-                    window.location.href = 'index.html';
+        // --- FUNÇÕES DE MODAIS ---
+        function showModal(id, title, message, onConfirm = null) {
+            const modal = document.getElementById(id);
+            const modalTitle = modal.querySelector('h3');
+            const modalMessage = modal.querySelector('p');
+            
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            if (onConfirm) {
+                confirmCallback = onConfirm;
+                modal.querySelector('#confirmationModalConfirmBtn').onclick = () => {
+                    confirmCallback();
+                    closeModal(id);
+                };
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            confirmCallback = null;
+        }
+
+        // Função de alerta (utiliza o modal genérico)
+        function showAlert(message) {
+            showModal('alertModal', 'Aviso', message);
+        }
+        
+        // Função de confirmação (utiliza o modal genérico)
+        function showConfirmation(message, onConfirm) {
+            showModal('confirmationModal', 'Confirmação', message, onConfirm);
+        }
+
+        // --- LÓGICA DA ANIMAÇÃO DE FUNDO ---
+        function initializeGanttBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let bars = [];
+            const barCount = 30;
+            const barHeight = 4;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            function createBars() {
+                bars = [];
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                gradient.addColorStop(0, '#0EA5E9');
+                gradient.addColorStop(1, '#22C55E');
+
+                for (let i = 0; i < barCount; i++) {
+                    bars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        length: Math.random() * 200 + 50,
+                        speed: Math.random() * 0.5 + 0.2,
+                        color: gradient
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                bars.forEach(bar => {
+                    bar.x += bar.speed;
+                    if (bar.x > canvas.width) {
+                        bar.x = -bar.length;
+                        bar.y = Math.random() * canvas.height;
+                    }
+                    ctx.fillStyle = bar.color;
+                    ctx.fillRect(bar.x, bar.y, bar.length, barHeight);
+                });
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                createBars();
+            });
+
+            resizeCanvas();
+            createBars();
+            animate();
+        }
+        
+        // --- FUNÇÕES DO FIRESTORE (CRUD) ---
+        async function saveUser() {
+            const userId = document.getElementById('userId').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const departmentSelect = document.getElementById('department');
+            const departmentId = departmentSelect.value;
+            const departmentName = departmentSelect.options[departmentSelect.selectedIndex].text;
+            const roleSelect = document.getElementById('role');
+            const roleId = roleSelect.value;
+            const roleName = roleSelect.options[roleSelect.selectedIndex].text;
+            const profile = document.getElementById('profile').value;
+            const hourlyCostInput = document.getElementById('hourlyCost');
+            const hourlyCost = hourlyCostInput.value ? parseFloat(hourlyCostInput.value.replace('R$ ', '').replace('.', '').replace(',', '.')) : null;
+            const vacationStartDate = document.getElementById('vacationStartDate').value;
+            const vacationDays = document.getElementById('vacationDays').value;
+            const vacationEndDate = document.getElementById('vacationEndDate').value;
+
+            if (!fullName || !email || !departmentId || !roleId || !profile) {
+                showAlert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+            if (!emailRegex.test(email)) {
+                showAlert('Por favor, insira um endereço de e-mail válido.');
+                return;
+            }
+
+            const userData = {
+                fullName,
+                email,
+                department: { id: departmentId, name: departmentName },
+                role: { id: roleId, name: roleName },
+                profile,
+                status: 'Ativo', // Default status to Active
+                hourlyCost: hourlyCost, // Add hourlyCost to userData
+                vacation: {
+                    start: vacationStartDate || null,
+                    days: vacationDays ? parseInt(vacationDays, 10) : null,
+                    end: vacationEndDate || null,
+                },
+            };
+
+            try {
+                if (userId) { // Update
+                    const docRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
+                    await setDoc(docRef, userData, { merge: true });
+                } else { // Create
+                    const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
+                    const querySnapshot = await getDocs(usersColRef);
+                    const lastId = querySnapshot.docs.reduce((max, doc) => {
+                        const docIdNum = parseInt(doc.id);
+                        return docIdNum > max ? docIdNum : max;
+                    }, 0);
+                    const newId = lastId + 1;
+
+                    userData.id = newId; // Store the generated ID within the document
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/users`, newId.toString()), userData);
+                }
+                toggleForm(false);
+            } catch (error) {
+                console.error("Erro ao salvar usuário:", error);
+                showAlert("Ocorreu um erro ao salvar o usuário.");
+            }
+        }
+
+        async function deleteUser(id) {
+            showConfirmation('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.', async () => {
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/users`, id));
+                } catch (error) {
+                    console.error("Erro ao deletar usuário:", error);
+                    showAlert("Ocorreu um erro ao excluir o usuário.");
                 }
             });
+        }
 
-            // Lógica do Sidebar (copiada de home.html)
-            sidebarToggleButton.addEventListener('click', () => {
-                sidebar.classList.remove('-translate-x-full');
+        function renderUsers(users) {
+            const tableBody = document.getElementById('usersTableBody');
+            tableBody.innerHTML = '';
+            if (users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="9" class="text-center p-8 text-slate-500">Nenhum usuário encontrado.</td></tr>';
+                return;
+            }
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-slate-900 border-b border-slate-700 hover:bg-slate-800 transition-colors";
+                
+                const department = cachedDepartments.find(dept => dept.id === user.department.id);
+                const departmentWorkHours = (department && department.workHours && department.workHours.start && department.workHours.end)
+                    ? `${department.workHours.start} - ${department.workHours.end}`
+                    : 'N/A';
+
+                const status = user.status || 'N/A';
+                let statusColor = 'bg-slate-500/20 text-slate-400';
+                if (status === 'Ativo') statusColor = 'bg-green-500/20 text-green-400';
+                if (status === 'Inativo') statusColor = 'bg-red-500/20 text-red-400';
+
+                const vacationDisplay = user.vacation && user.vacation.start && user.vacation.end 
+                    ? `${user.vacation.start.split('-').reverse().join('/')} - ${user.vacation.end.split('-').reverse().join('/')}` 
+                    : '<span class="text-red-400">Não Informado</span>';
+
+                tr.innerHTML = `
+                    <td class="px-3 py-4 font-medium text-white table-cell-responsive">${user.id || 'N/A'}</td>
+                    <td class="px-3 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
+                    <td class="px-3 py-4 font-medium text-white table-cell-responsive">${user.fullName}</td>
+                    <td class="px-3 py-4 table-cell-responsive">${user.email || 'N/A'}</td>
+                    <td class="px-3 py-4 table-cell-responsive">${user.department.name || 'N/A'}</td>
+                    <td class="px-3 py-4 table-cell-responsive">${user.role.name || 'N/A'}</td>
+                    <td class="px-3 py-4 table-cell-responsive">${user.profile || 'N/A'}</td>
+                    
+                    <td class="px-3 py-4 table-cell-responsive">${vacationDisplay}</td>
+                    <td class="px-3 py-4 text-right table-cell-responsive">
+                        <!-- Botões de Ação em duas linhas para economizar espaço -->
+                        <div class="flex flex-col items-end justify-center gap-1">
+                            <div class="flex gap-0">
+                                <button class="text-yellow-500 hover:text-yellow-600 reset-password-btn" data-id="${user.id}" data-email="${user.email}" title="Redefinir Senha">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                </button>
+                                <button class="text-sky-400 hover:text-sky-500 edit-btn" data-id="${user.id}" title="Editar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </div>
+                            <div class="flex gap-0">
+                                <button class="text-red-500 hover:text-red-600 delete-btn" data-id="${user.id}" title="Excluir">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        async function toggleForm(show, user = null) {
+            const listContainer = document.getElementById('listContainer');
+            const formContainer = document.getElementById('formContainer');
+            const formTitle = document.getElementById('formTitle');
+            
+            listContainer.classList.toggle('hidden', show);
+            formContainer.classList.toggle('hidden', !show);
+
+            // Reset form
+            document.getElementById('userId').value = '';
+            document.getElementById('fullName').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('profile').value = '';
+            document.getElementById('hourlyCost').value = ''; // Reset hourlyCost
+            document.getElementById('vacationStartDate').value = '';
+            document.getElementById('vacationDays').value = '';
+            document.getElementById('vacationEndDate').value = '';
+            document.getElementById('vacationSuggestion').textContent = 'Selecione um departamento para calcular as férias.';
+            
+            if (show) {
+                if (user) {
+                    formTitle.textContent = 'Editar Usuário';
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('fullName').value = user.fullName;
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('profile').value = user.profile || '';
+                    // Set hourlyCost for editing
+                    if (user.hourlyCost) {
+                        document.getElementById('hourlyCost').value = user.hourlyCost.toFixed(2).replace('.', ',');
+                        formatCurrency(document.getElementById('hourlyCost'));
+                    } else {
+                        document.getElementById('hourlyCost').value = '';
+                    }
+                    if (user.vacation) {
+                        document.getElementById('vacationStartDate').value = user.vacation.start || '';
+                        document.getElementById('vacationDays').value = user.vacation.days || '';
+                        document.getElementById('vacationEndDate').value = user.vacation.end || '';
+                    }
+                    await populateDepartmentsDropdown(user.department.id);
+                    await populateRolesDropdown(user.department.id, user.role.name);
+                    toggleVacationFields(false);
+                } else {
+                    formTitle.textContent = 'Cadastrar Novo Usuário';
+                    await populateDepartmentsDropdown();
+                    populateRolesDropdown(null);
+                    toggleVacationFields(true);
+                }
+            }
+        }
+        
+        async function populateDepartmentsDropdown(selectedDepartmentId = null) {
+            const departmentSelect = document.getElementById('department');
+            departmentSelect.innerHTML = '<option value="">Carregando departamentos...</option>';
+            try {
+                const departmentsColRef = collection(db, `artifacts/${appId}/public/data/departments`);
+                const querySnapshot = await getDocs(departmentsColRef);
+                
+                // Cache ALL departments for rendering purposes
+                cachedDepartments = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Filter for ACTIVE departments for the dropdown
+                const activeDepartments = cachedDepartments
+                    .filter(dept => dept.status === 'Ativo')
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                departmentSelect.innerHTML = '<option value="">Selecione um departamento</option>';
+                activeDepartments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    departmentSelect.appendChild(option);
+                });
+
+                if (selectedDepartmentId) {
+                    departmentSelect.value = selectedDepartmentId;
+                }
+            } catch (error) {
+                console.error("Erro ao carregar departamentos para o dropdown:", error);
+                departmentSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        async function populateRolesDropdown(departmentId, selectedRoleName = null) {
+            const roleSelect = document.getElementById('role');
+            roleSelect.innerHTML = '<option value="">Carregando funções...</option>';
+            roleSelect.disabled = true;
+
+            if (!departmentId) {
+                roleSelect.innerHTML = '<option value="">Selecione um departamento primeiro</option>';
+                return;
+            }
+
+            try {
+                const departmentDocRef = doc(db, `artifacts/${appId}/public/data/departments`, departmentId);
+                const departmentDoc = await getDoc(departmentDocRef);
+
+                if (departmentDoc.exists()) {
+                    const departmentData = departmentDoc.data();
+                    const functions = departmentData.functions || [];
+                    
+                    roleSelect.innerHTML = '<option value="">Selecione uma função</option>';
+                    functions.sort().forEach(func => {
+                        const option = document.createElement('option');
+                        option.value = func;
+                        option.textContent = func;
+                        if (selectedRoleName && func === selectedRoleName) {
+                             option.selected = true;
+                        }
+                        roleSelect.appendChild(option);
+                    });
+                    roleSelect.disabled = false;
+                } else {
+                    roleSelect.innerHTML = '<option value="">Departamento não encontrado</option>';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar funções:", error);
+                roleSelect.innerHTML = '<option value="">Erro ao carregar funções</option>';
+            }
+        }
+
+        function toggleVacationFields(disabled) {
+            document.getElementById('vacationStartDate').disabled = disabled;
+            document.getElementById('vacationDays').disabled = disabled;
+            document.getElementById('vacationEndDate').disabled = disabled;
+            const suggestionEl = document.getElementById('vacationSuggestion');
+            suggestionEl.textContent = disabled ? 'Selecione um departamento para calcular as férias.' : '';
+            if (disabled) {
+                document.getElementById('vacationStartDate').value = '';
+                document.getElementById('vacationDays').value = '';
+                document.getElementById('vacationEndDate').value = '';
+            }
+        }
+
+        async function calculateVacationEndDate() {
+            const startDateString = document.getElementById('vacationStartDate').value;
+            const vacationDays = parseInt(document.getElementById('vacationDays').value, 10);
+            const departmentId = document.getElementById('department').value;
+            const suggestionEl = document.getElementById('vacationSuggestion');
+            const endDateInput = document.getElementById('vacationEndDate');
+
+            if (!startDateString || isNaN(vacationDays) || vacationDays <= 0 || !departmentId) {
+                endDateInput.value = '';
+                return;
+            }
+
+            try {
+                const deptRef = doc(db, `artifacts/${appId}/public/data/departments`, departmentId);
+                const deptSnap = await getDoc(deptRef);
+                if (!deptSnap.exists()) {
+                    suggestionEl.textContent = 'Departamento não encontrado.';
+                    endDateInput.value = '';
+                    return;
+                }
+                const department = deptSnap.data();
+                const workDays = department.workDays || [];
+                const calendarId = department.calendarId;
+
+                let holidays = [];
+                if (calendarId) {
+                    const calRef = doc(db, `artifacts/${appId}/public/data/calendars`, calendarId);
+                    const calSnap = await getDoc(calRef);
+                    if (calSnap.exists()) {
+                        holidays = (calSnap.data().holidays || []).map(h => h.date);
+                    }
+                }
+
+                let endDate = new Date(startDateString + 'T12:00:00Z');
+                let daysAdded = 0;
+                
+                while(daysAdded < vacationDays) {
+                    endDate.setUTCDate(endDate.getUTCDate() + 1);
+                    const dayName = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'][endDate.getUTCDay()];
+                    const dateString = endDate.toISOString().split('T')[0];
+                    
+                    // Verifica se é um dia de trabalho e não é feriado
+                    if (workDays.includes(dayName) && !holidays.includes(dateString)) {
+                        daysAdded++;
+                    }
+                }
+                
+                // Formata a data final para o input
+                const finalEndDate = endDate.toISOString().split('T')[0];
+                endDateInput.value = finalEndDate;
+                suggestionEl.textContent = `Retorno sugerido: ${finalEndDate.split('-').reverse().join('/')}`;
+
+            } catch (error) {
+                console.error("Erro ao calcular data final das férias:", error);
+                suggestionEl.textContent = 'Erro ao calcular. Verifique o console.';
+            }
+        }
+        
+        async function main() {
+            // Inicializa a animação de fundo
+            initializeGanttBackground();
+
+            // Configura a autenticação e listeners do Firestore
+            await onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    try {
+                        if (initialAuthToken) { await signInWithCustomToken(auth, initialAuthToken); }
+                        else { await signInAnonymously(auth); }
+                    } catch (error) { console.error("Erro na autenticação:", error); }
+                }
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                
+                // Popula o dropdown de departamentos e inicia o listener de usuários
+                await populateDepartmentsDropdown();
+                onSnapshot(collection(db, `artifacts/${appId}/public/data/users`), (snapshot) => {
+                    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderUsers(allUsers);
+                });
             });
 
-            sidebarCloseButton.addEventListener('click', () => {
-                sidebar.classList.add('-translate-x-full');
-            });
+            // --- LISTENERS DE EVENTOS ---
 
+            // Sidebar
+            const sidebar = document.getElementById('sidebar-container');
+            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
+
+            sidebarToggleButton?.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+            sidebarCloseButton?.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
             document.addEventListener('click', (event) => {
                 if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
                     sidebar.classList.add('-translate-x-full');
                 }
             });
-
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('-translate-x-full');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                }
-            });
-
-            // Lógica para mostrar/ocultar o formulário de adicionar usuário
-            showAddUserFormButton.addEventListener('click', () => {
-                addUserFormContainer.classList.remove('hidden');
-                addUserFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
-
-            // --- Lógica do Fundo Gantt Estático (copiada de home.html) ---
-            const canvas = document.getElementById('backgroundCanvas');
-            const ctx = canvas.getContext('2d');
-            const ganttSpeed = 0.1;
-            const barHeight = 20, barGap = 40, numBarsPerLine = 3, numLines = 8;
-            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)', particle: 'rgba(180, 200, 255, 0.05)', line: 'rgba(180, 200, 255, 0.08)', bpmIcon: 'rgba(96, 165, 250, 0.1)' };
-            const bars = [], barColors = [colors.bar1, colors.bar2, colors.bar3];
-            for (let i = 0; i < numLines * numBarsPerLine; i++) { bars.push({ width: (Math.random() * 0.2 + 0.1) * window.innerWidth, color: barColors[Math.floor(Math.random() * barColors.length)], initialXOffset: Math.random() * window.innerWidth }); }
-            const numParticles = 50, connectionDistance = 120, particles = [], numBPMIcons = 10, bpmIcons = [];
-
-            function initializeDynamicElements() {
-                particles.length = 0;
-                for (let i = 0; i < numParticles; i++) { particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 1, speed: Math.random() * 0.4 + 0.1, angle: Math.random() * Math.PI * 2, color: colors.particle }); }
-                bpmIcons.length = 0;
-                const iconTypes = ['circle', 'square', 'diamond'];
-                for (let i = 0; i < numBPMIcons; i++) { bpmIcons.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 15, speed: Math.random() * 0.2 + 0.1, type: iconTypes[Math.floor(Math.random() * iconTypes.length)], rotation: Math.random() * Math.PI * 2, rotationSpeed: (Math.random() - 0.5) * 0.02, directionX: Math.random() > 0.5 ? 1 : -1, directionY: Math.random() > 0.5 ? 1 : -1, color: colors.bpmIcon }); }
-            }
-
-            function roundRect(ctx, x, y, width, height, radius) {
-                ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill();
-            }
-
-            function drawBPMIcon(ctx, icon) {
-                ctx.save(); ctx.translate(icon.x, icon.y); ctx.rotate(icon.rotation); ctx.fillStyle = icon.color; const halfSize = icon.size / 2; switch (icon.type) { case 'circle': ctx.beginPath(); ctx.arc(0, 0, halfSize, 0, Math.PI * 2); ctx.fill(); break; case 'square': ctx.fillRect(-halfSize, -halfSize, icon.size, icon.size); break; case 'diamond': ctx.beginPath(); ctx.moveTo(0, -halfSize); ctx.lineTo(halfSize, 0); ctx.lineTo(0, halfSize); ctx.lineTo(-halfSize, 0); ctx.closePath(); ctx.fill(); break; } ctx.restore();
-            }
-
-            function drawBackgroundElements() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                for (let i = 0; i < numLines; i++) { const y = (i * (barHeight + barGap)) + (barGap / 2); for (let j = 0; j < numBarsPerLine; j++) { const bar = bars[i * numBarsPerLine + j]; const x = bar.initialXOffset % canvas.width; ctx.fillStyle = bar.color; roundRect(ctx, x, y, bar.width, barHeight, 5); } }
-                particles.forEach((p1, i) => { ctx.fillStyle = p1.color; ctx.beginPath(); ctx.arc(p1.x, p1.y, p1.size, 0, Math.PI * 2); ctx.fill(); for (let j = i + 1; j < particles.length; j++) { const p2 = particles[j]; const distance = Math.hypot(p1.x - p2.x, p1.y - p2.y); if (distance < connectionDistance) { ctx.strokeStyle = colors.line; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } } });
-                bpmIcons.forEach(icon => drawBPMIcon(ctx, icon));
-            }
-
-            function resizeAnimationCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                initializeDynamicElements();
-                drawBackgroundElements();
-            }
-
-            resizeAnimationCanvas();
-            window.addEventListener('resize', resizeAnimationCanvas);
-            // --- Fim da Lógica do Fundo Gantt Estático ---
-
-            // Função para formatar a data de férias
-            function formatVacationDate(dateString) {
-                if (!dateString) return 'N/A';
-                const date = new Date(dateString);
-                const currentYear = new Date().getFullYear();
-                if (date.getFullYear() < currentYear) {
-                    return 'N/A (Previsão Antiga)'; // Limpa se for de ano anterior
-                }
-                return date.toLocaleDateString('pt-BR');
-            }
-
-            // Função para renderizar usuários
-            function renderUsers(users) {
-                usersListDiv.innerHTML = ''; // Limpa a lista existente
-                if (users.length === 0) {
-                    usersListDiv.innerHTML = '<p class="text-slate-400 md:col-span-3">Nenhum usuário cadastrado ainda.</p>';
-                    return;
-                }
-
-                const ul = document.createElement('ul');
-                ul.className = 'divide-y divide-slate-700'; // Adiciona um divisor entre os itens da lista
-
-                // Cabeçalho da lista (opcional, mas útil para clareza)
-                const headerLi = document.createElement('li');
-                headerLi.className = 'py-2 px-4 bg-slate-700 font-bold text-sm uppercase tracking-wider rounded-t-md hidden md:grid md:grid-cols-6 gap-4';
-                headerLi.innerHTML = `
-                    <div class="col-span-2">Nome Completo</div>
-                    <div>Departamento</div>
-                    <div>Função</div>
-                    <div class="col-span-2">Horários</div>
-                    <div>Férias</div>
-                `;
-                ul.appendChild(headerLi);
-
-                users.forEach(user => {
-                    const li = document.createElement('li');
-                    li.className = 'py-3 px-4 hover:bg-slate-700/70 transition duration-200 ease-in-out md:grid md:grid-cols-6 gap-4 items-center';
-                    li.innerHTML = `
-                        <div class="font-semibold text-white col-span-2">${user.fullName}</div>
-                        <div class="text-slate-300 text-sm">${user.department}</div>
-                        <div class="text-slate-300 text-sm">${user.role}</div>
-                        <div class="text-slate-300 text-sm col-span-2">${user.workStartTime}-${user.workEndTime} (Almoço: ${user.lunchStartTime}-${user.lunchEndTime})</div>
-                        <div class="text-slate-300 text-sm">${formatVacationDate(user.vacationForecast)}</div>
-                    `;
-                    ul.appendChild(li);
-                });
-                usersListDiv.appendChild(ul);
-            }
-
-            // Listener em tempo real para a coleção de usuários
-            db.collection("users").onSnapshot(snapshot => {
-                const users = [];
-                snapshot.forEach(doc => {
-                    users.push({ id: doc.id, ...doc.data() });
-                });
-                renderUsers(users);
-            }, error => {
-                console.error("Erro ao buscar usuários: ", error);
-                usersListDiv.innerHTML = '<p class="text-red-400 md:col-span-3">Erro ao carregar usuários.</p>';
-            });
-
-            // Lógica para adicionar novo usuário
-            addUserForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const fullName = document.getElementById('fullName').value;
-                const department = document.getElementById('department').value;
-                const role = document.getElementById('role').value;
-                const workStartTime = document.getElementById('workStartTime').value;
-                const workEndTime = document.getElementById('workEndTime').value;
-                const lunchStartTime = document.getElementById('lunchStartTime').value;
-                const lunchEndTime = document.getElementById('lunchEndTime').value;
-                const vacationForecast = document.getElementById('vacationForecast').value; // Pode ser vazio
-
-                if (!fullName || !department || !role || !workStartTime || !workEndTime || !lunchStartTime || !lunchEndTime) {
-                    alert('Por favor, preencha todos os campos obrigatórios.');
-                    return;
-                }
-
+            
+            // Botões de Ação
+            document.getElementById('logoutButtonSidebar').addEventListener('click', async () => {
                 try {
-                    await db.collection("users").add({
-                        fullName,
-                        department,
-                        role,
-                        workStartTime,
-                        workEndTime,
-                        lunchStartTime,
-                        lunchEndTime,
-                        vacationForecast: vacationForecast || null, // Armazena null se vazio
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp() // Adiciona timestamp de criação
-                    });
-                    alert('Usuário adicionado com sucesso!');
-                    addUserForm.reset(); // Limpa o formulário
+                    await auth.signOut();
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('loggedInUserEmail');
+                    localStorage.removeItem('loggedInUserName');
+                    window.location.href = 'login.html';
                 } catch (error) {
-                    console.error("Erro ao adicionar usuário: ", error);
-                    alert('Erro ao adicionar usuário. Verifique o console para mais detalhes.');
+                    console.error("Erro ao fazer logout:", error);
+                    showAlert("Ocorreu um erro ao fazer logout. Tente novamente.");
                 }
             });
-        });
+
+            document.getElementById('showAddUserFormButton').addEventListener('click', () => {
+                toggleForm(true);
+            });
+
+            document.getElementById('cancelButton').addEventListener('click', () => {
+                toggleForm(false);
+            });
+
+            document.getElementById('saveUserButton').addEventListener('click', (e) => {
+                e.preventDefault();
+                saveUser();
+            });
+
+            document.getElementById('usersTableBody').addEventListener('click', async (e) => {
+                const editBtn = e.target.closest('.edit-btn');
+                const deleteBtn = e.target.closest('.delete-btn');
+                const resetPasswordBtn = e.target.closest('.reset-password-btn');
+
+                if (editBtn) {
+                    const userId = editBtn.dataset.id;
+                    const userToEdit = allUsers.find(user => user.id === userId);
+                    if (userToEdit) {
+                        await toggleForm(true, userToEdit);
+                    }
+                } else if (deleteBtn) {
+                    const userId = deleteBtn.dataset.id;
+                    deleteUser(userId);
+                } else if (resetPasswordBtn) {
+                    const userId = resetPasswordBtn.dataset.id;
+                    const userEmail = resetPasswordBtn.dataset.email;
+                    resetUserPassword(userId, userEmail);
+                }
+            });
+            
+            // Listeners para os modais genéricos
+            document.getElementById('confirmationModalCancelBtn').addEventListener('click', () => closeModal('confirmationModal'));
+            document.getElementById('alertModalOkBtn').addEventListener('click', () => closeModal('alertModal'));
+
+            // Listeners para os campos do formulário
+            document.getElementById('department').addEventListener('change', (event) => {
+                const selectedDepartmentId = event.target.value;
+                populateRolesDropdown(selectedDepartmentId);
+                toggleVacationFields(!selectedDepartmentId);
+                calculateVacationEndDate();
+            });
+            document.getElementById('vacationStartDate').addEventListener('change', calculateVacationEndDate);
+            document.getElementById('vacationDays').addEventListener('input', calculateVacationEndDate);
+            document.getElementById('hourlyCost').addEventListener('input', (e) => formatCurrency(e.target));
+        }
+
+        // Função utilitária para gerar senhas (exemplo)
+        function generateRandomPassword(length = 12) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
+        // Função para formatar o valor como moeda (BRL)
+        function formatCurrency(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+            if (value === '') {
+                input.value = '';
+                return;
+            }
+            value = (parseInt(value) / 100).toFixed(2); // Converte para float e formata com 2 casas decimais
+            value = value.replace('.', ','); // Troca ponto por vírgula
+            value = value.replace(/(\d)(?=(\d{3})+,)/g, '$1.'); // Adiciona pontos nos milhares
+            input.value = 'R$ ' + value;
+        }
+
+        async function resetUserPassword(userId, userEmail) {
+            showConfirmation(`Tem certeza que deseja redefinir a senha do usuário ${userEmail}? Uma nova senha será gerada e enviada para o e-mail dele.`, async () => {
+                try {
+                    const newPassword = generateRandomPassword();
+                    // --- ATENÇÃO: ESTA É UMA IMPLEMENTAÇÃO DE EXEMPLO/PLACEHOLDER ---
+                    // Para redefinir a senha de um usuário e enviar por e-mail de forma segura,
+                    // você precisará de uma função de backend (ex: Firebase Cloud Function)
+                    // que utilize o Firebase Admin SDK para:
+                    // 1. Gerar um link de redefinição de senha (auth.generatePasswordResetLink)
+                    //    OU atualizar a senha diretamente (auth.updateUser) - esta última é menos recomendada para envio direto.
+                    // 2. Enviar o e-mail com a nova senha ou o link de redefinição.
+                    //
+                    // Por enquanto, apenas simula o sucesso e exibe a senha no alerta (NÃO FAÇA ISSO EM PRODUÇÃO)
+                    showAlert(`(SIMULADO) Senha redefinida e enviada para ${userEmail}. Nova senha: ${newPassword}.\n\nATENÇÃO: Em um ambiente de produção, esta funcionalidade deve ser implementada via um serviço de backend seguro (ex: Firebase Cloud Functions) para redefinir a senha e enviar o e-mail, sem expor a senha no frontend.`);
+                } catch (error) {
+                    console.error("Erro ao redefinir senha:", error);
+                    showAlert("Ocorreu um erro ao redefinir a senha. Verifique o console para mais detalhes.");
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', main);
     </script>
 </body>
 </html>

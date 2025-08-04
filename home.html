@@ -183,6 +183,16 @@
                     Calendários
                 </a>
                 
+                <a href="usuarios.html" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Usuários
+                </a>
+                
                 <button id="logoutButtonSidebar" class="sidebar-link flex items-center py-3 px-4 rounded-lg transition-all duration-200 w-full text-left mt-6 hover:bg-red-700/50 text-red-400 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -248,8 +258,9 @@
         </main>
     </div>
     
-    <!-- Script de animação e lógica da sidebar -->
+    <!-- Firebase SDKs -->
     <script type="module">
+        import { renderSidebar } from './sidebar.js';
         // LÓGICA DA ANIMAÇÃO DE FUNDO
         function initializeGanttBackground() {
             const canvas = document.getElementById('backgroundCanvas');
@@ -318,6 +329,21 @@
             document.addEventListener('click', (event) => {
                 if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
                     sidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            // Lógica de Logout
+            const logoutButtonSidebar = document.getElementById('logoutButtonSidebar');
+            logoutButtonSidebar.addEventListener('click', async () => {
+                try {
+                    await firebase.auth().signOut();
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('loggedInUserEmail');
+                    localStorage.removeItem('loggedInUserName');
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error("Erro ao fazer logout:", error);
+                    alert("Ocorreu um erro ao fazer logout. Tente novamente.");
                 }
             });
         });
