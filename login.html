@@ -122,6 +122,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script>
         // Suas configurações do Firebase
         const firebaseConfig = {
@@ -135,9 +136,11 @@
 
         // Inicialize o Firebase
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); // Obtenha a instância de autenticação
 
         document.addEventListener('DOMContentLoaded', () => {
+            const auth = firebase.auth(); // Obtenha a instância de autenticação
+            const db = firebase.firestore(); // Obtenha a instância do Firestore
+
             const loginForm = document.getElementById('loginForm');
             const loginButton = document.getElementById('loginButton');
             const messageBox = document.getElementById('messageBox');
@@ -191,14 +194,33 @@
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     const user = userCredential.user;
 
-                    showMessage('Login bem-sucedido! Redirecionando...', 'success');
-                    // Armazena o estado de login no localStorage
+                                console.log("UID do usuário autenticado:", user.uid);
+
+                                // Obter o documento do usuário no Firestore
+                                const userDocRef = db.collection(`artifacts/${firebaseConfig.appId}/public/data/users`).where("uid", "==", user.uid);
+                                const userDocSnapshot = await userDocRef.get();
+
+                                let redirectTo = 'home.html';
+                                if (!userDocSnapshot.empty) {
+                                    const userData = userDocSnapshot.docs[0].data();
+                                    console.log("Dados do usuário no Firestore:", userData);
+                                    if (userData.isTemporaryPassword) {
+                                        console.log("Senha temporária detectada. Redirecionando para redefinição.");
+                                        redirectTo = `reset-password.html?uid=${user.uid}`;
+                                    } else {
+                                        console.log("Senha não é temporária. Redirecionando para home.");
+                                    }
+                                } else {
+                                    console.log("Documento do usuário não encontrado no Firestore para o UID:", user.uid);
+                                }
+
+                                showMessage('Login bem-sucedido! Redirecionando...', 'success');
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('loggedInUserEmail', user.email);
                     localStorage.setItem('loggedInUserName', user.displayName || user.email);
 
                     setTimeout(() => {
-                        window.location.href = 'home.html'; // Redireciona para home.html
+                        window.location.href = redirectTo;
                     }, 1000);
                 } catch (error) {
                     let errorMessage = 'Ocorreu um erro desconhecido. Tente novamente.'; // Mensagem padrão para outros erros

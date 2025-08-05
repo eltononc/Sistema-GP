@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stake Pro - Departamentos</title>
-    <!-- Incluindo Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Links para as fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
     
     <style>
@@ -233,24 +231,18 @@
         }
     </script>
 
-    <!-- Canvas para o fundo de animação Gantt -->
     <canvas id="backgroundCanvas"></canvas>
 
-    <!-- Botão para abrir sidebar em telas pequenas -->
     <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
     </button>
 
     <div class="flex flex-1">
-        <!-- Sidebar (Barra Lateral) -->
         <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
             <div class="flex items-center justify-between px-4">
-                <!-- Logo do Stake Pro ATUALIZADO -->
                 <div class="flex items-center">
-                    <!-- A imagem agora é redonda -->
                     <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
                     <div>
-                        <!-- O título foi redimensionado -->
                         <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
                         <p class="logotext-sub">Projects & Process</p>
                     </div>
@@ -307,7 +299,6 @@
             </nav>
         </aside>
     
-        <!-- Conteúdo Principal -->
         <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
             <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
                 
@@ -317,7 +308,6 @@
                     </h2>
                 </div>
 
-                <!-- Formulário com barra de pesquisa -->
                 <div id="search-form-container" class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                     <div class="relative flex-1 w-full">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -327,7 +317,6 @@
                         </div>
                         <input type="text" id="searchDepartmentsInput" placeholder="Pesquisar por nome ou gestor..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-900 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all placeholder:text-slate-400">
                     </div>
-                    <!-- Botão Liquid Fill integrado -->
                     <button id="showFormButton" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm w-full md:w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -337,17 +326,16 @@
                     </button>
                 </div>
 
-                <!-- Área de Cadastro/Edição (inicialmente oculta) -->
                 <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full">
                     <input type="hidden" id="departmentId">
                     <div class="flex justify-between items-start mb-4">
-                         <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Departamento</h3>
-                         <div id="weeklyTotalContainer" class="text-right">
-                            <span class="text-sm font-semibold text-slate-400 block">Carga Horária Semanal</span>
-                            <span id="totalWeeklyHoursDisplay" class="text-lg font-bold text-green-400">0h 00m</span>
-                        </div>
+                            <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Departamento</h3>
+                            <div id="weeklyTotalContainer" class="text-right">
+                                <span class="text-sm font-semibold text-slate-400 block">Carga Horária Semanal</span>
+                                <span id="totalWeeklyHoursDisplay" class="text-lg font-bold text-green-400">0h 00m</span>
+                            </div>
                     </div>
-                   
+                    
                     <div class="space-y-6 w-full max-w-5xl mx-auto">
                         <div class="flex flex-col md:flex-row gap-4">
                             <input type="text" id="departmentName" placeholder="Nome do Departamento" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
@@ -373,13 +361,11 @@
                         <div class="space-y-2">
                             <h4 class="text-sm font-semibold text-slate-400">Funções do Departamento</h4>
                             <div id="functionsContainer" class="flex flex-wrap items-center p-2 bg-slate-800 rounded-lg border border-slate-700 min-h-[42px]">
-                                <!-- Tags de funções serão inseridas aqui -->
-                            </div>
+                                </div>
                             <input type="text" id="functionInput" placeholder="Adicionar função e pressionar Enter..." class="w-full mt-2 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
                         </div>
                     
                         <div class="flex flex-col md:flex-row gap-8">
-                            <!-- Coluna Esquerda: Dias -->
                             <div class="md:w-1/3 space-y-2">
                                 <h4 class="text-sm font-semibold text-slate-400">Dias de Trabalho</h4>
                                 <div class="days-icon-selection">
@@ -393,7 +379,6 @@
                                 </div>
                             </div>
 
-                            <!-- Coluna Direita: Horários -->
                             <div class="md:w-2/3 space-y-6">
                                 <div class="space-y-2">
                                     <div class="flex items-center justify-between">
@@ -475,7 +460,6 @@
                     </div>
                 </div>
 
-                <!-- Área de Listagem -->
                 <div id="departamentosListContainer" class="text-left w-full">
                     <div class="overflow-x-auto rounded-lg border border-slate-800">
                         <table class="w-full text-sm text-left text-slate-400">
@@ -491,7 +475,6 @@
                                 </tr>
                             </thead>
                             <tbody id="departmentsTableBody">
-                                <!-- Itens de departamento serão injetados aqui -->
                                 <tr><td colspan="6" class="text-center p-8">Carregando departamentos...</td></tr>
                             </tbody>
                         </table>
@@ -501,7 +484,6 @@
         </main>
     </div>
     
-    <!-- Modal de Alerta Genérico -->
     <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
         <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
             <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
@@ -512,7 +494,6 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação Genérico -->
     <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
         <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
             <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
@@ -524,17 +505,17 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { renderSidebar } from './sidebar.js';
         // Importa as funções do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc, deleteDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        // Remova a lógica de verificação de variáveis globais.
+        // Use a configuração diretamente.
+        const firebaseConfig = {
             apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
             authDomain: "stake-pro-db.firebaseapp.com",
             projectId: "stake-pro-db",
@@ -542,9 +523,9 @@
             messagingSenderId: "569517541701",
             appId: "1:569517541701:web:11b31335fca1d5a708562c"
         };
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = firebaseConfig.projectId;
 
-        let app, db, auth, userId;
+        let app, db, auth;
         let isAuthReady = false;
         let allDepartments = [];
         let confirmCallback = null; // Adicionado para os modais
@@ -567,7 +548,7 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             
-            const barHeight = 20, barGap = 40, numBarsPerLine = 3, numLines = 8;
+            const barHeight = 20, barGap = 40, numBarsPerLine = 3;
             const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)'};
             const bars = [];
             const barColors = [colors.bar1, colors.bar2, colors.bar3];
@@ -1107,14 +1088,12 @@
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
                     try {
-                        if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (error) { console.error("Erro na autenticação:", error); }
+                        await signInAnonymously(auth);
+                    } catch (error) { 
+                        console.error("Erro na autenticação:", error); 
+                    }
                 }
-                userId = auth.currentUser?.uid || crypto.randomUUID();
+                const userId = auth.currentUser?.uid || crypto.randomUUID();
                 isAuthReady = true;
 
                 const departmentsColRef = collection(db, `artifacts/${appId}/public/data/departments`);

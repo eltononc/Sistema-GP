@@ -261,6 +261,29 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { renderSidebar } from './sidebar.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
+
+        // Inicialize o Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // --- FUNÇÕES DE MODAIS (showAlert) ---
+        function showAlert(message) {
+            // Implementação simples de alerta para home.html
+            alert(message);
+        }
+
         // LÓGICA DA ANIMAÇÃO DE FUNDO
         function initializeGanttBackground() {
             const canvas = document.getElementById('backgroundCanvas');
@@ -332,20 +355,10 @@
                 }
             });
 
-            // Lógica de Logout
-            const logoutButtonSidebar = document.getElementById('logoutButtonSidebar');
-            logoutButtonSidebar.addEventListener('click', async () => {
-                try {
-                    await firebase.auth().signOut();
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('loggedInUserEmail');
-                    localStorage.removeItem('loggedInUserName');
-                    window.location.href = 'login.html';
-                } catch (error) {
-                    console.error("Erro ao fazer logout:", error);
-                    alert("Ocorreu um erro ao fazer logout. Tente novamente.");
-                }
-            });
+            // Render sidebar
+            renderSidebar(window.location.pathname, showAlert); // Pass showAlert to sidebar
+
+            // Lógica de Logout (removida daqui, agora no sidebar.js)
         });
     </script>
 </body>

@@ -362,10 +362,11 @@
 
     <!-- Firebase SDKs -->
     <script type="module">
+        import { renderSidebar } from './sidebar.js';
         // Importa as funções do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, deleteDoc, addDoc, setDoc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc, addDoc, setDoc, getDocs, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -513,10 +514,24 @@
                 return;
             }
 
-            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+            const emailRegex = /^["\w-\\.]{1,}@([\w-]+\.)+[\w-]{2,4}$/g;
             if (!emailRegex.test(email)) {
                 showAlert('Por favor, insira um endereço de e-mail válido.');
                 return;
+            }
+
+            // Validação de nome completo duplicado
+            const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
+            const q = query(usersColRef, where("fullName", "==", fullName));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                // Se houver resultados, verifica se é o próprio usuário sendo editado
+                const existingUser = querySnapshot.docs[0];
+                if (existingUser.id !== userId) {
+                    showAlert('Já existe um usuário com este nome completo. Por favor, use um nome diferente.');
+                    return;
+                }
             }
 
             const userData = {
@@ -535,25 +550,50 @@
             };
 
             try {
-                if (userId) { // Update
+                if (userId) { // Update existing user
                     const docRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
                     await setDoc(docRef, userData, { merge: true });
-                } else { // Create
-                    const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
-                    const querySnapshot = await getDocs(usersColRef);
-                    const lastId = querySnapshot.docs.reduce((max, doc) => {
+                    showAlert("Usuário atualizado com sucesso!");
+                } else { // Create new user
+                    // Generate temporary password
+                    const temporaryPassword = generateRandomPassword();
+
+                    // Create user in Firebase Authentication
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, temporaryPassword);
+                    const firebaseAuthUid = userCredential.user.uid;
+
+                    // Get next sequential ID for Firestore document
+                    const usersColRefForNewId = collection(db, `artifacts/${appId}/public/data/users`);
+                    const querySnapshotForNewId = await getDocs(usersColRefForNewId);
+                    const lastId = querySnapshotForNewId.docs.reduce((max, doc) => {
                         const docIdNum = parseInt(doc.id);
                         return docIdNum > max ? docIdNum : max;
                     }, 0);
                     const newId = lastId + 1;
 
+                    // Add Firebase Auth UID and temporary password flag to user data
                     userData.id = newId; // Store the generated ID within the document
+                    userData.uid = firebaseAuthUid;
+                    userData.isTemporaryPassword = true; // Flag to indicate temporary password
+                    userData.createdAt = new Date();
+
+                    // Save user data to Firestore
                     await setDoc(doc(db, `artifacts/${appId}/public/data/users`, newId.toString()), userData);
+                    showAlert(`Usuário cadastrado com sucesso!\n\nE-mail: ${email}\nSenha Temporária: ${temporaryPassword}\n\nPor favor, informe esta senha ao usuário e instrua-o a redefini-la no primeiro acesso.`);
                 }
                 toggleForm(false);
             } catch (error) {
                 console.error("Erro ao salvar usuário:", error);
-                showAlert("Ocorreu um erro ao salvar o usuário.");
+                // Handle specific Firebase Auth errors
+                let errorMessage = "Ocorreu um erro ao salvar o usuário.";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = "Este e-mail já está em uso. Por favor, use outro e-mail.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "O formato do e-mail é inválido.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = "A senha é muito fraca. Use pelo menos 6 caracteres.";
+                }
+                showAlert(errorMessage);
             }
         }
 
@@ -855,19 +895,8 @@
                 }
             });
             
-            // Botões de Ação
-            document.getElementById('logoutButtonSidebar').addEventListener('click', async () => {
-                try {
-                    await auth.signOut();
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('loggedInUserEmail');
-                    localStorage.removeItem('loggedInUserName');
-                    window.location.href = 'login.html';
-                } catch (error) {
-                    console.error("Erro ao fazer logout:", error);
-                    showAlert("Ocorreu um erro ao fazer logout. Tente novamente.");
-                }
-            });
+            // Render sidebar
+            renderSidebar(window.location.pathname, showAlert);
 
             document.getElementById('showAddUserFormButton').addEventListener('click', () => {
                 toggleForm(true);
@@ -943,22 +972,48 @@
         }
 
         async function resetUserPassword(userId, userEmail) {
-            showConfirmation(`Tem certeza que deseja redefinir a senha do usuário ${userEmail}? Uma nova senha será gerada e enviada para o e-mail dele.`, async () => {
+            showConfirmation(`Tem certeza que deseja marcar o usuário ${userEmail} para redefinição de senha? Um e-mail de redefinição será enviado para ${userEmail}.`, async () => {
+                console.log(`Iniciando processo de redefinição para ${userEmail} (ID: ${userId}).`);
                 try {
-                    const newPassword = generateRandomPassword();
-                    // --- ATENÇÃO: ESTA É UMA IMPLEMENTAÇÃO DE EXEMPLO/PLACEHOLDER ---
-                    // Para redefinir a senha de um usuário e enviar por e-mail de forma segura,
-                    // você precisará de uma função de backend (ex: Firebase Cloud Function)
-                    // que utilize o Firebase Admin SDK para:
-                    // 1. Gerar um link de redefinição de senha (auth.generatePasswordResetLink)
-                    //    OU atualizar a senha diretamente (auth.updateUser) - esta última é menos recomendada para envio direto.
-                    // 2. Enviar o e-mail com a nova senha ou o link de redefinição.
-                    //
-                    // Por enquanto, apenas simula o sucesso e exibe a senha no alerta (NÃO FAÇA ISSO EM PRODUÇÃO)
-                    showAlert(`(SIMULADO) Senha redefinida e enviada para ${userEmail}. Nova senha: ${newPassword}.\n\nATENÇÃO: Em um ambiente de produção, esta funcionalidade deve ser implementada via um serviço de backend seguro (ex: Firebase Cloud Functions) para redefinir a senha e enviar o e-mail, sem expor a senha no frontend.`);
+                    // 1. Encontrar o documento do usuário no Firestore pelo userId
+                    const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
+                    const q = query(usersColRef, where("id", "==", parseInt(userId)));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        const userDoc = querySnapshot.docs[0];
+                        console.log("Documento do usuário encontrado no Firestore:", userDoc.id);
+                        // 2. Atualizar a flag isTemporaryPassword para true
+                        await setDoc(userDoc.ref, { isTemporaryPassword: true }, { merge: true });
+                        console.log("Flag isTemporaryPassword atualizada para true no Firestore.");
+
+                        // 3. Enviar e-mail de redefinição de senha via Firebase Authentication
+                        await sendPasswordResetEmail(auth, userEmail);
+                        console.log("E-mail de redefinição de senha enviado para:", userEmail);
+
+                        // Gerar uma string aleatória para exibir ao administrador como confirmação
+                        const confirmationCode = generateRandomPassword(8); // 8 caracteres para um código de confirmação
+
+                        showAlert(`Processo de redefinição de senha iniciado para ${userEmail}.
+
+Um e-mail com o link de redefinição foi enviado para o usuário.
+
+Código de Confirmação (para sua referência): ${confirmationCode}
+
+O usuário será forçado a redefinir a senha no próximo login.`);
+                    } else {
+                        console.error(`Erro: Usuário com ID ${userId} não encontrado no Firestore.`);
+                        showAlert(`Erro: Usuário com ID ${userId} não encontrado no Firestore.`);
+                    }
                 } catch (error) {
-                    console.error("Erro ao redefinir senha:", error);
-                    showAlert("Ocorreu um erro ao redefinir a senha. Verifique o console para mais detalhes.");
+                    console.error("Erro detalhado ao marcar usuário para redefinição de senha:", error);
+                    let errorMessage = "Ocorreu um erro ao marcar o usuário para redefinição de senha.";
+                    if (error.code === 'auth/user-not-found') {
+                        errorMessage = "Usuário não encontrado no Firebase Authentication.";
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = "O e-mail do usuário é inválido para redefinição de senha.";
+                    }
+                    showAlert(errorMessage);
                 }
             });
         }

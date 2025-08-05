@@ -10,5 +10,9 @@
   "license": "ISC",
   "devDependencies": {
     "live-server": "^1.2.2"
-  }
+  },
+  "dependencies": {
+    "firebase": "^12.0.0"
+  },
+  "type": "module"
 }
