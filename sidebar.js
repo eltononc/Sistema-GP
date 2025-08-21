@@ -1,4 +1,9 @@
 // sidebar.js
+<<<<<<< HEAD
+=======
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+>>>>>>> 52dd21fda39bf27ec482a1bfc479bf0b4b1a80ae
 export function renderSidebar(currentPage, showAlertCallback) {
     const sidebarNav = document.querySelector('#sidebar-container nav');
     if (!sidebarNav) return;
@@ -14,6 +19,7 @@ export function renderSidebar(currentPage, showAlertCallback) {
                 { href: 'usuarios.html', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>', text: 'Usuários' },
                 { href: 'clientes.html', icon: '<path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2z"></path><circle cx="12" cy="7" r="4"></circle><path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4"></path><path d="M2 14h20"></path>', text: 'Clientes' }
             ]
+<<<<<<< HEAD
         },
         {
             text: 'Orçamentos',
@@ -21,6 +27,8 @@ export function renderSidebar(currentPage, showAlertCallback) {
             submenu: [
                 { href: 'sistemas.html', icon: '<path d="M12 2L2 7v10l10 5 10-5V7L12 2z"></path><path d="M2 7l10 5 10-5"></path><path d="M12 22V12"></path><path d="M22 7l-10 5"></path><path d="M2 17l10-5"></path>', text: 'Sistemas' }
             ]
+=======
+>>>>>>> 52dd21fda39bf27ec482a1bfc479bf0b4b1a80ae
         }
     ];
 
@@ -117,6 +125,7 @@ export function renderSidebar(currentPage, showAlertCallback) {
     if (logoutButtonSidebar) {
         logoutButtonSidebar.addEventListener('click', async () => {
             try {
+<<<<<<< HEAD
                 // Check if Firebase auth is available before using it
                 if (typeof firebase !== 'undefined' && firebase.auth) {
                     const auth = firebase.auth();
@@ -124,12 +133,20 @@ export function renderSidebar(currentPage, showAlertCallback) {
                 } else {
                     console.warn("Firebase Auth not available. Performing local logout.");
                 }
+=======
+                const auth = getAuth(); // Get auth instance here
+                await signOut(auth);
+>>>>>>> 52dd21fda39bf27ec482a1bfc479bf0b4b1a80ae
                 localStorage.removeItem('isLoggedIn');
                 localStorage.removeItem('loggedInUserEmail');
                 localStorage.removeItem('loggedInUserName');
                 window.location.href = 'login.html';
             } catch (error) {
                 console.error("Erro ao fazer logout:", error);
+<<<<<<< HEAD
+=======
+                // Assuming showAlert is globally available or imported
+>>>>>>> 52dd21fda39bf27ec482a1bfc479bf0b4b1a80ae
                 if (showAlertCallback) {
                     showAlertCallback("Ocorreu um erro ao fazer logout. Tente novamente.");
                 } else {
