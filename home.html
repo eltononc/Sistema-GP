@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Início</title>
+    <!-- Incluindo Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Links para as fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    
+    <script src="settings.js" defer></script>
+    <style>
+        /* Estilos base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        /* Estilo do texto do logo ajustado */
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.75rem; /* Menor que o anterior */
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+        /* Estilo do sub-título ajustado */
+        .logotext-sub {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.65rem; /* Menor que o anterior */
+            color: #94A3B8;
+        }
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15; /* Opacidade ajustada para a animação */
+        }
+        .glass-effect {
+            background-color: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .sidebar-link.active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid #0EA5E9;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+        .sidebar-link:not(.active):hover {
+            background-color: rgba(30, 41, 59, 0.6);
+            transform: scale(1.02);
+        }
+        .sidebar-link, .sidebar-link-button {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link-button:hover {
+            transform: scale(1.02);
+        }
+        .title-6 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            position: relative;
+            padding-bottom: 0.5rem;
+            width: fit-content;
+            margin-right: auto;
+        }
+        .title-6::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0EA5E9, #22C55E);
+        }
+        .btn-liquid-fill {
+            position: relative;
+            background: transparent;
+            border: 1px solid #06B6D4;
+            color: #06B6D4;
+            overflow: hidden;
+            z-index: 10;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+        }
+        .btn-liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #06B6D4;
+            transition: transform 0.5s ease;
+            z-index: -1;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        .btn-liquid-fill:hover::before {
+            transform: scaleX(1);
+        }
+        .btn-liquid-fill:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+        }
+        .btn-liquid-fill svg {
+            transition: color 0.3s ease;
+        }
+        .btn-liquid-fill:hover svg {
+            color: white;
+        }
+        .submenu-content.max-h-0 {
+            max-height: 0;
+        }
+        .submenu-content.max-h-screen {
+            max-height: 100vh; /* Or a sufficiently large value */
+        }
+        .submenu-arrow.rotate-180 {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+
+    <!-- Canvas para o fundo de animação Gantt -->
+    <canvas id="backgroundCanvas"></canvas>
+
+    <!-- Botão para abrir sidebar em telas pequenas -->
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
+    <div class="flex flex-1">
+        <!-- Sidebar (Barra Lateral) -->
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <!-- Logo do Stake Pro ATUALIZADO -->
+                <div class="flex items-center">
+                    <!-- A imagem agora é redonda -->
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <!-- O título foi redimensionado -->
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Projects & Process</p>
+                    </div>
+                </div>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1">
+            </nav>
+        </aside>
+    
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-6 md:p-10 rounded-2xl shadow-2xl w-full border border-slate-700 max-w-7xl mx-auto">
+                
+                <div class="mb-8">
+                    <h2 class="title-6">
+                        Bem-vindo ao Stake Pro
+                    </h2>
+                </div>
+                
+                <div class="text-lg text-slate-300 mb-8">
+                    <p>
+                        Esta é a página inicial do seu sistema de gestão de projetos e processos. Use o menu lateral para navegar entre os módulos.
+                    </p>
+                </div>
+
+                <!-- Adicione mais conteúdo à sua página inicial aqui -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <h3 class="font-bold text-sky-400 text-xl mb-2">Seus Projetos Ativos</h3>
+                        <p class="text-slate-400">Aqui você verá uma visão geral dos projetos em andamento, com status e prazos.</p>
+                        <a href="#" class="mt-4 inline-block text-sm font-semibold text-white bg-sky-600 px-4 py-2 rounded-lg hover:bg-sky-700 transition-colors">Ver Projetos</a>
+                    </div>
+
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <h3 class="font-bold text-green-400 text-xl mb-2">Processos Pendentes</h3>
+                        <p class="text-slate-400">Monitore os processos que exigem sua atenção ou aprovação.</p>
+                        <a href="#" class="mt-4 inline-block text-sm font-semibold text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Ver Processos</a>
+                    </div>
+                    
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <h3 class="font-bold text-yellow-400 text-xl mb-2">Próximos Feriados</h3>
+                        <p class="text-slate-400">Fique de olho nos feriados e dias não úteis configurados para o ano.</p>
+                        <a href="calendarios.html" class="mt-4 inline-block text-sm font-semibold text-white bg-yellow-600 px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">Ver Calendário</a>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-6 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h3 class="font-bold text-xl text-white mb-4">Atualizações Recentes</h3>
+                    <ul class="space-y-4">
+                        <li class="p-4 bg-slate-900 rounded-lg">
+                            <p class="text-sm font-semibold text-slate-300">Nova tarefa "Planejar Lançamento" adicionada ao Projeto X.</p>
+                            <p class="text-xs text-slate-500 mt-1">20 de jul. de 2025 - por João Silva</p>
+                        </li>
+                         <li class="p-4 bg-slate-900 rounded-lg">
+                            <p class="text-sm font-semibold text-slate-300">Processo "Aprovação de Orçamento" concluído com sucesso.</p>
+                            <p class="text-xs text-slate-500 mt-1">19 de jul. de 2025 - por Maria Santos</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { renderSidebar } from './sidebar.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
+
+        // Inicialize o Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // --- FUNÇÕES DE MODAIS (showAlert) ---
+        function showAlert(message) {
+            // Implementação simples de alerta para home.html
+            alert(message);
+        }
+
+        // LÓGICA DA ANIMAÇÃO DE FUNDO
+        function initializeGanttBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let bars = [];
+            const barCount = 30;
+            const barHeight = 4;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            function createBars() {
+                bars = [];
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                gradient.addColorStop(0, '#0EA5E9');
+                gradient.addColorStop(1, '#22C55E');
+
+                for (let i = 0; i < barCount; i++) {
+                    bars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        length: Math.random() * 200 + 50,
+                        speed: Math.random() * 0.5 + 0.2,
+                        color: gradient
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                bars.forEach(bar => {
+                    bar.x += bar.speed;
+                    if (bar.x > canvas.width) {
+                        bar.x = -bar.length;
+                        bar.y = Math.random() * canvas.height;
+                    }
+                    ctx.fillStyle = bar.color;
+                    ctx.fillRect(bar.x, bar.y, bar.length, barHeight);
+                });
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                createBars();
+            });
+
+            resizeCanvas();
+            createBars();
+            animate();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGanttBackground();
+
+            const sidebar = document.getElementById('sidebar-container');
+            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
+
+            sidebarToggleButton?.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+            sidebarCloseButton?.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            // Render sidebar
+            renderSidebar(window.location.pathname, showAlert); // Pass showAlert to sidebar
+
+            // Lógica de Logout (removida daqui, agora no sidebar.js)
+        });
+    </script>
+</body>
+</html>

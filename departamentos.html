@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Departamentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <script src="settings.js" defer></script>
+    
+    <style>
+        /* Estilos base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.75rem; /* Menor que o anterior */
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+        .logotext-sub {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.65rem; /* Menor que o anterior */
+            color: #94A3B8;
+        }
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        .glass-effect {
+            background-color: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .sidebar-link.active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid #0EA5E9;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+        .sidebar-link:not(.active):hover {
+            background-color: rgba(30, 41, 59, 0.6);
+            transform: scale(1.02);
+        }
+        .sidebar-link, .sidebar-link-button {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link-button:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Estilos do botão 'Liquid Fill' */
+        .btn-liquid-fill {
+            position: relative;
+            background: transparent;
+            border: 1px solid #06B6D4;
+            color: #06B6D4;
+            overflow: hidden;
+            z-index: 10;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+        }
+        .btn-liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #06B6D4;
+            transition: transform 0.5s ease;
+            z-index: -1;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        .btn-liquid-fill:hover::before {
+            transform: scaleX(1);
+        }
+        .btn-liquid-fill:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-liquid-fill:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .btn-liquid-fill svg {
+            transition: color 0.3s ease;
+        }
+        .btn-liquid-fill:hover svg {
+            color: white;
+        }
+
+        /* Estilos do Título Modelo 6 */
+        .title-6 {
+            font-size: 2rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            color: white;
+            position: relative;
+            padding-bottom: 0.5rem;
+            width: fit-content;
+            margin-right: auto;
+        }
+        .title-6::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0EA5E9, #22C55E);
+        }
+
+        /* Estilos para o Modelo 4 de seleção de dias */
+        .days-icon-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 0.5rem;
+        }
+        .days-icon-selection label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .days-icon-selection input {
+            display: none;
+        }
+        .days-icon-selection input:checked + .days-card {
+            background-color: #0EA5E9;
+            color: white;
+            border-color: #0EA5E9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .days-icon-selection input:not(:checked) + .days-card:hover {
+            background-color: #334155;
+            border-color: #0EA5E9;
+        }
+        .days-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem; /* Reduzido o preenchimento vertical */
+            border-radius: 0.5rem;
+            background-color: #1E293B;
+            border: 1px solid #475569;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .days-card p {
+            font-size: 0.625rem; /* Fonte menor */
+            margin-top: 0.125rem; /* Margem superior menor */
+            font-weight: 600;
+        }
+        .days-card .days-icon {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1rem; /* Fonte do ícone menor */
+        }
+        
+        /* Estilos para as tags de funções */
+        .function-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #334155;
+            color: #cbd5e1;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .remove-tag-btn {
+            margin-left: 0.5rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.25rem;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.2s ease;
+        }
+        .remove-tag-btn:hover {
+            color: #e2e8f0;
+        }
+        .table-cell-responsive {
+            word-break: break-word;
+            padding-left: 1.5rem; /* Default px-6 */
+            padding-right: 1.5rem; /* Default px-6 */
+        }
+
+        /* Apply smaller padding on medium screens and below */
+        @media (max-width: 1023px) { /* Corresponds to Tailwind's 'lg' breakpoint */
+            .table-cell-responsive {
+                padding-left: 0.75rem; /* px-3 */
+                padding-right: 0.75rem; /* px-3 */
+            }
+        }
+        .submenu-content.max-h-0 {
+            max-height: 0;
+        }
+        .submenu-content.max-h-screen {
+            max-height: 100vh; /* Or a sufficiently large value */
+        }
+        .submenu-arrow.rotate-180 {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+    <script>
+        // Verifica o estado de login ao carregar a página
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html'; // Redireciona para a página de login se não estiver logado
+        }
+    </script>
+
+    <canvas id="backgroundCanvas"></canvas>
+
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
+    <div class="flex flex-1">
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <div class="flex items-center">
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Projects & Process</p>
+                    </div>
+                </div>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1">
+            </nav>
+        </aside>
+    
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
+                
+                <div id="mainContentHeader" class="flex justify-between items-center mb-6">
+                    <h2 class="title-6">
+                        Gestão de Departamentos
+                    </h2>
+                </div>
+
+                <div id="search-form-container" class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div class="relative flex-1 w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="searchDepartmentsInput" placeholder="Pesquisar por nome ou gestor..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-900 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all placeholder:text-slate-400">
+                    </div>
+                    <button id="showFormButton" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm w-full md:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Cadastrar Departamento
+                    </button>
+                </div>
+
+                <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full">
+                    <input type="hidden" id="departmentId">
+                    <div class="flex justify-between items-start mb-4">
+                            <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Departamento</h3>
+                            <div id="weeklyTotalContainer" class="text-right">
+                                <span class="text-sm font-semibold text-slate-400 block">Carga Horária Semanal</span>
+                                <span id="totalWeeklyHoursDisplay" class="text-lg font-bold text-green-400">0h 00m</span>
+                            </div>
+                    </div>
+                    
+                    <div class="space-y-6 w-full max-w-5xl mx-auto">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <input type="text" id="departmentName" placeholder="Nome do Departamento" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                            <input type="text" id="departmentManager" placeholder="Nome do Gestor" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 space-y-2">
+                                <h4 class="text-sm font-semibold text-slate-400">Calendário</h4>
+                                <select id="departmentCalendar" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                    <option value="">Carregando calendários...</option>
+                                </select>
+                            </div>
+                             <div class="flex-1 space-y-2" id="statusContainer">
+                                <h4 class="text-sm font-semibold text-slate-400">Status</h4>
+                                <select id="departmentStatus" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                    <option value="Ativo">Ativo</option>
+                                    <option value="Inativo">Inativo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-slate-400">Funções do Departamento</h4>
+                            <div id="functionsContainer" class="flex flex-wrap items-center p-2 bg-slate-800 rounded-lg border border-slate-700 min-h-[42px]">
+                                </div>
+                            <input type="text" id="functionInput" placeholder="Adicionar função e pressionar Enter..." class="w-full mt-2 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                        </div>
+                    
+                        <div class="flex flex-col md:flex-row gap-8">
+                            <div class="md:w-1/3 space-y-2">
+                                <h4 class="text-sm font-semibold text-slate-400">Dias de Trabalho</h4>
+                                <div class="days-icon-selection">
+                                    <label><input type="checkbox" id="segunda" class="weekday-checkbox"><div class="days-card"><span class="days-icon">S</span><p>Seg</p></div></label>
+                                    <label><input type="checkbox" id="terca" class="weekday-checkbox"><div class="days-card"><span class="days-icon">T</span><p>Ter</p></div></label>
+                                    <label><input type="checkbox" id="quarta" class="weekday-checkbox"><div class="days-card"><span class="days-icon">Q</span><p>Qua</p></div></label>
+                                    <label><input type="checkbox" id="quinta" class="weekday-checkbox"><div class="days-card"><span class="days-icon">Q</span><p>Qui</p></div></label>
+                                    <label><input type="checkbox" id="sexta" class="weekday-checkbox"><div class="days-card"><span class="days-icon">S</span><p>Sex</p></div></label>
+                                    <label><input type="checkbox" id="sabado" class="weekend-checkbox"><div class="days-card"><span class="days-icon">S</span><p>Sáb</p></div></label>
+                                    <label><input type="checkbox" id="domingo" class="weekend-checkbox"><div class="days-card"><span class="days-icon">D</span><p>Dom</p></div></label>
+                                </div>
+                            </div>
+
+                            <div class="md:w-2/3 space-y-6">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-sm font-semibold text-slate-400">Horário (Dias de Semana)</h4>
+                                        <div class="flex items-center gap-4">
+                                            <div class="flex items-center gap-2">
+                                                <input type="checkbox" id="noBreakWeekday" class="rounded bg-slate-700 border-slate-600 text-sky-500 focus:ring-sky-500">
+                                                <label for="noBreakWeekday" class="text-xs text-slate-400 select-none">Sem intervalo</label>
+                                            </div>
+                                            <span id="totalWeekdayWorkHours" class="text-sm font-bold text-sky-400"></span>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div>
+                                            <label for="startWeekdayWorkTime" class="text-xs text-slate-500 block mb-1">Início do Turno</label>
+                                            <input type="time" id="startWeekdayWorkTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                        <div>
+                                            <label for="startWeekdayLunchTime" class="text-xs text-slate-500 block mb-1">Início do Almoço</label>
+                                            <input type="time" id="startWeekdayLunchTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                        <div>
+                                            <label for="endWeekdayLunchTime" class="text-xs text-slate-500 block mb-1">Fim do Almoço</label>
+                                            <input type="time" id="endWeekdayLunchTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                        <div>
+                                            <label for="endWeekdayWorkTime" class="text-xs text-slate-500 block mb-1">Fim do Turno</label>
+                                            <input type="time" id="endWeekdayWorkTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="weekendHoursContainer" class="space-y-2 hidden">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-sm font-semibold text-slate-400">Horário (Fim de Semana)</h4>
+                                        <div class="flex items-center gap-4">
+                                            <div class="flex items-center gap-2">
+                                                <input type="checkbox" id="noBreakWeekend" class="rounded bg-slate-700 border-slate-600 text-sky-500 focus:ring-sky-500">
+                                                <label for="noBreakWeekend" class="text-xs text-slate-400 select-none">Sem intervalo</label>
+                                            </div>
+                                            <span id="totalWeekendWorkHours" class="text-sm font-bold text-sky-400"></span>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div>
+                                            <label for="startWeekendWorkTime" class="text-xs text-slate-500 block mb-1">Início do Turno</label>
+                                            <input type="time" id="startWeekendWorkTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                        <div>
+                                            <label for="startWeekendLunchTime" class="text-xs text-slate-500 block mb-1">Início do Almoço</label>
+                                            <input type="time" id="startWeekendLunchTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                        <div>
+                                            <label for="endWeekendLunchTime" class="text-xs text-slate-500 block mb-1">Fim do Almoço</label>
+                                            <input type="time" id="endWeekendLunchTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                        <div>
+                                            <label for="endWeekendWorkTime" class="text-xs text-slate-500 block mb-1">Fim do Turno</label>
+                                            <input type="time" id="endWeekendWorkTime" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-slate-400">Observações</h4>
+                            <textarea id="departmentObservations" placeholder="Adicione observações sobre o departamento..." rows="3" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400"></textarea>
+                        </div>
+
+                        <div class="flex gap-4 mt-6">
+                            <button id="cancelButton" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">
+                                Cancelar
+                            </button>
+                            <button id="saveDepartmentButton" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="departamentosListContainer" class="text-left w-full">
+                    <div class="overflow-x-auto rounded-lg border border-slate-800">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-200 uppercase bg-slate-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">ID</th>
+                                    <th scope="col" class="px-6 py-3">Status</th>
+                                    <th scope="col" class="px-6 py-3">Nome do Departamento</th>
+                                    <th scope="col" class="px-6 py-3">Gestor</th>
+                                    <th scope="col" class="px-6 py-3">Carga Semanal</th>
+                                    <th scope="col" class="px-6 py-3">Dias de Trabalho</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="departmentsTableBody">
+                                <tr><td colspan="6" class="text-center p-8">Carregando departamentos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
+            <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
+            <p id="alertModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-center">
+                <button id="alertModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
+            <p id="confirmationModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirmationModalCancelBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="confirmationModalConfirmBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { renderSidebar } from './sidebar.js';
+        // Importa as funções do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
+        // Remova a lógica de verificação de variáveis globais.
+        // Use a configuração diretamente.
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
+        const appId = firebaseConfig.projectId;
+
+        let app, db, auth;
+        let isAuthReady = false;
+        let allDepartments = [];
+        let confirmCallback = null; // Adicionado para os modais
+
+        // --- INICIALIZAÇÃO DO FIREBASE ---
+        try {
+            console.log("Initializing Firebase with config:", firebaseConfig);
+            console.log("Using appId:", appId);
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Erro ao inicializar o Firebase:", error);
+            document.body.innerHTML = "Erro na configuração do Firebase. Verifique o console.";
+        }
+
+        // --- LÓGICA DA ANIMAÇÃO DE FUNDO ---
+        function initializeGanttBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const barHeight = 20, barGap = 40, numBarsPerLine = 3;
+            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)'};
+            const bars = [];
+            const barColors = [colors.bar1, colors.bar2, colors.bar3];
+
+            function initializeBars() {
+                bars.length = 0;
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines * numBarsPerLine; i++) { 
+                    bars.push({ 
+                        width: (Math.random() * 0.2 + 0.1) * window.innerWidth, 
+                        color: barColors[Math.floor(Math.random() * barColors.length)], 
+                        initialXOffset: Math.random() * window.innerWidth 
+                    }); 
+                }
+            }
+            
+            function roundRect(ctx, x, y, width, height, radius) { 
+                ctx.beginPath(); 
+                ctx.moveTo(x + radius, y); 
+                ctx.arcTo(x + width, y, x + width, y + height, radius); 
+                ctx.arcTo(x + width, y + height, x, y + height, radius); 
+                ctx.arcTo(x, y + height, x, y, radius); 
+                ctx.arcTo(x, y, x + width, y, radius); 
+                ctx.closePath(); 
+                ctx.fill(); 
+            }
+            
+            function drawBackgroundElements() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines; i++) { 
+                    const y = (i * (barHeight + barGap)) + (barGap / 2); 
+                    for (let j = 0; j < numBarsPerLine; j++) { 
+                        const bar = bars[i * numBarsPerLine + j]; 
+                        if (!bar) continue;
+                        let x = bar.initialXOffset;
+                        ctx.fillStyle = bar.color; 
+                        roundRect(ctx, x, y, bar.width, barHeight, 5); 
+                    } 
+                }
+            }
+            
+            function resizeAnimationCanvas() { 
+                canvas.width = window.innerWidth; 
+                canvas.height = window.innerHeight; 
+                initializeBars();
+                drawBackgroundElements(); 
+            }
+            
+            resizeAnimationCanvas();
+            window.addEventListener('resize', resizeAnimationCanvas);
+        }
+
+        function showConfirmation(message, callback) {
+            document.getElementById('confirmationModalMessage').textContent = message;
+            document.getElementById('confirmationModal').classList.remove('hidden');
+            document.getElementById('confirmationModal').classList.add('flex');
+            confirmCallback = callback; // Armazena o callback
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmationModal').classList.add('hidden');
+            document.getElementById('confirmationModal').classList.remove('flex');
+            confirmCallback = null; // Limpa o callback
+        }
+
+        function showAlert(message) {
+            document.getElementById('alertModalMessage').textContent = message;
+            document.getElementById('alertModal').classList.remove('hidden');
+            document.getElementById('alertModal').classList.add('flex');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.add('hidden');
+            document.getElementById('alertModal').classList.remove('flex');
+        }
+
+        // --- FUNÇÕES DO FIRESTORE (CRUD) ---
+        async function saveDepartment() {
+            const departmentId = document.getElementById('departmentId').value;
+            const departmentName = document.getElementById('departmentName').value.trim();
+            const departmentManager = document.getElementById('departmentManager').value.trim();
+            const selectedDays = Array.from(document.querySelectorAll('#cadastroFormContainer input[type="checkbox"]:checked')).map(cb => cb.id);
+            
+            const functions = [];
+            document.querySelectorAll('#functionsContainer .function-tag').forEach(tag => {
+                functions.push(tag.firstChild.textContent.trim());
+            });
+
+            const departmentData = {
+                name: departmentName,
+                manager: departmentManager,
+                functions: functions,
+                observations: document.getElementById('departmentObservations').value.trim(),
+                calendarId: document.getElementById('departmentCalendar').value,
+                workDays: selectedDays,
+                workHours: {
+                    start: document.getElementById('startWeekdayWorkTime').value,
+                    lunchStart: document.getElementById('startWeekdayLunchTime').value,
+                    lunchEnd: document.getElementById('endWeekdayLunchTime').value,
+                    end: document.getElementById('endWeekdayWorkTime').value
+                },
+                noBreakWeekday: document.getElementById('noBreakWeekday').checked,
+                weekendWorkHours: null,
+                noBreakWeekend: document.getElementById('noBreakWeekend').checked,
+            };
+
+            if (document.getElementById('sabado').checked || document.getElementById('domingo').checked) {
+                departmentData.weekendWorkHours = {
+                    start: document.getElementById('startWeekendWorkTime').value,
+                    lunchStart: document.getElementById('startWeekendLunchTime').value,
+                    lunchEnd: document.getElementById('endWeekendLunchTime').value,
+                    end: document.getElementById('endWeekendWorkTime').value
+                };
+            }
+
+            if (departmentName === "") {
+                showAlert("O nome do departamento é obrigatório."); // Usar showAlert
+                return;
+            }
+
+            if (departmentId) {
+                departmentData.status = document.getElementById('departmentStatus').value;
+                try {
+                    departmentData.id = parseInt(departmentId);
+                    departmentData.updatedAt = new Date();
+                    const docRef = doc(db, `artifacts/${appId}/public/data/departments`, departmentId);
+                    await setDoc(docRef, departmentData, { merge: true });
+                    toggleForm(false);
+                } catch (error) {
+                    console.error("Erro ao atualizar departamento:", error);
+                    showAlert("Ocorreu um erro ao atualizar. Tente novamente.");
+                }
+            } else {
+                departmentData.status = 'Ativo'; // Default status for new departments
+                const departmentsColRef = collection(db, `artifacts/${appId}/public/data/departments`);
+                const querySnapshot = await getDocs(departmentsColRef);
+                const lastId = querySnapshot.docs.reduce((max, doc) => (parseInt(doc.id) > max ? parseInt(doc.id) : max), 0);
+                const newId = lastId + 1;
+
+                departmentData.id = newId;
+                departmentData.createdAt = new Date();
+
+                try {
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/departments`, newId.toString()), departmentData);
+                    toggleForm(false);
+                } catch (error) {
+                    console.error("Erro ao adicionar departamento:", error);
+                    showAlert("Ocorreu um erro ao salvar. Tente novamente.");
+                }
+            }
+        }
+
+        async function deleteDepartment(id) {
+            if (!isAuthReady) {
+                console.error("Autenticação não está pronta.");
+                showAlert("Autenticação não está pronta. Tente novamente."); // Usar showAlert
+                return;
+            }
+            showConfirmation(`Tem certeza que deseja excluir o departamento com ID ${id}?`, async () => { // Usar showConfirmation
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/departments`, id));
+                } catch (error) {
+                    console.error("Erro ao deletar departamento:", error);
+                    showAlert("Ocorreu um erro ao excluir. Tente novamente.");
+                }
+            });
+        }
+        
+        // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
+        const toMinutes = (timeStr) => {
+            if (!timeStr) return 0;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        };
+
+        function getTimeDifferenceInMinutes(startWorkId, startLunchId, endLunchId, endWorkId, noBreakId) {
+            const noBreakCheckbox = document.getElementById(noBreakId);
+            if (!noBreakCheckbox) return 0; // Safety check
+            const isNoBreak = noBreakCheckbox.checked;
+            
+            const startWorkMins = toMinutes(document.getElementById(startWorkId).value);
+            const endWorkMins = toMinutes(document.getElementById(endWorkId).value);
+
+            if (!startWorkMins || !endWorkMins) return 0;
+
+            if (isNoBreak) {
+                if (endWorkMins < startWorkMins) return -1;
+                return endWorkMins - startWorkMins;
+            } else {
+                const startLunchMins = toMinutes(document.getElementById(startLunchId).value);
+                const endLunchMins = toMinutes(document.getElementById(endLunchId).value);
+                if (!startLunchMins || !endLunchMins) return 0;
+                if (startLunchMins < startWorkMins || endLunchMins < startLunchMins || endWorkMins < endLunchMins) return -1;
+                return (startLunchMins - startWorkMins) + (endWorkMins - endLunchMins);
+            }
+        }
+
+        function formatMinutesToHours(totalMinutes) {
+             if (totalMinutes < 0) return 'Inválido';
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            return `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
+        }
+
+        function calculateDepartmentWeeklyHours(department) {
+            const toMinutes = (timeStr) => {
+                if (!timeStr) return 0;
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+
+            let totalWeeklyMinutes = 0;
+            const weekdays = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+            const weekends = ['sabado', 'domingo'];
+
+            const workDays = department.workDays || [];
+            const weekdayCount = workDays.filter(day => weekdays.includes(day)).length;
+            const weekendCount = workDays.filter(day => weekends.includes(day)).length;
+
+            if (department.workHours) {
+                const startWork = toMinutes(department.workHours.start);
+                const endWork = toMinutes(department.workHours.end);
+                let dailyMinutes = 0;
+                if (department.noBreakWeekday) {
+                    if (endWork > startWork) dailyMinutes = endWork - startWork;
+                } else {
+                    const startLunch = toMinutes(department.workHours.lunchStart);
+                    const endLunch = toMinutes(department.workHours.lunchEnd);
+                    if (endWork > endLunch && endLunch > startLunch && startLunch > startWork) {
+                        dailyMinutes = (startLunch - startWork) + (endWork - endLunch);
+                    }
+                }
+                totalWeeklyMinutes += weekdayCount * dailyMinutes;
+            }
+
+            if (department.weekendWorkHours && weekendCount > 0) {
+                const startWork = toMinutes(department.weekendWorkHours.start);
+                const endWork = toMinutes(department.weekendWorkHours.end);
+                let dailyMinutes = 0;
+                if (department.noBreakWeekend) {
+                    if (endWork > startWork) dailyMinutes = endWork - startWork;
+                } else {
+                    const startLunch = toMinutes(department.weekendWorkHours.lunchStart);
+                    const endLunch = toMinutes(department.weekendWorkHours.lunchEnd);
+                    if (endWork > endLunch && endLunch > startLunch && startLunch > startWork) {
+                        dailyMinutes = (startLunch - startWork) + (endWork - endLunch);
+                    }
+                }
+                totalWeeklyMinutes += weekendCount * dailyMinutes;
+            }
+
+            return formatMinutesToHours(totalWeeklyMinutes);
+        }
+
+        function calculateAndDisplayDailyWorkHours(isWeekend) {
+            const prefix = isWeekend ? 'Weekend' : 'Weekday';
+            const totalMinutes = getTimeDifferenceInMinutes(`start${prefix}WorkTime`, `start${prefix}LunchTime`, `end${prefix}LunchTime`, `end${prefix}WorkTime`, `noBreak${prefix}`);
+            const totalEl = document.getElementById(`total${prefix}WorkHours`);
+
+            totalEl.classList.remove('text-red-500', 'text-sky-400');
+            
+            if (totalMinutes === 0) {
+                 totalEl.textContent = '';
+            } else if (totalMinutes < 0) {
+                totalEl.textContent = 'Horário inválido';
+                totalEl.classList.add('text-red-500');
+            } else {
+                totalEl.textContent = `Total: ${formatMinutesToHours(totalMinutes)}`;
+                totalEl.classList.add('text-sky-400');
+            }
+            calculateTotalWeeklyHours();
+        }
+
+        function calculateTotalWeeklyHours() {
+            const weekdayMinutes = getTimeDifferenceInMinutes('startWeekdayWorkTime', 'startWeekdayLunchTime', 'endWeekdayLunchTime', 'endWeekdayWorkTime', 'noBreakWeekday');
+            const weekendMinutes = getTimeDifferenceInMinutes('startWeekendWorkTime', 'startWeekendLunchTime', 'endWeekendLunchTime', 'endWeekendWorkTime', 'noBreakWeekend');
+
+            const weekdayCount = document.querySelectorAll('.weekday-checkbox:checked').length;
+            const weekendCount = document.querySelectorAll('.weekend-checkbox:checked').length;
+
+            let totalWeeklyMinutes = 0;
+            if (weekdayMinutes > 0) {
+                totalWeeklyMinutes += weekdayCount * weekdayMinutes;
+            }
+             if (weekendMinutes > 0) {
+                totalWeeklyMinutes += weekendCount * weekendMinutes;
+            }
+
+            document.getElementById('totalWeeklyHoursDisplay').textContent = formatMinutesToHours(totalWeeklyMinutes);
+        }
+
+        function handleNoBreakToggle(isWeekend) {
+            const prefix = isWeekend ? 'Weekend' : 'Weekday';
+            const noBreakCheckbox = document.getElementById(`noBreak${prefix}`);
+            const startLunchInput = document.getElementById(`start${prefix}LunchTime`);
+            const endLunchInput = document.getElementById(`end${prefix}LunchTime`);
+
+            const isDisabled = noBreakCheckbox.checked;
+            startLunchInput.disabled = isDisabled;
+            endLunchInput.disabled = isDisabled;
+            startLunchInput.classList.toggle('opacity-50', isDisabled);
+            endLunchInput.classList.toggle('opacity-50', isDisabled);
+
+            if (isDisabled) {
+                startLunchInput.value = '';
+                endLunchInput.value = '';
+            }
+            calculateAndDisplayDailyWorkHours(isWeekend);
+        }
+
+        function toggleWeekendHoursVisibility() {
+            const sabadoChecked = document.getElementById('sabado').checked;
+            const domingoChecked = document.getElementById('domingo').checked;
+            const weekendContainer = document.getElementById('weekendHoursContainer');
+            if (sabadoChecked || domingoChecked) {
+                weekendContainer.classList.remove('hidden');
+            } else {
+                weekendContainer.classList.add('hidden');
+            }
+            calculateTotalWeeklyHours();
+        }
+
+        function addFunctionTag(functionName) {
+            const container = document.getElementById('functionsContainer');
+            const tag = document.createElement('span');
+            tag.className = 'function-tag';
+            tag.textContent = functionName;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-tag-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.type = 'button';
+            removeBtn.onclick = () => tag.remove();
+
+            tag.appendChild(removeBtn);
+            container.appendChild(tag);
+        }
+
+        async function populateCalendarsDropdown() {
+            const calendarSelect = document.getElementById('departmentCalendar');
+            if (!calendarSelect) return;
+
+            calendarSelect.innerHTML = '<option value="">Carregando calendários...</option>';
+
+            try {
+                const calendarsColRef = collection(db, `artifacts/${appId}/public/data/calendars`);
+                const querySnapshot = await getDocs(calendarsColRef);
+                const activeCalendars = [];
+                querySnapshot.forEach((doc) => {
+                    const calendar = doc.data();
+                    if (calendar.status === 'Ativo') {
+                        activeCalendars.push({ id: doc.id, ...calendar });
+                    }
+                });
+
+                calendarSelect.innerHTML = '<option value="">Selecione um calendário</option>';
+
+                if (activeCalendars.length === 0) {
+                    calendarSelect.innerHTML = '<option value="">Nenhum calendário ativo encontrado</option>';
+                    return;
+                }
+                
+                activeCalendars.sort((a, b) => a.name.localeCompare(b.name));
+
+                activeCalendars.forEach(cal => {
+                    const option = document.createElement('option');
+                    option.value = cal.id;
+                    option.textContent = cal.name;
+                    calendarSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar calendários:", error);
+                calendarSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        function renderDepartments(departments) {
+            const departmentsTableBody = document.getElementById('departmentsTableBody');
+            if (!departmentsTableBody) return;
+            
+            departmentsTableBody.innerHTML = '';
+            departments.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+            if (departments.length === 0) {
+                departmentsTableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8">Nenhum departamento encontrado.</td></tr>';
+                return;
+            }
+
+            const dayMap = {
+                segunda: 'Seg', terca: 'Ter', quarta: 'Qua',
+                quinta: 'Qui', sexta: 'Sex', sabado: 'Sáb', domingo: 'Dom'
+            };
+
+            departments.forEach(dept => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-slate-900 border-b border-slate-700 hover:bg-slate-800 transition-colors";
+                
+                const status = dept.status || 'Ativo';
+                const statusColor = status === 'Ativo' ? 'bg-green-500/20 text-green-400' : 'bg-slate-500/20 text-slate-400';
+                const formattedDays = dept.workDays && dept.workDays.length > 0 ? dept.workDays.map(day => dayMap[day] || day).join(', ') : 'N/A';
+                const weeklyHours = calculateDepartmentWeeklyHours(dept);
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-white table-cell-responsive">${dept.id}</td>
+                    <td class="px-6 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
+                    <td class="px-6 py-4 table-cell-responsive">${dept.name}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${dept.manager || 'N/A'}</td>
+                    <td class="px-6 py-4 font-semibold text-sky-400 table-cell-responsive">${weeklyHours}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${formattedDays}</td>
+                    <td class="px-6 py-4 text-right table-cell-responsive">
+                        <div class="flex items-center justify-end gap-4">
+                            <button class="text-sky-400 hover:text-sky-500 edit-btn transition-transform hover:scale-110" data-id="${dept.id}" title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                            <button class="text-red-500 hover:text-red-600 delete-btn transition-transform hover:scale-110" data-id="${dept.id}" title="Excluir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                departmentsTableBody.appendChild(tr);
+            });
+        }
+
+        function filterAndRenderDepartments() {
+            const searchTerm = document.getElementById('searchDepartmentsInput').value.toLowerCase();
+            const filtered = allDepartments.filter(dept =>
+                dept.name.toLowerCase().includes(searchTerm) ||
+                (dept.manager && dept.manager.toLowerCase().includes(searchTerm))
+            );
+            renderDepartments(filtered);
+        }
+
+        async function toggleForm(show, department = null) {
+            const cadastroForm = document.getElementById('cadastroFormContainer');
+            const listContainer = document.getElementById('departamentosListContainer');
+            const searchContainer = document.getElementById('search-form-container');
+            const formTitleEl = document.getElementById('formTitle');
+            const saveButton = document.getElementById('saveDepartmentButton');
+            const statusContainer = document.getElementById('statusContainer');
+
+            // Reset form
+            document.getElementById('departmentId').value = "";
+            document.getElementById('departmentName').value = "";
+            document.getElementById('departmentManager').value = "";
+            document.getElementById('departmentCalendar').value = "";
+            document.getElementById('functionsContainer').innerHTML = '';
+            document.getElementById('functionInput').value = '';
+            document.getElementById('departmentObservations').value = '';
+            document.querySelectorAll('#cadastroFormContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#cadastroFormContainer input[type="time"]').forEach(t => t.value = "");
+            handleNoBreakToggle(false);
+            handleNoBreakToggle(true);
+
+            if (show) {
+                populateCalendarsDropdown(); // Popular o dropdown de calendários
+                listContainer.classList.add('hidden');
+                searchContainer.classList.add('hidden');
+                cadastroForm.classList.remove('hidden');
+
+                if (department) { // Edit mode
+                    await populateCalendarsDropdown(); // Aguarda os calendários carregarem
+                    formTitleEl.textContent = 'Editar Departamento';
+                    saveButton.textContent = 'Atualizar';
+                    statusContainer.classList.remove('hidden');
+                    document.getElementById('departmentId').value = department.id;
+                    document.getElementById('departmentName').value = department.name || '';
+                    document.getElementById('departmentManager').value = department.manager || '';
+                    document.getElementById('departmentStatus').value = department.status || 'Ativo';
+                    document.getElementById('departmentCalendar').value = department.calendarId || '';
+                    document.getElementById('departmentObservations').value = department.observations || '';
+                    
+                    if (department.functions && Array.isArray(department.functions)) {
+                        department.functions.forEach(func => addFunctionTag(func));
+                    }
+                    if (department.workDays && Array.isArray(department.workDays)) {
+                        department.workDays.forEach(dayId => {
+                            const cb = document.getElementById(dayId);
+                            if (cb) cb.checked = true;
+                        });
+                    }
+                    if (department.workHours) {
+                        document.getElementById('startWeekdayWorkTime').value = department.workHours.start || '';
+                        document.getElementById('startWeekdayLunchTime').value = department.workHours.lunchStart || '';
+                        document.getElementById('endWeekdayLunchTime').value = department.workHours.lunchEnd || '';
+                        document.getElementById('endWeekdayWorkTime').value = department.workHours.end || '';
+                    }
+                    if (department.weekendWorkHours) {
+                        document.getElementById('startWeekendWorkTime').value = department.weekendWorkHours.start || '';
+                        document.getElementById('startWeekendLunchTime').value = department.weekendWorkHours.lunchStart || '';
+                        document.getElementById('endWeekendLunchTime').value = department.weekendWorkHours.lunchEnd || '';
+                        document.getElementById('endWeekendWorkTime').value = department.weekendWorkHours.end || '';
+                    }
+
+                    document.getElementById('noBreakWeekday').checked = department.noBreakWeekday || false;
+                    document.getElementById('noBreakWeekend').checked = department.noBreakWeekend || false;
+
+                    handleNoBreakToggle(false);
+                    handleNoBreakToggle(true);
+                    toggleWeekendHoursVisibility();
+                } else { // Add mode
+                    formTitleEl.textContent = 'Cadastrar Novo Departamento';
+                    saveButton.textContent = 'Salvar';
+                    statusContainer.classList.add('hidden');
+                }
+            } else {
+                cadastroForm.classList.add('hidden');
+                listContainer.classList.remove('hidden');
+                searchContainer.classList.remove('hidden');
+            }
+        }
+
+        // --- LÓGICA PRINCIPAL (DOM READY) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGanttBackground();
+
+            const sidebar = document.getElementById('sidebar-container');
+            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
+
+            sidebarToggleButton?.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+            sidebarCloseButton?.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            // Render sidebar
+            renderSidebar(window.location.pathname);
+
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (error) { 
+                        console.error("Erro na autenticação:", error); 
+                    }
+                }
+                const userId = auth.currentUser?.uid || crypto.randomUUID();
+                isAuthReady = true;
+
+                const departmentsColRef = collection(db, `artifacts/${appId}/public/data/departments`);
+                onSnapshot(departmentsColRef, (snapshot) => {
+                    console.log("Departments data received:", snapshot.docs.length, "documents");
+                    allDepartments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    filterAndRenderDepartments();
+                }, (error) => {
+                    console.error("Erro ao carregar departamentos:", error);
+                    document.getElementById('departmentsTableBody').innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-400">Erro ao carregar dados. Verifique o console para detalhes.</td></tr>';
+                });
+            });
+
+            // Event Listeners
+            document.getElementById('showFormButton').addEventListener('click', () => {
+                console.log("Show Form button clicked.");
+                toggleForm(true, null);
+            });
+            document.getElementById('cancelButton').addEventListener('click', () => {
+                console.log("Cancel button clicked.");
+                toggleForm(false);
+            });
+            document.getElementById('saveDepartmentButton').addEventListener('click', () => {
+                console.log("Save Department button clicked.");
+                saveDepartment();
+            });
+            document.getElementById('searchDepartmentsInput').addEventListener('input', filterAndRenderDepartments);
+            
+            document.getElementById('functionInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const functionName = e.target.value.trim();
+                    if (functionName) {
+                        addFunctionTag(functionName);
+                        e.target.value = '';
+                    }
+                }
+            });
+
+            ['startWeekdayWorkTime', 'startWeekdayLunchTime', 'endWeekdayLunchTime', 'endWeekdayWorkTime'].forEach(id => {
+                document.getElementById(id).addEventListener('input', () => calculateAndDisplayDailyWorkHours(false));
+            });
+            ['startWeekendWorkTime', 'startWeekendLunchTime', 'endWeekendLunchTime', 'endWeekendWorkTime'].forEach(id => {
+                document.getElementById(id).addEventListener('input', () => calculateAndDisplayDailyWorkHours(true));
+            });
+            document.querySelectorAll('#cadastroFormContainer input[type="checkbox"].weekend-checkbox, #cadastroFormContainer input[type="checkbox"].weekday-checkbox').forEach(cb => {
+                cb.addEventListener('change', toggleWeekendHoursVisibility);
+            });
+            document.getElementById('noBreakWeekday').addEventListener('change', () => handleNoBreakToggle(false));
+            document.getElementById('noBreakWeekend').addEventListener('change', () => handleNoBreakToggle(true));
+
+            document.getElementById('departmentsTableBody').addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    deleteDepartment(deleteButton.dataset.id);
+                    return;
+                }
+                
+                const editButton = e.target.closest('.edit-btn');
+                if (editButton) {
+                    const id = editButton.dataset.id;
+                    const departmentToEdit = allDepartments.find(dept => dept.id.toString() === id.toString());
+                    if (departmentToEdit) {
+                        toggleForm(true, departmentToEdit); // Chamada da função
+                    }
+                }
+            });
+
+            // --- Modal Listeners ---
+            document.getElementById('confirmationModalCancelBtn').addEventListener('click', () => closeConfirmationModal());
+            document.getElementById('confirmationModalConfirmBtn').addEventListener('click', () => {
+                if (typeof confirmCallback === 'function') {
+                    confirmCallback();
+                }
+                closeConfirmationModal();
+            });
+            document.getElementById('confirmationModal').addEventListener('click', (e) => {
+                if (e.target.id === 'confirmationModal') closeConfirmationModal();
+            });
+
+            document.getElementById('alertModalOkBtn').addEventListener('click', () => closeAlertModal());
+            document.getElementById('alertModal').addEventListener('click', (e) => {
+                if (e.target.id === 'alertModal') closeAlertModal();
+            });
+        });
+    </script>
+</body>
+</html>

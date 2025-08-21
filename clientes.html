@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Clientes</title>
+    <!-- Incluindo Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Links para as fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <script src="settings.js" defer></script>
+    
+    <style>
+        /* Estilos base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.75rem; /* Menor que o anterior */
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+        .logotext-sub {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.65rem; /* Menor que o anterior */
+            color: #94A3B8;
+        }
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        .glass-effect {
+            background-color: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .sidebar-link.active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid #0EA5E9;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+        .sidebar-link:not(.active):hover {
+            background-color: rgba(30, 41, 59, 0.6);
+            transform: scale(1.02);
+        }
+        .sidebar-link, .sidebar-link-button {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link-button:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Estilos do botão 'Liquid Fill' */
+        .btn-liquid-fill {
+            position: relative;
+            background: transparent;
+            border: 1px solid #06B6D4;
+            color: #06B6D4;
+            overflow: hidden;
+            z-index: 10;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+        }
+        .btn-liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #06B6D4;
+            transition: transform 0.5s ease;
+            z-index: -1;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        .btn-liquid-fill:hover::before {
+            transform: scaleX(1);
+        }
+        .btn-liquid-fill:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+        }
+        .btn-liquid-fill:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .btn-liquid-fill svg {
+            transition: color 0.3s ease;
+        }
+        .btn-liquid-fill:hover svg {
+            color: white;
+        }
+
+        /* Estilos do Título Modelo 6 */
+        .title-6 {
+            font-size: 2rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            color: white;
+            position: relative;
+            padding-bottom: 0.5rem;
+            width: fit-content;
+            margin-right: auto;
+        }
+        .title-6::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0EA5E9, #22C55E);
+        }
+
+        .table-cell-responsive {
+            word-break: break-word;
+            padding-left: 1.5rem; /* Default px-6 */
+            padding-right: 1.5rem; /* Default px-6 */
+        }
+
+        /* Apply smaller padding on medium screens and below */
+        @media (max-width: 1023px) { /* Corresponds to Tailwind's 'lg' breakpoint */
+            .table-cell-responsive {
+                padding-left: 0.75rem; /* px-3 */
+                padding-right: 0.75rem; /* px-3 */
+            }
+        }
+        .submenu-content.max-h-0 {
+            max-height: 0;
+        }
+        .submenu-content.max-h-screen {
+            max-height: 100vh; /* Or a sufficiently large value */
+        }
+        .submenu-arrow.rotate-180 {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+    <script>
+        // Verifica o estado de login ao carregar a página
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html'; // Redireciona para a página de login se não estiver logado
+        }
+    </script>
+
+    <!-- Canvas para o fundo de animação Gantt -->
+    <canvas id="backgroundCanvas"></canvas>
+
+    <!-- Botão para abrir sidebar em telas pequenas -->
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
+    <div class="flex flex-1">
+        <!-- Sidebar (Barra Lateral) -->
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <!-- Logo do Stake Pro ATUALIZADO -->
+                <div class="flex items-center">
+                    <!-- A imagem agora é redonda -->
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <!-- O título foi redimensionado -->
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Projects & Process</p>
+                    </div>
+                </div>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1">
+            </nav>
+        </aside>
+    
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
+                
+                <div id="mainContentHeader" class="flex justify-between items-center mb-6">
+                    <h2 class="title-6">
+                        Gestão de Clientes
+                    </h2>
+                </div>
+
+                <!-- Formulário com barra de pesquisa -->
+                <div id="search-form-container" class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div class="relative flex-1 w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="searchClientsInput" placeholder="Pesquisar por nome ou e-mail..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-900 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all placeholder:text-slate-400">
+                    </div>
+                    <!-- Botão Liquid Fill integrado -->
+                    <button id="showFormButton" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm w-full md:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Cadastrar Cliente
+                    </button>
+                </div>
+
+                <!-- Área de Cadastro/Edição (inicialmente oculta) -->
+                <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full">
+                    <input type="hidden" id="clientId">
+                    <div class="flex justify-between items-start mb-4">
+                         <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Cliente</h3>
+                    </div>
+                   
+                    <div class="space-y-6 w-full max-w-5xl mx-auto">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <input type="text" id="clientName" placeholder="Nome Completo" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                            <input type="email" id="clientEmail" placeholder="E-mail" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 space-y-2">
+                                <h4 class="text-sm font-semibold text-slate-400">Departamento</h4>
+                                <select id="clientDepartment" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" required>
+                                    <option value="">Carregando departamentos...</option>
+                                </select>
+                            </div>
+                             <div class="flex-1 space-y-2">
+                                <h4 class="text-sm font-semibold text-slate-400">Função</h4>
+                                <select id="clientRole" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" required>
+                                    <option value="">Selecione um departamento primeiro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="text" id="clientCompany" placeholder="Empresa" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-slate-400">Observações</h4>
+                            <textarea id="clientObservations" placeholder="Adicione observações sobre o cliente..." rows="3" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400"></textarea>
+                        </div>
+
+                        <div class="flex gap-4 mt-6">
+                            <button id="cancelButton" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">
+                                Cancelar
+                            </button>
+                            <button id="saveClientButton" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Listagem -->
+                <div id="clientsListContainer" class="text-left w-full">
+                    <div class="overflow-x-auto rounded-lg border border-slate-800">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-200 uppercase bg-slate-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">ID</th>
+                                    <th scope="col" class="px-6 py-3">Status</th>
+                                    <th scope="col" class="px-6 py-3">Nome Completo</th>
+                                    <th scope="col" class="px-6 py-3">E-mail</th>
+                                    <th scope="col" class="px-6 py-3">Departamento</th>
+                                    <th scope="col" class="px-6 py-3">Função</th>
+                                    <th scope="col" class="px-6 py-3">Empresa</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientsTableBody">
+                                <!-- Itens de cliente serão injetados aqui -->
+                                <tr><td colspan="8" class="text-center p-8">Carregando clientes...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal de Alerta Genérico -->
+    <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
+            <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
+            <p id="alertModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-center">
+                <button id="alertModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação Genérico -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
+            <p id="confirmationModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirmationModalCancelBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="confirmationModalConfirmBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { renderSidebar } from './sidebar.js';
+        // Importa as funções do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc, setDoc, getDocs, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
+            authDomain: "stake-pro-db.firebaseapp.com",
+            projectId: "stake-pro-db",
+            storageBucket: "stake-pro-db.firebasestorage.app",
+            messagingSenderId: "569517541701",
+            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth, userId;
+        let allClients = [];
+        let cachedDepartments = []; // Global variable to store departments
+        let confirmCallback = null; // Adicionado para os modais
+
+        // --- INICIALIZAÇÃO DO FIREBASE ---
+        try {
+            console.log("Initializing Firebase with config:", firebaseConfig);
+            console.log("Using appId:", appId);
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Erro ao inicializar o Firebase:", error);
+            document.body.innerHTML = "Erro na configuração do Firebase. Verifique o console.";
+        }
+
+        // --- FUNÇÕES DE MODAIS ---
+        function showConfirmation(message, callback) {
+            document.getElementById('confirmationModalMessage').textContent = message;
+            document.getElementById('confirmationModal').classList.remove('hidden');
+            document.getElementById('confirmationModal').classList.add('flex');
+            confirmCallback = callback; // Armazena o callback
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmationModal').classList.add('hidden');
+            document.getElementById('confirmationModal').classList.remove('flex');
+            confirmCallback = null; // Limpa o callback
+        }
+
+        function showAlert(message) {
+            document.getElementById('alertModalMessage').textContent = message;
+            document.getElementById('alertModal').classList.remove('hidden');
+            document.getElementById('alertModal').classList.add('flex');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.add('hidden');
+            document.getElementById('alertModal').classList.remove('flex');
+        }
+
+        // --- LÓGICA DA ANIMAÇÃO DE FUNDO ---
+        function initializeGanttBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const barHeight = 20, barGap = 40, numBarsPerLine = 3, numLines = 8;
+            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)'}; // Cores para as barras
+            const bars = [];
+            const barColors = [colors.bar1, colors.bar2, colors.bar3];
+
+            function initializeBars() {
+                bars.length = 0; // Limpa as barras existentes
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines * numBarsPerLine; i++) { 
+                    bars.push({ 
+                        width: (Math.random() * 0.2 + 0.1) * window.innerWidth, // Largura aleatória
+                        color: barColors[Math.floor(Math.random() * barColors.length)], // Cor aleatória
+                        initialXOffset: Math.random() * window.innerWidth // Posição X inicial aleatória
+                    }); 
+                } 
+            }
+            
+            function roundRect(ctx, x, y, width, height, radius) { 
+                ctx.beginPath(); 
+                ctx.moveTo(x + radius, y); 
+                ctx.arcTo(x + width, y, x + width, y + height, radius); 
+                ctx.arcTo(x + width, y + height, x, y + height, radius); 
+                ctx.arcTo(x, y + height, x, y, radius); 
+                ctx.arcTo(x, y, x + width, y, radius); 
+                ctx.closePath(); 
+                ctx.fill(); 
+            }
+            
+            function drawBackgroundElements() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines; i++) { 
+                    const y = (i * (barHeight + barGap)) + (barGap / 2); 
+                    for (let j = 0; j < numBarsPerLine; j++) { 
+                        const bar = bars[i * numBarsPerLine + j]; 
+                        if (!bar) continue; // Garante que a barra existe
+                        let x = bar.initialXOffset; // Posição X da barra
+                        ctx.fillStyle = bar.color; 
+                        roundRect(ctx, x, y, bar.width, barHeight, 5); 
+                    } 
+                } 
+            }
+            
+            function resizeAnimationCanvas() { 
+                canvas.width = window.innerWidth; 
+                canvas.height = window.innerHeight; 
+                initializeBars(); // Reinicializa as barras ao redimensionar
+                drawBackgroundElements(); // Redesenha os elementos
+            }
+            
+            resizeAnimationCanvas(); // Inicializa o canvas no carregamento
+            window.addEventListener('resize', resizeAnimationCanvas); // Redimensiona o canvas com a janela
+        }
+
+        // --- FUNÇÕES DO FIRESTORE (CRUD) ---
+        async function saveClient() {
+            const clientId = document.getElementById('clientId').value;
+            const clientName = document.getElementById('clientName').value.trim();
+            const clientEmail = document.getElementById('clientEmail').value.trim();
+            const clientDepartmentSelect = document.getElementById('clientDepartment');
+            const clientDepartmentId = clientDepartmentSelect.value;
+            const clientDepartmentName = clientDepartmentSelect.options[clientDepartmentSelect.selectedIndex].textContent;
+            const clientRoleSelect = document.getElementById('clientRole');
+            const clientRoleId = clientRoleSelect.value;
+            const clientRoleName = clientRoleSelect.options[clientRoleSelect.selectedIndex].textContent;
+            const clientCompany = document.getElementById('clientCompany').value.trim();
+            const clientObservations = document.getElementById('clientObservations').value.trim();
+
+            if (!clientName || !clientEmail || !clientDepartmentId || !clientRoleId || !clientCompany) {
+                showAlert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+            if (!emailRegex.test(clientEmail)) {
+                showAlert('Por favor, insira um endereço de e-mail válido para o cliente.');
+                return;
+            }
+
+            // Validação de nome completo duplicado
+            const clientsColRef = collection(db, `artifacts/${appId}/public/data/clients`);
+            const q = query(clientsColRef, where("fullName", "==", clientName));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const existingClient = querySnapshot.docs[0];
+                if (existingClient.id !== clientId) {
+                    showAlert('Já existe um cliente com este nome completo. Por favor, use um nome diferente.');
+                    return;
+                }
+            }
+
+            const clientData = {
+                fullName: clientName,
+                email: clientEmail,
+                department: { id: clientDepartmentId, name: clientDepartmentName },
+                role: { id: clientRoleId, name: clientRoleName },
+                company: clientCompany,
+                observations: clientObservations,
+                status: 'Ativo', // Default status for new clients
+            };
+
+            try {
+                if (clientId) { // Update
+                    const docRef = doc(db, `artifacts/${appId}/public/data/clients`, clientId);
+                    await setDoc(docRef, clientData, { merge: true });
+                    showAlert("Cliente atualizado com sucesso!");
+                } else { // Create
+                    const querySnapshotForNewId = await getDocs(clientsColRef);
+                    const lastId = querySnapshotForNewId.docs.reduce((max, doc) => {
+                        const docIdNum = parseInt(doc.id);
+                        return docIdNum > max ? docIdNum : max;
+                    }, 0);
+                    const newId = lastId + 1;
+
+                    clientData.id = newId; // Store the generated ID within the document
+                    clientData.createdAt = new Date();
+
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/clients`, newId.toString()), clientData);
+                    showAlert("Cliente cadastrado com sucesso!");
+                }
+                toggleForm(false);
+            } catch (error) {
+                console.error("Erro ao salvar cliente:", error);
+                showAlert("Ocorreu um erro ao salvar o cliente. Tente novamente.");
+            }
+        }
+
+        async function deleteClient(id) {
+            showConfirmation(`Tem certeza que deseja excluir o cliente com ID ${id}?`, async () => {
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/clients`, id));
+                    showAlert("Cliente excluído com sucesso!");
+                } catch (error) {
+                    console.error("Erro ao deletar cliente:", error);
+                    showAlert("Ocorreu um erro ao excluir o cliente. Tente novamente.");
+                }
+            });
+        }
+        
+        function renderClients(clients) {
+            const clientsTableBody = document.getElementById('clientsTableBody');
+            if (!clientsTableBody) return;
+            
+            clientsTableBody.innerHTML = '';
+            clients.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+            if (clients.length === 0) {
+                clientsTableBody.innerHTML = '<tr><td colspan="8" class="text-center p-8">Nenhum cliente encontrado.</td></tr>';
+                return;
+            }
+
+            clients.forEach(client => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-slate-900 border-b border-slate-700 hover:bg-slate-800 transition-colors";
+                
+                const status = client.status || 'Ativo';
+                const statusColor = status === 'Ativo' ? 'bg-green-500/20 text-green-400' : 'bg-slate-500/20 text-slate-400';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-white table-cell-responsive">${client.id}</td>
+                    <td class="px-6 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
+                    <td class="px-6 py-4 table-cell-responsive">${client.fullName}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${client.email}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${client.department.name || 'N/A'}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${client.role.name || 'N/A'}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${client.company || 'N/A'}</td>
+                    <td class="px-6 py-4 text-right table-cell-responsive">
+                        <div class="flex items-center justify-end gap-4">
+                            <button class="text-sky-400 hover:text-sky-500 edit-btn transition-transform hover:scale-110" data-id="${client.id}" title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                            <button class="text-red-500 hover:text-red-600 delete-btn transition-transform hover:scale-110" data-id="${client.id}" title="Excluir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                clientsTableBody.appendChild(tr);
+            });
+        }
+
+        async function toggleForm(show, client = null) {
+            const cadastroForm = document.getElementById('cadastroFormContainer');
+            const listContainer = document.getElementById('clientsListContainer');
+            const searchContainer = document.getElementById('search-form-container');
+            const formTitleEl = document.getElementById('formTitle');
+            const saveButton = document.getElementById('saveClientButton');
+
+            // Reset form
+            document.getElementById('clientId').value = "";
+            document.getElementById('clientName').value = "";
+            document.getElementById('clientEmail').value = "";
+            document.getElementById('clientCompany').value = "";
+            document.getElementById('clientObservations').value = "";
+            document.getElementById('clientDepartment').value = "";
+            document.getElementById('clientRole').innerHTML = '<option value="">Selecione um departamento primeiro</option>';
+
+            if (show) {
+                await populateDepartmentsDropdown(); // Populate department dropdown
+                listContainer.classList.add('hidden');
+                searchContainer.classList.add('hidden');
+                cadastroForm.classList.remove('hidden');
+
+                if (client) { // Edit mode
+                    formTitleEl.textContent = 'Editar Cliente';
+                    saveButton.textContent = 'Atualizar';
+                    document.getElementById('clientId').value = client.id;
+                    document.getElementById('clientName').value = client.fullName || '';
+                    document.getElementById('clientEmail').value = client.email || '';
+                    document.getElementById('clientCompany').value = client.company || '';
+                    document.getElementById('clientObservations').value = client.observations || '';
+                    document.getElementById('clientDepartment').value = client.department.id || '';
+                    await populateRolesDropdown(client.department.id, client.role.name);
+                } else { // Add mode
+                    formTitleEl.textContent = 'Cadastrar Novo Cliente';
+                    saveButton.textContent = 'Salvar';
+                }
+            } else {
+                cadastroForm.classList.add('hidden');
+                listContainer.classList.remove('hidden');
+                searchContainer.classList.remove('hidden');
+            }
+        }
+
+        async function populateDepartmentsDropdown(selectedDepartmentId = null) {
+            const departmentSelect = document.getElementById('clientDepartment');
+            departmentSelect.innerHTML = '<option value="">Carregando departamentos...</option>';
+            try {
+                const departmentsColRef = collection(db, `artifacts/${appId}/public/data/departments`);
+                const querySnapshot = await getDocs(departmentsColRef);
+                
+                // Cache ALL departments for rendering purposes
+                cachedDepartments = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Filter for ACTIVE departments for the dropdown
+                const activeDepartments = cachedDepartments
+                    .filter(dept => dept.status === 'Ativo')
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                departmentSelect.innerHTML = '<option value="">Selecione um departamento</option>';
+                activeDepartments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    departmentSelect.appendChild(option);
+                });
+
+                if (selectedDepartmentId) {
+                    departmentSelect.value = selectedDepartmentId;
+                }
+            } catch (error) {
+                console.error("Erro ao carregar departamentos para o dropdown:", error);
+                departmentSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        async function populateRolesDropdown(departmentId, selectedRoleName = null) {
+            const roleSelect = document.getElementById('clientRole');
+            roleSelect.innerHTML = '<option value="">Carregando funções...</option>';
+            roleSelect.disabled = true;
+
+            if (!departmentId) {
+                roleSelect.innerHTML = '<option value="">Selecione um departamento primeiro</option>';
+                return;
+            }
+
+            try {
+                const departmentDocRef = doc(db, `artifacts/${appId}/public/data/departments`, departmentId);
+                const departmentDoc = await getDoc(departmentDocRef);
+
+                if (departmentDoc.exists()) {
+                    const departmentData = departmentDoc.data();
+                    const functions = departmentData.functions || [];
+                    
+                    roleSelect.innerHTML = '<option value="">Selecione uma função</option>';
+                    functions.sort().forEach(func => {
+                        const option = document.createElement('option');
+                        option.value = func;
+                        option.textContent = func;
+                        if (selectedRoleName && func === selectedRoleName) {
+                             option.selected = true;
+                        }
+                        roleSelect.appendChild(option);
+                    });
+                    roleSelect.disabled = false;
+                } else {
+                    roleSelect.innerHTML = '<option value="">Departamento não encontrado</option>';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar funções:", error);
+                roleSelect.innerHTML = '<option value="">Erro ao carregar funções</option>';
+            }
+        }
+
+        async function main() {
+            // Inicializa a animação de fundo
+            initializeGanttBackground();
+
+            // Configura a autenticação e listeners do Firestore
+            await onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    try {
+                        if (initialAuthToken) { await signInWithCustomToken(auth, initialAuthToken); }
+                        else { await signInAnonymously(auth); }
+                    } catch (error) { console.error("Erro na autenticação:", error); }
+                }
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                
+                // Popula o dropdown de departamentos e inicia o listener de clientes
+                await populateDepartmentsDropdown();
+                onSnapshot(collection(db, `artifacts/${appId}/public/data/clients`), (snapshot) => {
+                    allClients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    filterAndRenderClients(); // Assuming a filter function will be added later
+                });
+            });
+
+            // --- LISTENERS DE EVENTOS ---
+
+            // Sidebar
+            const sidebar = document.getElementById('sidebar-container');
+            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
+
+            sidebarToggleButton?.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+            sidebarCloseButton?.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+            
+            // Render sidebar
+            renderSidebar(window.location.pathname, showAlert); // Pass showAlert to sidebar
+
+            // Botões de Ação
+            document.getElementById('showFormButton').addEventListener('click', () => {
+                toggleForm(true);
+            });
+
+            document.getElementById('cancelButton').addEventListener('click', () => {
+                toggleForm(false);
+            });
+
+            document.getElementById('saveClientButton').addEventListener('click', (e) => {
+                e.preventDefault();
+                saveClient();
+            });
+
+            document.getElementById('clientsTableBody').addEventListener('click', async (e) => {
+                const editBtn = e.target.closest('.edit-btn');
+                const deleteBtn = e.target.closest('.delete-btn');
+
+                if (editBtn) {
+                    const clientId = editBtn.dataset.id;
+                    const clientToEdit = allClients.find(client => client.id.toString() === clientId.toString());
+                    if (clientToEdit) {
+                        await toggleForm(true, clientToEdit);
+                    }
+                } else if (deleteBtn) {
+                    const clientId = deleteBtn.dataset.id;
+                    deleteClient(clientId);
+                }
+            });
+
+            // Listeners para os modais genéricos
+            document.getElementById('confirmationModalCancelBtn').addEventListener('click', () => closeConfirmationModal());
+            document.getElementById('confirmationModalConfirmBtn').addEventListener('click', () => {
+                if (typeof confirmCallback === 'function') {
+                    confirmCallback();
+                }
+                closeConfirmationModal();
+            });
+            document.getElementById('confirmationModal').addEventListener('click', (e) => {
+                if (e.target.id === 'confirmationModal') closeConfirmationModal();
+            });
+
+            document.getElementById('alertModalOkBtn').addEventListener('click', () => closeAlertModal());
+            document.getElementById('alertModal').addEventListener('click', (e) => {
+                if (e.target.id === 'alertModal') closeAlertModal();
+            });
+
+            // Filter and search
+            document.getElementById('searchClientsInput').addEventListener('input', filterAndRenderClients);
+            function filterAndRenderClients() {
+                const searchTerm = document.getElementById('searchClientsInput').value.toLowerCase();
+                const filtered = allClients.filter(client =>
+                    client.fullName.toLowerCase().includes(searchTerm) ||
+                    client.email.toLowerCase().includes(searchTerm) ||
+                    (client.company && client.company.toLowerCase().includes(searchTerm))
+                );
+                renderClients(filtered);
+            }
+
+            // Department and Role dropdown change listeners
+            document.getElementById('clientDepartment').addEventListener('change', (event) => {
+                const selectedDepartmentId = event.target.value;
+                populateRolesDropdown(selectedDepartmentId);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', main);
+    </script>
+</body>
+</html>

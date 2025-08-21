@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Sistemas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <script src="settings.js" defer></script>
+    
+    <style>
+        /* Estilos base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.75rem; /* Menor que o anterior */
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+        .logotext-sub {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.65rem; /* Menor que o anterior */
+            color: #94A3B8;
+        }
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        .glass-effect {
+            background-color: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .sidebar-link.active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid #0EA5E9;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+        .sidebar-link:not(.active):hover {
+            background-color: rgba(30, 41, 59, 0.6);
+            transform: scale(1.02);
+        }
+        .sidebar-link, .sidebar-link-button {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link-button:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Estilos do botão 'Liquid Fill' */
+        .btn-liquid-fill {
+            position: relative;
+            background: transparent;
+            border: 1px solid #06B6D4;
+            color: #06B6D4;
+            overflow: hidden;
+            z-index: 10;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+        }
+        .btn-liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #06B6D4;
+            transition: transform 0.5s ease;
+            z-index: -1;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        .btn-liquid-fill:hover::before {
+            transform: scaleX(1);
+        }
+        .btn-liquid-fill:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+        }
+        .btn-liquid-fill:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .btn-liquid-fill svg {
+            transition: color 0.3s ease;
+        }
+        .btn-liquid-fill:hover svg {
+            color: white;
+        }
+
+        /* Estilos do Título Modelo 6 */
+        .title-6 {
+            font-size: 2rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            color: white;
+            position: relative;
+            padding-bottom: 0.5rem;
+            width: fit-content;
+            margin-right: auto;
+        }
+        .title-6::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0EA5E9, #22C55E);
+        }
+
+        /* Estilos para o Modelo 4 de seleção de dias */
+        .days-icon-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 0.5rem;
+        }
+        .days-icon-selection label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .days-icon-selection input {
+            display: none;
+        }
+        .days-icon-selection input:checked + .days-card {
+            background-color: #0EA5E9;
+            color: white;
+            border-color: #0EA5E9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .days-icon-selection input:not(:checked) + .days-card:hover {
+            background-color: #334155;
+            border-color: #0EA5E9;
+        }
+        .days-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem; /* Reduzido o preenchimento vertical */
+            border-radius: 0.5rem;
+            background-color: #1E293B;
+            border: 1px solid #475569;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .days-card p {
+            font-size: 0.625rem; /* Fonte menor */
+            margin-top: 0.125rem; /* Margem superior menor */
+            font-weight: 600;
+        }
+        .days-card .days-icon {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1rem; /* Fonte do ícone menor */
+        }
+        
+        /* Estilos para as tags de funções */
+        .function-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #334155;
+            color: #cbd5e1;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .remove-tag-btn {
+            margin-left: 0.5rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.25rem;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.2s ease;
+        }
+        .remove-tag-btn:hover {
+            color: #e2e8f0;
+        }
+        .table-cell-responsive {
+            word-break: break-word;
+            padding-left: 1.5rem; /* Default px-6 */
+            padding-right: 1.5rem; /* Default px-6 */
+        }
+
+        /* Apply smaller padding on medium screens and below */
+        @media (max-width: 1023px) { /* Corresponds to Tailwind's 'lg' breakpoint */
+            .table-cell-responsive {
+                padding-left: 0.75rem; /* px-3 */
+                padding-right: 0.75rem; /* px-3 */
+            }
+        }
+        .submenu-content.max-h-0 {
+            max-height: 0;
+        }
+        .submenu-content.max-h-screen {
+            max-height: 100vh; /* Or a sufficiently large value */
+        }
+        .submenu-arrow.rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 1024px) {
+            .responsive-table thead {
+                display: none;
+            }
+            .responsive-table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border-radius: 0.5rem;
+                overflow: hidden;
+                border: 1px solid #334155;
+            }
+            .responsive-table td {
+                display: block;
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border-bottom: 1px solid #334155;
+            }
+            .responsive-table td:last-child {
+                border-bottom: none;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0.5rem;
+                width: calc(50% - 1rem);
+                padding-right: 0.5rem;
+                text-align: left;
+                font-weight: 600;
+                color: #94a3b8;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+    <script>
+        // Verifica o estado de login ao carregar a página
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html'; // Redireciona para a página de login se não estiver logado
+        }
+    </script>
+
+    <canvas id="backgroundCanvas"></canvas>
+
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
+    <div class="flex flex-1">
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <div class="flex items-center">
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Sistema de Governança da TI</p>
+                    </div>
+                </div>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1">
+            </nav>
+        </aside>
+    
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
+                
+                <div id="mainContentHeader" class="flex justify-between items-center mb-6">
+                    <h2 class="title-6">
+                        Gestão de Sistemas
+                    </h2>
+                </div>
+
+                <div id="kpi-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+                </div>
+
+                <div id="search-form-container" class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div class="relative flex-1 w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="searchSystemsInput" placeholder="Pesquisar por nome do sistema ou categoria..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-900 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all placeholder:text-slate-400">
+                    </div>
+                    <button id="showFormButton" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm w-full md:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Cadastrar Sistema
+                    </button>
+                </div>
+
+                <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full">
+                    <input type="hidden" id="systemId">
+                    <div class="flex justify-between items-start mb-4">
+                            <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Sistema</h3>
+                    </div>
+                    
+                    <div class="space-y-6 w-full max-w-5xl mx-auto">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <input type="text" id="systemName" placeholder="Nome do Sistema" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                            <select id="systemCategory" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" required>
+                                <option value="">Selecione a Categoria</option>
+                                <option value="Help Desk">Help Desk</option>
+                                <option value="CRM">CRM</option>
+                                <option value="ERP">ERP</option>
+                                <option value="Financeiro">Financeiro</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-slate-400">Link da API (apenas para consulta GET de usuários)</h4>
+                            <select id="apiLink" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                <option value="">Selecione a API</option>
+                                <option value="movidesk">GET - API USUÁRIOS MOVIDESK</option>
+                            </select>
+                            <p class="text-xs text-slate-500">A API deve retornar dados de usuários com os campos obrigatórios: `status`, `nome completo`, `login`, `departamento`. Opcionais: `função/cargo`, `perfil`.</p>
+                        </div>
+                        
+
+                        <div class="flex gap-4 mt-6">
+                            <button id="cancelButton" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">
+                                Cancelar
+                            </button>
+                            <button id="saveSystemButton" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="systemsListContainer" class="text-left w-full overflow-x-auto">
+                    <div class="rounded-lg border border-slate-800">
+                        <table class="w-full text-sm text-left text-slate-400 responsive-table">
+                            <thead class="text-xs text-slate-200 uppercase bg-slate-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3" style="width: 5%;">ID</th>
+                                    <th scope="col" class="px-6 py-3" style="width: 8%;">Status</th>
+                                    <th scope="col" class="px-6 py-3" style="width: 20%;">Nome do Sistema</th>
+                                    <th scope="col" class="px-6 py-3" style="width: 15%;">Categoria</th>
+                                    <th scope="col" class="px-6 py-3" style="width: 15%;">Uso de Licenças</th>
+                                    <th scope="col" class="px-6 py-3" style="width: 17%;">Encerramento do Contrato</th>
+                                    <th scope="col" class="px-4 py-3" style="width: 20%;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="systemsTableBody">
+                                <tr><td colspan="10" class="text-center p-8">Nenhum sistema cadastrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                
+            </div>
+        </main>
+    </div>
+    
+    <div id="viewApiDataModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl flex flex-col p-6 w-full max-w-7xl max-h-[90vh] border border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="viewApiDataModalTitle" class="text-lg font-bold text-sky-400">Visualizar Dados da API</h3>
+                <button id="viewApiDataModalCloseBtn" class="text-white text-2xl">&times;</button>
+            </div>
+            <div id="apiDataContent" class="bg-slate-800 p-4 rounded-lg text-sm overflow-auto flex-grow"></div>
+            <div class="flex justify-end mt-4">
+                <button id="viewApiDataModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
+            <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
+            <p id="alertModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-center">
+                <button id="alertModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
+            <p id="confirmationModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirmationModalCancelBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="confirmationModalConfirmBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="contractModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-4xl border border-slate-700 flex flex-col max-h-[90vh]">
+            <input type="hidden" id="contractSystemId">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 id="contractModalTitle" class="text-lg font-bold text-sky-400">Gerenciar Contrato</h3>
+                <button id="contractModalCloseBtn" class="text-white text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4 overflow-y-auto pr-2">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="contractNegotiationDate" class="block text-sm font-medium text-slate-400">Data de Negociação</label>
+                        <input type="date" id="contractNegotiationDate" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <div class="flex-1">
+                        <label for="contractExpirationDate" class="block text-sm font-medium text-slate-400">Data de Expiração</label>
+                        <input type="date" id="contractExpirationDate" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="contractNoExpiration" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500">
+                    <label for="contractNoExpiration" class="ml-2 block text-sm text-slate-400">Não expira</label>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400">Tipo de Licença</label>
+                    <div class="flex flex-wrap gap-4 mt-1">
+                        <label><input type="radio" name="licenseType" value="total" checked class="mr-1">Valor Total</label>
+                        <label><input type="radio" name="licenseType" value="per_license" class="mr-1">Valor por Licença</label>
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="contractLicenseCount" class="block text-sm font-medium text-slate-400">Quantidade de Licenças</label>
+                        <input type="number" id="contractLicenseCount" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <div class="flex-1">
+                        <label for="contractValue" class="block text-sm font-medium text-slate-400">Valor</label>
+                        <input type="text" id="contractValue" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-400">Valor Total Calculado: <span id="calculatedTotal" class="font-bold text-white">R$ 0,00</span></p>
+                </div>
+                <div>
+                    <label for="contractLink" class="block text-sm font-medium text-slate-400">Link do Contrato</label>
+                    <input type="text" id="contractLink" class="w-.full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                </div>
+                <div class="border-t border-slate-700 pt-4">
+                    <h4 class="text-md font-semibold text-white mb-2">Distribuição de Licenças por Departamento</h4>
+                    <div id="departmentLicenseDistribution" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                    <div class="flex justify-between text-sm text-slate-400 mt-2">
+                        <p>Total em Uso: <span id="totalLicensesInUse" class="font-bold text-white">0</span></p>
+                        <p>Total Alocado: <span id="allocatedLicensesTotal" class="font-bold text-white">0</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end mt-6 gap-4 flex-shrink-0">
+                <button id="contractModalCancelBtn" class="px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="contractModalSaveBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-4xl border border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="dashboardModalTitle" class="text-lg font-bold text-sky-400">Dashboard de Licenças</h3>
+                <button id="dashboardModalCloseBtn" class="text-white text-2xl">&times;</button>
+            </div>
+            <div id="kpiContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            </div>
+            <div id="dashboardContent" class="space-y-4">
+                <canvas id="licenseChart"></canvas>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button id="dashboardModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { renderSidebar } from './sidebar-no-firebase.js';
+        import { getMovideskClients, getMovideskDepartments } from './src/movidesk.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("sistemas.html: Script started.");
+
+            let systems = JSON.parse(localStorage.getItem('systems')) || [];
+
+            function saveSystems() {
+                localStorage.setItem('systems', JSON.stringify(systems));
+            }
+            let licenseChart = null;
+
+            // --- LÓGICA DA ANIMAÇÃO DE FUNDO ---
+            function initializeGanttBackground() {
+                const canvas = document.getElementById('backgroundCanvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                
+                const barHeight = 20, barGap = 40, numBarsPerLine = 3;
+                const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)'};
+                const bars = [];
+                const barColors = [colors.bar1, colors.bar2, colors.bar3];
+
+                function initializeBars() {
+                    bars.length = 0;
+                    const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                    for (let i = 0; i < totalLines * numBarsPerLine; i++) { 
+                        bars.push({ 
+                            width: (Math.random() * 0.2 + 0.1) * window.innerWidth, 
+                            color: barColors[Math.floor(Math.random() * barColors.length)], 
+                            initialXOffset: Math.random() * window.innerWidth 
+                        }); 
+                    }
+                }
+                
+                function roundRect(ctx, x, y, width, height, radius) { 
+                    ctx.beginPath(); 
+                    ctx.moveTo(x + radius, y); 
+                    ctx.arcTo(x + width, y, x + width, y + height, radius); 
+                    ctx.arcTo(x + width, y + height, x, y + height, radius); 
+                    ctx.arcTo(x, y + height, x, y, radius); 
+                    ctx.arcTo(x, y, x + width, y, radius); 
+                    ctx.closePath(); 
+                    ctx.fill(); 
+                }
+                
+                function drawBackgroundElements() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                    for (let i = 0; i < totalLines; i++) { 
+                        const y = (i * (barHeight + barGap)) + (barGap / 2); 
+                        for (let j = 0; j < numBarsPerLine; j++) { 
+                            const bar = bars[i * numBarsPerLine + j]; 
+                            if (!bar) continue;
+                            let x = bar.initialXOffset;
+                            ctx.fillStyle = bar.color; 
+                            roundRect(ctx, x, y, bar.width, barHeight, 5); 
+                        }
+                    }
+                }
+                
+                function resizeAnimationCanvas() { 
+                    canvas.width = window.innerWidth; 
+                    canvas.height = window.innerHeight; 
+                    initializeBars();
+                    drawBackgroundElements(); 
+                }
+                
+                resizeAnimationCanvas();
+                window.addEventListener('resize', resizeAnimationCanvas);
+            }
+
+            function toggleForm(show) {
+                const cadastroForm = document.getElementById('cadastroFormContainer');
+                const listContainer = document.getElementById('systemsListContainer');
+                const searchContainer = document.getElementById('search-form-container');
+                const formTitleEl = document.getElementById('formTitle');
+                const saveButton = document.getElementById('saveSystemButton');
+
+                document.getElementById('systemId').value = "";
+                document.getElementById('systemName').value = "";
+                document.getElementById('systemCategory').value = "";
+                document.getElementById('apiLink').value = "";
+                
+
+                if (show) {
+                    listContainer.classList.add('hidden');
+                    searchContainer.classList.add('hidden');
+                    cadastroForm.classList.remove('hidden');
+                    formTitleEl.textContent = 'Cadastrar Novo Sistema';
+                    saveButton.textContent = 'Salvar';
+                } else {
+                    cadastroForm.classList.add('hidden');
+                    listContainer.classList.remove('hidden');
+                    searchContainer.classList.remove('hidden');
+                }
+            }
+
+            function renderKpiCards(systems) {
+                const kpiContainer = document.getElementById('kpi-container');
+                if (!kpiContainer) return;
+
+                const totalSystems = systems.length;
+
+                const systemsByCategory = systems.reduce((acc, system) => {
+                    acc[system.category] = (acc[system.category] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const categoryIcons = {
+                    'Help Desk': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-sky-400"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+                    'CRM': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-green-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+                    'ERP': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-yellow-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>',
+                    'Financeiro': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-400"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+                    'Recursos Humanos': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-purple-400"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>',
+                    'Outros': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+                };
+
+                let kpiCardsHtml = `
+                    <div class="glass-effect p-4 rounded-lg flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <div class="bg-slate-900 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-white"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-slate-400">Total de Sistemas</h4>
+                            <p class="text-3xl font-bold text-white">${totalSystems}</p>
+                        </div>
+                    </div>
+                `;
+
+                const sortedCategories = Object.keys(systemsByCategory).sort();
+
+                for (const category of sortedCategories) {
+                    kpiCardsHtml += `
+                        <div class="glass-effect p-4 rounded-lg flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                            <div class="bg-slate-900 p-3 rounded-full">
+                                ${categoryIcons[category] || categoryIcons['Outros']}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-slate-400">${category}</h4>
+                                <p class="text-3xl font-bold text-white">${systemsByCategory[category]}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                kpiContainer.innerHTML = kpiCardsHtml;
+            }
+
+            function renderSystems(systemsToRender) {
+                const systemsTableBody = document.getElementById('systemsTableBody');
+                if (!systemsTableBody) return;
+
+                renderKpiCards(systemsToRender);
+
+                if (systemsToRender.length === 0) {
+                    systemsTableBody.innerHTML = '<tr><td colspan="10" class="text-center p-8">Nenhum sistema cadastrado.</td></tr>';
+                    return;
+                }
+                
+                systemsTableBody.innerHTML = systemsToRender.map(system => {
+                    let expirationDateHtml = 'N/A';
+                    let licenseCountHtml = 'N/A';
+                    if (system.contract) {
+                        if (system.contract.noExpiration) {
+                            expirationDateHtml = 'Não expira';
+                        } else if (system.contract.expirationDate) {
+                            expirationDateHtml = new Date(system.contract.expirationDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                        }
+                        if (system.contract.licenseCount) {
+                            licenseCountHtml = system.contract.licenseCount;
+                        }
+                    }
+
+                    // Calculate usage percentage for the progress bar
+                    let usagePercentage = 0;
+                    if (system.contract && system.contract.licenseCount && system.userCount !== undefined && system.userCount !== 'N/A') {
+                        const contracted = parseInt(system.contract.licenseCount);
+                        const used = parseInt(system.userCount);
+                        if (contracted > 0) {
+                            usagePercentage = (used / contracted) * 100;
+                        }
+                    }
+                    const progressBarColor = usagePercentage > 90 ? 'bg-red-500' : (usagePercentage > 70 ? 'bg-yellow-500' : 'bg-green-500');
+
+
+                    return `
+                    <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                        <td data-label="ID" class="px-6 py-4">${system.id}</td>
+                        <td data-label="Status" class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-400">Ativo</span></td>
+                        <td data-label="Nome do Sistema" class="px-6 py-4">${system.name}</td>
+                        <td data-label="Categoria" class="px-6 py-4">${system.category}</td>
+                        <td data-label="Uso de Licenças" class="px-6 py-4">
+                            <div class="w-full bg-slate-700 rounded-full h-2.5 dark:bg-slate-700">
+                                <div class="${progressBarColor} h-2.5 rounded-full" style="width: ${usagePercentage}%;"></div>
+                            </div>
+                            <div class="text-xs text-slate-400 mt-1">${system.userCount !== undefined && system.userCount !== 'N/A' ? system.userCount : '0'} / ${system.contract && system.contract.licenseCount ? system.contract.licenseCount : '0'} (${usagePercentage.toFixed(1)}%)</div>
+                        </td>
+                        <td data-label="Encerramento do Contrato" class="px-6 py-4">${expirationDateHtml}</td>
+                        <td data-label="Ações" class="px-4 py-4 flex items-center justify-start">
+                            <button class="edit-btn p-1 text-yellow-400 hover:text-yellow-300" data-id="${system.id}"><!-- Edit icon --></button>
+                            <button class="contract-btn p-1 text-blue-400 hover:text-blue-300" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></button>
+                            <button class="dashboard-btn p-1 text-green-400 hover:text-green-300" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></button>
+                            <button class="delete-btn p-1 text-red-500 hover:text-red-400" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                            <button class="view-api-btn p-1 text-sky-400 hover:text-sky-300" data-api-link="${system.apiLink}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `}).join('');
+            }
+
+            function filterAndRenderSystems() {
+                const searchTerm = document.getElementById('searchSystemsInput').value.toLowerCase();
+                const filteredSystems = systems.filter(system => 
+                    system.name.toLowerCase().includes(searchTerm) || 
+                    system.category.toLowerCase().includes(searchTerm)
+                );
+                renderSystems(filteredSystems);
+            }
+
+            function createTableFromData(data) {
+                if (!data || data.length === 0) {
+                    return '<p>Nenhum dado retornado pela API.</p>';
+                }
+
+                const headerMapping = {
+                    'isActive': 'Status',
+                    'createdDate': 'Data da Criação',
+                    'businessName': 'Nome do Usuário',
+                    'profileType': 'Perfil',
+                    'accessProfile': 'Permissão',
+                    'userName': 'Login',
+                    'role': 'Função/Cargo',
+                    'teams': 'Departamento',
+                    'createdBy': 'Quem Criou'
+                };
+
+                const headers = Object.keys(data[0]);
+                const headerHtml = headers.map(header => `<th class="px-4 py-2 text-left">${headerMapping[header] || header}</th>`).join('');
+                
+                const rowsHtml = data.map(row => {
+                    const rowData = headers.map(header => {
+                        let cellData = row[header];
+                        if (header === 'isActive') {
+                            cellData = cellData ? 'Ativo' : 'Inativo';
+                        } else if (header === 'createdDate') {
+                            cellData = new Date(cellData).toLocaleDateString('pt-BR');
+                        }
+                        return `<td class="px-4 py-2" data-label="${headerMapping[header] || header}">${cellData !== null ? cellData : ''}</td>`
+                    }).join('');
+                    return `<tr class="border-b border-slate-700">${rowData}</tr>`;
+                }).join('');
+
+                return `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-400 responsive-table">
+                            <thead class="text-xs text-slate-200 uppercase bg-slate-700">
+                                <tr>${headerHtml}</tr>
+                            </thead>
+                            <tbody class="bg-slate-800">
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function showApiDataModal(apiLink) {
+                console.log("showApiDataModal called with apiLink:", apiLink);
+                const modal = document.getElementById('viewApiDataModal');
+                const contentEl = document.getElementById('apiDataContent');
+                const titleEl = document.getElementById('viewApiDataModalTitle');
+
+                titleEl.textContent = `Visualizar Dados da API: ${apiLink}`;
+                contentEl.innerHTML = '<p>Carregando...</p>';
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                if (apiLink && apiLink.trim() === 'movidesk') {
+                    getMovideskClients().then(clients => {
+                        console.log('getMovideskClients promise resolved', clients);
+                        contentEl.innerHTML = createTableFromData(clients);
+                    }).catch(error => {
+                        console.error('getMovideskClients promise rejected', error);
+                        contentEl.innerHTML = `<p class="text-red-400">Erro ao carregar dados: ${error}</p>`;
+                    });
+                } else {
+                    contentEl.innerHTML = '<p>API não suportada para visualização.</p>';
+                }
+            }
+
+            initializeGanttBackground();
+
+            const sidebar = document.getElementById('sidebar-container');
+            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
+
+            sidebarToggleButton?.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+            sidebarCloseButton?.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            renderSidebar(window.location.pathname);
+
+            document.getElementById('showFormButton').addEventListener('click', () => toggleForm(true));
+            document.getElementById('cancelButton').addEventListener('click', () => toggleForm(false));
+            
+            document.getElementById('saveSystemButton').addEventListener('click', async () => {
+                const apiLinkValue = document.getElementById('apiLink').value;
+                const systemCategoryValue = document.getElementById('systemCategory').value;
+
+                if (!apiLinkValue) {
+                    alert("Por favor, selecione uma API.");
+                    return;
+                }
+
+                if (!systemCategoryValue) {
+                    alert("Por favor, selecione uma Categoria para o sistema.");
+                    return;
+                }
+
+                const system = {
+                    id: systems.length + 1,
+                    name: document.getElementById('systemName').value,
+                    category: systemCategoryValue,
+                    apiLink: apiLinkValue,
+                    status: 'Ativo',
+                    userCount: 'Carregando...'
+                };
+                
+                systems.push(system);
+                saveSystems(); // Salva no localStorage
+                renderSystems(systems);
+                toggleForm(false);
+
+                if (system.apiLink === 'movidesk') {
+                    try {
+                        const clients = await getMovideskClients();
+                        const systemToUpdate = systems.find(s => s.id === system.id);
+                        if (systemToUpdate) {
+                            systemToUpdate.userCount = clients ? clients.length : 0;
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch user count', error);
+                        const systemToUpdate = systems.find(s => s.id === system.id);
+                        if (systemToUpdate) {
+                            systemToUpdate.userCount = 'Erro';
+                        }
+                    }
+                    renderSystems(systems);
+                } else {
+                    const systemToUpdate = systems.find(s => s.id === system.id);
+                    if (systemToUpdate) {
+                        systemToUpdate.userCount = 'N/A';
+                    }
+                    renderSystems(systems);
+                }
+            });
+
+            document.getElementById('searchSystemsInput').addEventListener('input', filterAndRenderSystems);
+
+            document.getElementById('systemsTableBody').addEventListener('click', (e) => {
+                const viewButton = e.target.closest('.view-api-btn');
+                if (viewButton) {
+                    const apiLink = viewButton.dataset.apiLink;
+                    showApiDataModal(apiLink);
+                }
+
+                const contractButton = e.target.closest('.contract-btn');
+                if (contractButton) {
+                    const systemId = contractButton.dataset.id;
+                    openContractModal(systemId);
+                }
+
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    const systemId = deleteButton.dataset.id;
+                    const confirmationModal = document.getElementById('confirmationModal');
+                    const confirmationMessage = document.getElementById('confirmationModalMessage');
+                    const confirmBtn = document.getElementById('confirmationModalConfirmBtn');
+                    const cancelBtn = document.getElementById('confirmationModalCancelBtn');
+
+                    confirmationMessage.textContent = `Tem certeza que deseja excluir o sistema com ID ${systemId}?`;
+                    confirmationModal.classList.remove('hidden');
+                    confirmationModal.classList.add('flex');
+
+                    confirmBtn.onclick = () => {
+                        systems = systems.filter(s => s.id != systemId);
+                        saveSystems();
+                        renderSystems(systems);
+                        confirmationModal.classList.add('hidden');
+                    };
+
+                    cancelBtn.onclick = () => {
+                        confirmationModal.classList.add('hidden');
+                    };
+                }
+            });
+
+            const viewApiDataModal = document.getElementById('viewApiDataModal');
+            document.getElementById('viewApiDataModalCloseBtn').addEventListener('click', () => viewApiDataModal.classList.add('hidden'));
+            document.getElementById('viewApiDataModalOkBtn').addEventListener('click', () => viewApiDataModal.classList.add('hidden'));
+
+            // Contract Modal Logic
+            const contractModal = document.getElementById('contractModal');
+            const contractNoExpiration = document.getElementById('contractNoExpiration');
+            const contractExpirationDate = document.getElementById('contractExpirationDate');
+            const contractValueInput = document.getElementById('contractValue');
+            const licenseTypeRadios = document.querySelectorAll('input[name="licenseType"]');
+            const licenseCountInput = document.getElementById('contractLicenseCount');
+            const calculatedTotalEl = document.getElementById('calculatedTotal');
+            const departmentDistributionEl = document.getElementById('departmentLicenseDistribution');
+            const allocatedLicensesTotalEl = document.getElementById('allocatedLicensesTotal');
+            const totalLicensesInUseEl = document.getElementById('totalLicensesInUse');
+
+            function formatCurrency(value) {
+                if (!value) return 'R$ 0,00';
+                const number = parseFloat(value.toString().replace(/[^0-9]/g, '')) / 100;
+                return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+
+            function parseCurrency(value) {
+                if (!value) return 0;
+                return parseFloat(value.replace('R$', '').replace(/\./g, '').replace(',', '.'));
+            }
+
+            function getLicenseCountByDepartment(clients) {
+                const counts = {};
+                if (!clients) return counts;
+
+                clients.forEach(client => {
+                    if (client.teams && client.teams.length > 0) {
+                        // Considerar apenas a primeira equipe do agente
+                        const firstTeam = client.teams[0];
+                        counts[firstTeam] = (counts[firstTeam] || 0) + 1;
+                    }
+                });
+                return counts;
+            }
+
+            function updateCalculatedTotal() {
+                const licenseType = document.querySelector('input[name="licenseType"]:checked').value;
+                const licenseCount = parseInt(licenseCountInput.value) || 0;
+                const value = parseCurrency(contractValueInput.value);
+
+                let total = 0;
+                if (licenseType === 'per_license') {
+                    total = licenseCount * value;
+                } else {
+                    total = value;
+                }
+                calculatedTotalEl.textContent = formatCurrency(total * 100);
+            }
+
+            function updateAllocatedTotal() {
+                const inputs = departmentDistributionEl.querySelectorAll('input');
+                const total = Array.from(inputs).reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+                allocatedLicensesTotalEl.textContent = total;
+            }
+
+            contractValueInput.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                e.target.value = formatCurrency(value).replace('R$\xa0', ''); // Keep R$ but allow editing
+                updateCalculatedTotal();
+            });
+
+            licenseTypeRadios.forEach(radio => radio.addEventListener('change', updateCalculatedTotal));
+            licenseCountInput.addEventListener('input', updateCalculatedTotal);
+
+            departmentDistributionEl.addEventListener('input', updateAllocatedTotal);
+
+            contractNoExpiration.addEventListener('change', () => {
+                contractExpirationDate.disabled = contractNoExpiration.checked;
+                if (contractNoExpiration.checked) {
+                    contractExpirationDate.value = '';
+                }
+            });
+
+            async function openContractModal(systemId) {
+                const system = systems.find(s => s.id == systemId);
+                if (!system) return;
+
+                document.getElementById('contractSystemId').value = systemId;
+                
+                if (system.contract) {
+                    document.getElementById('contractNegotiationDate').value = system.contract.negotiationDate || '';
+                    document.getElementById('contractExpirationDate').value = system.contract.expirationDate || '';
+                    document.getElementById('contractNoExpiration').checked = system.contract.noExpiration || false;
+                    document.querySelector(`input[name="licenseType"][value="${system.contract.licenseType || 'total'}"]`).checked = true;
+                    document.getElementById('contractLicenseCount').value = system.contract.licenseCount || '';
+                    contractValueInput.value = formatCurrency(system.contract.value * 100);
+                    document.getElementById('contractLink').value = system.contract.link || '';
+                } else {
+                    // Reset form
+                    document.getElementById('contractNegotiationDate').value = '';
+                    document.getElementById('contractExpirationDate').value = '';
+                    document.getElementById('contractNoExpiration').checked = false;
+                    document.querySelector('input[name="licenseType"][value="total"]').checked = true;
+                    document.getElementById('contractLicenseCount').value = '';
+                    contractValueInput.value = 'R$ 0,00';
+                    document.getElementById('contractLink').value = '';
+                }
+
+                updateCalculatedTotal();
+                contractExpirationDate.disabled = contractNoExpiration.checked;
+
+                departmentDistributionEl.innerHTML = '<p>Carregando departamentos...</p>';
+                const [departments, clients] = await Promise.all([
+                    getMovideskDepartments(),
+                    getMovideskClients()
+                ]);
+                const licensesInUse = getLicenseCountByDepartment(clients);
+                const totalUsed = Object.values(licensesInUse).reduce((sum, count) => sum + count, 0);
+                totalLicensesInUseEl.textContent = totalUsed;
+                const savedDepartmentLicenses = system.contract?.departmentLicenses || {};
+
+                departmentDistributionEl.innerHTML = `
+                    <div class="grid grid-cols-3 gap-2 font-semibold text-white mb-2">
+                        <div>Departamento</div>
+                        <div class="text-center">Licenças em Uso</div>
+                        <div class="text-center">Licenças Contratadas</div>
+                    </div>
+                    ${departments.map(dept => `
+                        <div class="grid grid-cols-3 gap-2 items-center">
+                            <label class="text-sm text-slate-400">${dept}</label>
+                            <span class="text-center">${licensesInUse[dept] || 0}</span>
+                            <input type="number" class="w-full px-2 py-1 rounded-lg bg-slate-900 text-white border border-slate-700" data-department="${dept}" value="${savedDepartmentLicenses[dept] || 0}">
+                        </div>
+                    `).join('')}
+                `;
+                
+                updateAllocatedTotal();
+
+                contractModal.classList.remove('hidden');
+                contractModal.classList.add('flex');
+            }
+
+            document.getElementById('contractModalCloseBtn').addEventListener('click', () => contractModal.classList.add('hidden'));
+            document.getElementById('contractModalCancelBtn').addEventListener('click', () => contractModal.classList.add('hidden'));
+
+            document.getElementById('contractModalSaveBtn').addEventListener('click', () => {
+                const systemId = document.getElementById('contractSystemId').value;
+                const system = systems.find(s => s.id == systemId);
+                if (!system) return;
+
+                const departmentLicenses = {};
+                departmentDistributionEl.querySelectorAll('input').forEach(input => {
+                    departmentLicenses[input.dataset.department] = parseInt(input.value) || 0;
+                });
+
+                system.contract = {
+                    negotiationDate: document.getElementById('contractNegotiationDate').value,
+                    expirationDate: document.getElementById('contractExpirationDate').value,
+                    noExpiration: document.getElementById('contractNoExpiration').checked,
+                    licenseType: document.querySelector('input[name="licenseType"]:checked').value,
+                    licenseCount: document.getElementById('contractLicenseCount').value,
+                    value: parseCurrency(document.getElementById('contractValue').value),
+                    link: document.getElementById('contractLink').value,
+                    departmentLicenses: departmentLicenses
+                };
+
+                saveSystems(); // Salva no localStorage
+                contractModal.classList.add('hidden');
+                renderSystems(systems);
+            });
+
+            // Dashboard Modal Logic
+            const dashboardModal = document.getElementById('dashboardModal');
+            const dashboardContent = document.getElementById('dashboardContent');
+
+            async function openDashboardModal(systemId) {
+                const system = systems.find(s => s.id == systemId);
+                const dashboardContent = document.getElementById('dashboardContent');
+                const kpiContainer = document.getElementById('kpiContainer');
+
+                if (!system || !system.contract) {
+                    kpiContainer.innerHTML = ''; // Limpa KPIs
+                    dashboardContent.innerHTML = '<p class="text-red-400">Dados de contrato não disponíveis para este sistema.</p>';
+                    dashboardModal.classList.remove('hidden');
+                    dashboardModal.classList.add('flex');
+                    return;
+                }
+
+                // Limpa o conteúdo anterior enquanto carrega
+                dashboardContent.innerHTML = '<canvas id="licenseChart"></canvas>'; 
+                kpiContainer.innerHTML = '<p>Carregando KPIs...</p>';
+                dashboardModal.classList.remove('hidden');
+                dashboardModal.classList.add('flex');
+
+                const [departments, clients] = await Promise.all([
+                    getMovideskDepartments(),
+                    getMovideskClients()
+                ]);
+
+                const licensesInUse = getLicenseCountByDepartment(clients);
+                const contractedLicenses = system.contract.departmentLicenses || {};
+
+                // Calcular KPIs
+                const totalUsedLicenses = Object.values(licensesInUse).reduce((sum, count) => sum + count, 0);
+                const totalContractedLicenses = Object.values(contractedLicenses).reduce((sum, count) => sum + count, 0);
+                const utilizationPercentage = totalContractedLicenses > 0 ? ((totalUsedLicenses / totalContractedLicenses) * 100).toFixed(1) : 0;
+
+                // Renderizar KPIs
+                kpiContainer.innerHTML = `
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                        <h4 class="text-sm font-semibold text-slate-400">Total Contratado</h4>
+                        <p class="text-2xl font-bold text-white">${totalContractedLicenses}</p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                        <h4 class="text-sm font-semibold text-slate-400">Total em Uso</h4>
+                        <p class="text-2xl font-bold text-white">${totalUsedLicenses}</p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                        <h4 class="text-sm font-semibold text-slate-400">Taxa de Utilização</h4>
+                        <p class="text-2xl font-bold text-white">${utilizationPercentage}%</p>
+                    </div>
+                `;
+
+                const chartData = {
+                    labels: departments,
+                    datasets: [
+                        {
+                            label: 'Licenças em Uso',
+                            data: departments.map(dept => licensesInUse[dept] || 0),
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Licenças Contratadas',
+                            data: departments.map(dept => contractedLicenses[dept] || 0),
+                            backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                };
+
+                if (licenseChart) {
+                    licenseChart.destroy();
+                }
+
+                const ctx = document.getElementById('licenseChart').getContext('2d');
+                licenseChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: {
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.dataset.label || '';
+                                        const value = context.raw;
+                                        return `${label}: ${value}`;
+                                    },
+                                    footer: function(tooltipItems) {
+                                        const deptIndex = tooltipItems[0].dataIndex;
+                                        const dept = departments[deptIndex];
+                                        const used = licensesInUse[dept] || 0;
+                                        const contracted = contractedLicenses[dept] || 0;
+                                        const available = contracted - used;
+                                        return `Disponíveis: ${available}`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'top',
+                                formatter: Math.round,
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            document.getElementById('dashboardModalCloseBtn').addEventListener('click', () => dashboardModal.classList.add('hidden'));
+            document.getElementById('dashboardModalOkBtn').addEventListener('click', () => dashboardModal.classList.add('hidden'));
+
+
+            document.getElementById('systemsTableBody').addEventListener('click', (e) => {
+                const viewButton = e.target.closest('.view-api-btn');
+                if (viewButton) {
+                    const apiLink = viewButton.dataset.apiLink;
+                    showApiDataModal(apiLink);
+                }
+
+                const contractButton = e.target.closest('.contract-btn');
+                if (contractButton) {
+                    const systemId = contractButton.dataset.id;
+                    openContractModal(systemId);
+                }
+
+                const dashboardButton = e.target.closest('.dashboard-btn');
+                if (dashboardButton) {
+                    const systemId = dashboardButton.dataset.id;
+                    openDashboardModal(systemId);
+                }
+            });
+
+            renderSystems(systems);
+            console.log("sistemas.html: Script finished.");
+        });
+    </script>
+</body>
+</html>
