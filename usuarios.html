@@ -292,21 +292,12 @@
 
                         <div class="pt-4 mt-4 border-t border-slate-700">
                             <h4 class="text-lg font-bold text-sky-400 mb-4">Previsão de Férias</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label for="vacationStartDate" class="block text-slate-400 text-sm font-semibold mb-1">Início das Férias</label>
-                                    <input type="date" id="vacationStartDate" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" disabled>
-                                </div>
-                                <div>
-                                    <label for="vacationDays" class="block text-slate-400 text-sm font-semibold mb-1">Dias de Férias</label>
-                                    <input type="number" id="vacationDays" placeholder="Ex: 30" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" disabled>
-                                </div>
-                                <div>
-                                    <label for="vacationEndDate" class="block text-slate-400 text-sm font-semibold mb-1">Fim das Férias</label>
-                                    <input type="date" id="vacationEndDate" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" disabled>
-                                    <p id="vacationSuggestion" class="text-xs text-slate-400 mt-2">Selecione um departamento para calcular as férias.</p>
-                                </div>
+                            <div id="vacationPeriodsContainer" class="space-y-4">
+                                <!-- Vacation periods will be added here dynamically -->
                             </div>
+                            <button id="addVacationPeriodButton" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all">
+                                Adicionar Período de Férias
+                            </button>
                         </div>
 
                         <div class="flex gap-4 mt-6">
@@ -527,9 +518,20 @@
             const profile = document.getElementById('profile').value;
             const hourlyCostInput = document.getElementById('hourlyCost');
             const hourlyCost = hourlyCostInput.value ? parseFloat(hourlyCostInput.value.replace('R$ ', '').replace('.', '').replace(',', '.')) : null;
-            const vacationStartDate = document.getElementById('vacationStartDate').value;
-            const vacationDays = document.getElementById('vacationDays').value;
-            const vacationEndDate = document.getElementById('vacationEndDate').value;
+
+            // New: Collect multiple vacation periods
+            const vacationPeriods = [];
+            const vacationPeriodBlocks = document.querySelectorAll('.vacation-period-block');
+            vacationPeriodBlocks.forEach(block => {
+                const startDateInput = block.querySelector('.vacation-start-date');
+                const endDateInput = block.querySelector('.vacation-end-date');
+                if (startDateInput.value && endDateInput.value) {
+                    vacationPeriods.push({
+                        start: startDateInput.value,
+                        end: endDateInput.value
+                    });
+                }
+            });
 
             // New: Get profile picture input and URL
             const profilePictureInput = document.getElementById('profilePictureInput');
@@ -585,11 +587,7 @@
                 profile,
                 status: 'Ativo', // Default status to Active
                 hourlyCost: hourlyCost, // Add hourlyCost to userData
-                vacation: {
-                    start: vacationStartDate || null,
-                    days: vacationDays ? parseInt(vacationDays, 10) : null,
-                    end: vacationEndDate || null,
-                },
+                vacation: vacationPeriods, // Store as an array
                 profilePictureUrl: profilePictureUrl // Add profile picture URL
             };
 
@@ -765,11 +763,40 @@
             });
         }
 
+        // Function to create a new vacation period input block
+        function createVacationPeriodBlock(startDate = '', endDate = '') {
+            const container = document.getElementById('vacationPeriodsContainer');
+            const block = document.createElement('div');
+            block.className = 'vacation-period-block grid grid-cols-1 md:grid-cols-3 gap-4 items-end p-4 border border-slate-700 rounded-lg';
+            block.innerHTML = `
+                <div>
+                    <label class="block text-slate-400 text-sm font-semibold mb-1">Início das Férias</label>
+                    <input type="date" class="vacation-start-date w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" value="${startDate}">
+                </div>
+                <div>
+                    <label class="block text-slate-400 text-sm font-semibold mb-1">Fim das Férias</label>
+                    <input type="date" class="vacation-end-date w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" value="${endDate}">
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" class="remove-vacation-period-button px-3 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Remover</button>
+                </div>
+            `;
+            container.appendChild(block);
+
+            // Limit to 4 periods
+            if (container.children.length >= 4) {
+                document.getElementById('addVacationPeriodButton').disabled = true;
+            } else {
+                document.getElementById('addVacationPeriodButton').disabled = false;
+            }
+        }
+
         async function toggleForm(show, user = null) {
             console.log('toggleForm called with show:', show, 'and user:', user); // New log
             const listContainer = document.getElementById('listContainer');
             const formContainer = document.getElementById('formContainer');
             const formTitle = document.getElementById('formTitle');
+            const vacationPeriodsContainer = document.getElementById('vacationPeriodsContainer');
             
             // New: Get profile picture elements
             const profilePicturePreview = document.getElementById('profilePicturePreview');
@@ -785,11 +812,11 @@
             document.getElementById('email').value = '';
             document.getElementById('profile').value = '';
             document.getElementById('hourlyCost').value = ''; // Reset hourlyCost
-            document.getElementById('vacationStartDate').value = '';
-            document.getElementById('vacationDays').value = '';
-            document.getElementById('vacationEndDate').value = '';
-            document.getElementById('vacationSuggestion').textContent = 'Selecione um departamento para calcular as férias.';
             
+            // Clear existing vacation periods
+            vacationPeriodsContainer.innerHTML = '';
+            document.getElementById('addVacationPeriodButton').disabled = false; // Enable add button
+
             // New: Reset profile picture preview and hidden URL
             profilePictureInput.value = ''; // Clear selected file
             profilePicturePreview.src = "https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg";
@@ -809,11 +836,21 @@
                     } else {
                         document.getElementById('hourlyCost').value = '';
                     }
-                    if (user.vacation) {
-                        document.getElementById('vacationStartDate').value = user.vacation.start || '';
-                        document.getElementById('vacationDays').value = user.vacation.days || '';
-                        document.getElementById('vacationEndDate').value = user.vacation.end || '';
+                    // Populate vacation periods
+                    if (user.vacation && Array.isArray(user.vacation)) {
+                        user.vacation.forEach(period => {
+                            createVacationPeriodBlock(period.start, period.end);
+                        });
+                    } else { // Fallback for old single vacation structure
+                        if (user.vacation && user.vacation.start && user.vacation.end) {
+                            createVacationPeriodBlock(user.vacation.start, user.vacation.end);
+                        }
                     }
+                    // If no vacation periods, add one empty one
+                    if (vacationPeriodsContainer.children.length === 0) {
+                        createVacationPeriodBlock();
+                    }
+
                     // New: Display existing profile picture
                     if (user.profilePictureUrl) {
                         profilePicturePreview.src = user.profilePictureUrl;
@@ -825,12 +862,11 @@
 
                     await populateDepartmentsDropdown(user.department.id);
                     await populateRolesDropdown(user.department.id, user.role.name);
-                    toggleVacationFields(false);
                 } else {
                     formTitle.textContent = 'Cadastrar Novo Usuário';
+                    createVacationPeriodBlock(); // Add one empty period for new user
                     await populateDepartmentsDropdown();
                     populateRolesDropdown(null);
-                    toggleVacationFields(true);
                 }
             }
         }
@@ -918,63 +954,7 @@
             }
         }
 
-        async function calculateVacationEndDate() {
-            const startDateString = document.getElementById('vacationStartDate').value;
-            const vacationDays = parseInt(document.getElementById('vacationDays').value, 10);
-            const departmentId = document.getElementById('department').value;
-            const suggestionEl = document.getElementById('vacationSuggestion');
-            const endDateInput = document.getElementById('vacationEndDate');
-
-            if (!startDateString || isNaN(vacationDays) || vacationDays <= 0 || !departmentId) {
-                endDateInput.value = '';
-                return;
-            }
-
-            try {
-                const deptRef = doc(db, `artifacts/${appId}/public/data/departments`, departmentId);
-                const deptSnap = await getDoc(deptRef);
-                if (!deptSnap.exists()) {
-                    suggestionEl.textContent = 'Departamento não encontrado.';
-                    endDateInput.value = '';
-                    return;
-                }
-                const department = deptSnap.data();
-                const workDays = department.workDays || [];
-                const calendarId = department.calendarId;
-
-                let holidays = [];
-                if (calendarId) {
-                    const calRef = doc(db, `artifacts/${appId}/public/data/calendars`, calendarId);
-                    const calSnap = await getDoc(calRef);
-                    if (calSnap.exists()) {
-                        holidays = (calSnap.data().holidays || []).map(h => h.date);
-                    }
-                }
-
-                let endDate = new Date(startDateString + 'T12:00:00Z');
-                let daysAdded = 0;
-                
-                while(daysAdded < vacationDays) {
-                    endDate.setUTCDate(endDate.getUTCDate() + 1);
-                    const dayName = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'][endDate.getUTCDay()];
-                    const dateString = endDate.toISOString().split('T')[0];
-                    
-                    // Verifica se é um dia de trabalho e não é feriado
-                    if (workDays.includes(dayName) && !holidays.includes(dateString)) {
-                        daysAdded++;
-                    }
-                }
-                
-                // Formata a data final para o input
-                const finalEndDate = endDate.toISOString().split('T')[0];
-                endDateInput.value = finalEndDate;
-                suggestionEl.textContent = `Retorno sugerido: ${finalEndDate.split('-').reverse().join('/')}`;
-
-            } catch (error) {
-                console.error("Erro ao calcular data final das férias:", error);
-                suggestionEl.textContent = 'Erro ao calcular. Verifique o console.';
-            }
-        }
+        
         
         async function main() {
             // Inicializa a animação de fundo
@@ -1081,18 +1061,31 @@
             document.getElementById('alertModalOkBtn').addEventListener('click', () => closeModal('alertModal'));
 
             // Listeners para os campos do formulário
-            document.getElementById('department').addEventListener('change', (event) => {
-                const selectedDepartmentId = event.target.value;
-                populateRolesDropdown(selectedDepartmentId);
-                toggleVacationFields(!selectedDepartmentId);
-                calculateVacationEndDate();
+            document.getElementById('addVacationPeriodButton').addEventListener('click', () => {
+                createVacationPeriodBlock();
             });
-            document.getElementById('vacationStartDate').addEventListener('change', calculateVacationEndDate);
-            document.getElementById('vacationDays').addEventListener('input', calculateVacationEndDate);
+
+            document.getElementById('vacationPeriodsContainer').addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-vacation-period-button')) {
+                    e.target.closest('.vacation-period-block').remove();
+                    // Re-enable add button if less than 4 periods
+                    if (document.getElementById('vacationPeriodsContainer').children.length < 4) {
+                        document.getElementById('addVacationPeriodButton').disabled = false;
+                    }
+                }
+            });
+
+            // Remove old vacation listeners
+            // document.getElementById('department').removeEventListener('change', calculateVacationEndDate);
+            // document.getElementById('vacationStartDate').removeEventListener('change', calculateVacationEndDate);
+            // document.getElementById('vacationDays').removeEventListener('input', calculateVacationEndDate);
+
             document.getElementById('hourlyCost').addEventListener('input', (e) => formatCurrency(e.target));
         }
 
-        // Função utilitária para gerar senhas (exemplo)
+        // Removed calculateVacationEndDate function
+
+        // Function to generate passwords (example)
         function generateRandomPassword(length = 12) {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
             let result = '';
