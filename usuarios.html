@@ -248,8 +248,16 @@
                                 <input type="file" id="profilePictureInput" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-500 file:text-white hover:file:bg-sky-600">
                                 <input type="hidden" id="profilePictureUrl" value="">
                             </div>
-                            <input type="text" id="fullName" placeholder="Nome Completo" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
-                            <input type="email" id="email" placeholder="E-mail" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                            <!-- Modified: Added div and label for fullName -->
+                            <div>
+                                <label for="fullName" class="block text-slate-300 text-sm font-bold mb-2">Nome Completo:</label>
+                                <input type="text" id="fullName" placeholder="Nome Completo" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                            </div>
+                            <!-- Modified: Added div and label for email -->
+                            <div>
+                                <label for="email" class="block text-slate-300 text-sm font-bold mb-2">E-mail:</label>
+                                <input type="email" id="email" placeholder="E-mail" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                            </div>
                             <div>
                                 <label for="department" class="block text-slate-300 text-sm font-bold mb-2">Departamento:</label>
                                 <select id="department" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
