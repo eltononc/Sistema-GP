@@ -925,12 +925,12 @@
                     return;
                 }
                 
-                activeManagers.sort((a, b) => a.nome.localeCompare(b.nome)); // Sort by 'nome' field
+                activeManagers.sort((a, b) => a.fullName.localeCompare(b.fullName)); // Sort by 'fullName' field
 
                 activeManagers.forEach(manager => {
                     const option = document.createElement('option');
                     option.value = manager.id.toString();
-                    option.textContent = manager.nome;
+                    option.textContent = manager.fullName;
                     managerSelect.appendChild(option);
                 });
 

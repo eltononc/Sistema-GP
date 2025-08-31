@@ -1,9 +1,9 @@
 
 // populate-firestore.js
-import { db } from './firebase-config.js';
+import { db, firebaseConfig } from './firebase-config.js';
 import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 
-const appId = "1:569517541701:web:11b31335fca1d5a708562c"; // O mesmo appId usado em departamentos.html
+const appId = firebaseConfig.projectId; // Usar o projectId do firebaseConfig
 
 async function populateFirestore() {
   try {
@@ -45,6 +45,28 @@ async function populateFirestore() {
       createdAt: new Date()
     });
     console.log('Usuário adicionado com ID: ', usuarioId);
+
+    // Adicionar um cliente de exemplo
+    const clienteId = "1"; // Usando o ID fornecido pelo usuário
+    const clienteRef = doc(collection(db, `artifacts/${appId}/public/data/clients`), clienteId);
+    await setDoc(clienteRef, {
+      id: parseInt(clienteId), // O campo 'id' interno como número
+      company: "Grupo Integrado",
+      createdAt: new Date(),
+      department: {
+        id: "1", // Exemplo de ID de departamento
+        name: "Secretaria Acadêmica"
+      },
+      email: "secretaria@grupointegrado.br",
+      fullName: "Maria Danieli Menegassi de Castro",
+      observations: "",
+      role: {
+        id: "Gestor(a). Acadêmica",
+        name: "Gestor(a). Acadêmica"
+      },
+      status: "Ativo"
+    });
+    console.log('Cliente adicionado com ID: ', clienteId);
 
     // Adicionar um evento de calendário de exemplo
     const calendarioId = "1"; // Exemplo de ID
