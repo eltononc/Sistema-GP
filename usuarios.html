@@ -999,6 +999,7 @@
                 saveUser();
             });
 
+            console.log('usersTableBody element:', document.getElementById('usersTableBody'));
             document.getElementById('usersTableBody').addEventListener('click', async (e) => {
                 console.log('Click event on usersTableBody:', e.target);
                 const editBtn = e.target.closest('.edit-btn');
