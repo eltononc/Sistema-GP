@@ -500,6 +500,7 @@
         let app, db, auth;
         let isAuthReady = false;
         let allDepartments = [];
+        let allUsers = []; // New global variable for all users
         let confirmCallback = null; // Adicionado para os modais
 
         // --- INICIALIZAÇÃO DO FIREBASE ---
@@ -724,6 +725,19 @@
             const hours = Math.floor(totalMinutes / 60);
             const minutes = totalMinutes % 60;
             return `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
+        }
+
+        function formatManagerName(fullName) {
+            if (!fullName) return 'N/A';
+            const nameParts = fullName.split(' ');
+            if (nameParts.length === 1) {
+                return fullName;
+            } else if (nameParts.length === 2) {
+                return fullName;
+            } else {
+                // Take the first part and the last part
+                return `${nameParts[0]} ${nameParts[nameParts.length - 1]}`;
+            }
         }
 
         function calculateDepartmentWeeklyHours(department) {
@@ -966,11 +980,15 @@
                 const formattedDays = dept.workDays && dept.workDays.length > 0 ? dept.workDays.map(day => dayMap[day] || day).join(', ') : 'N/A';
                 const weeklyHours = calculateDepartmentWeeklyHours(dept);
 
+                // Find the manager's full name
+                const manager = allUsers.find(user => user.id.toString() === dept.manager);
+                const managerName = manager ? formatManagerName(manager.fullName) : 'N/A';
+
                 tr.innerHTML = `
                     <td class="px-6 py-4 font-medium text-white table-cell-responsive">${dept.id}</td>
                     <td class="px-6 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
                     <td class="px-6 py-4 table-cell-responsive">${dept.name}</td>
-                    <td class="px-6 py-4 table-cell-responsive">${dept.manager || 'N/A'}</td>
+                    <td class="px-6 py-4 table-cell-responsive">${managerName}</td>
                     <td class="px-6 py-4 font-semibold text-sky-400 table-cell-responsive">${weeklyHours}</td>
                     <td class="px-6 py-4 table-cell-responsive">${formattedDays}</td>
                     <td class="px-6 py-4 text-right table-cell-responsive">
@@ -1119,6 +1137,15 @@
                 }, (error) => {
                     console.error("Erro ao carregar departamentos:", error);
                     document.getElementById('departmentsTableBody').innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-400">Erro ao carregar dados. Verifique o console para detalhes.</td></tr>';
+                });
+
+                const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
+                onSnapshot(usersColRef, (snapshot) => {
+                    console.log("Users data received:", snapshot.docs.length, "documents");
+                    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    filterAndRenderDepartments(); // Re-render departments when users data changes
+                }, (error) => {
+                    console.error("Erro ao carregar usuários:", error);
                 });
             });
 
