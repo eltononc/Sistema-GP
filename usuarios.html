@@ -226,7 +226,6 @@
                                     <th scope="col" class="px-3 py-3 min-w-[100px]">Perfil</th>
                                     
                                     <th scope="col" class="px-3 py-3 min-w-[100px]">Previsão de Férias</th>
-                                    <th scope="col" class="px-3 py-3 min-w-[80px]">Status Férias</th> <!-- New column -->
                                     <th scope="col" class="px-2 py-3 text-right w-16">Ações</th>
                                 </tr>
                             </thead>
@@ -707,7 +706,7 @@
                     ? `${user.vacation.start.split('-').reverse().join('/')} - ${user.vacation.end.split('-').reverse().join('/')}` 
                     : '<span class="text-red-400">Não Informado</span>';
 
-                let vacationStatusTag = '';
+                let vacationTag = '';
                 if (user.vacation && user.vacation.start && user.vacation.end) {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0); // Normalize today to start of day
@@ -715,7 +714,7 @@
                     const vacationEnd = new Date(user.vacation.end + 'T23:59:59'); // End of day for inclusive comparison
 
                     if (today >= vacationStart && today <= vacationEnd) {
-                        vacationStatusTag = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400">De Férias</span>';
+                        vacationTag = '<span class="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400">Férias</span>'; // Small red tag
                     }
                 }
 
@@ -723,14 +722,13 @@
                     <td class="px-3 py-4 font-medium text-white table-cell-responsive">${user.id || 'N/A'}</td>
                     <td class="px-3 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
                     <td class="px-3 py-4 table-cell-responsive"><img src="${user.profilePictureUrl || 'https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg'}" alt="Foto" class="w-10 h-10 rounded-full object-cover"></td>
-                    <td class="px-3 py-4 font-medium text-white table-cell-responsive">${user.fullName}</td>
+                    <td class="px-3 py-4 font-medium text-white table-cell-responsive">${user.fullName}${vacationTag}</td>
                     <td class="px-3 py-4 table-cell-responsive">${user.email || 'N/A'}</td>
                     <td class="px-3 py-4 table-cell-responsive">${user.department.name || 'N/A'}</td>
                     <td class="px-3 py-4 table-cell-responsive">${user.role.name || 'N/A'}</td>
                     <td class="px-3 py-4 table-cell-responsive">${user.profile || 'N/A'}</td>
                     
                     <td class="px-3 py-4 table-cell-responsive">${vacationDisplay}</td>
-                    <td class="px-3 py-4 table-cell-responsive">${vacationStatusTag}</td> <!-- New cell -->
                     <td class="px-3 py-4 text-right table-cell-responsive">
                         <!-- Botões de Ação em duas linhas para economizar espaço -->
                         <div class="flex flex-col items-end justify-center gap-1">
