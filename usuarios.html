@@ -730,13 +730,18 @@
                 }
 
                 let vacationTag = '';
-                if (user.vacation && user.vacation.start && user.vacation.end) {
+                if (user.vacation && Array.isArray(user.vacation) && user.vacation.length > 0) {
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0); // Normalize today to start of day
-                    const vacationStart = new Date(user.vacation.start + 'T00:00:00');
-                    const vacationEnd = new Date(user.vacation.end + 'T23:59:59'); // End of day for inclusive comparison
+                    today.setHours(0, 0, 0, 0);
 
-                    if (today >= vacationStart && today <= vacationEnd) {
+                    // Check if any of the vacation periods are currently active
+                    const isOnVacation = user.vacation.some(period => {
+                        const vacationStart = new Date(period.start + 'T00:00:00');
+                        const vacationEnd = new Date(period.end + 'T23:59:59');
+                        return today >= vacationStart && today <= vacationEnd;
+                    });
+
+                    if (isOnVacation) {
                         vacationTag = '<span class="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 whitespace-nowrap">Férias</span>'; // Small red tag
                     }
                 }
