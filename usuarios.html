@@ -712,7 +712,7 @@
                     if (upcomingOrOngoingVacations.length > 0) {
                         // Display the start date of the closest upcoming/ongoing vacation
                         const closestVacation = upcomingOrOngoingVacations[0];
-                        vacationDisplay = closestVacation.start.split('-').reverse().join('/');
+                        vacationDisplay = `${closestVacation.start.split('-').reverse().join('/')} - ${closestVacation.end.split('-').reverse().join('/')}`;
                     } else {
                         // All vacations are in the past. Check if any ended in the current year.
                         const anyEndedThisYear = user.vacation.some(period => {
