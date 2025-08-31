@@ -6,7 +6,7 @@
     <title>Stake Pro - Departamentos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
-    <script src="settings.js" defer></script>
+    <script type="module" src="settings.js" defer></script>
     
     <style>
         /* Estilos base */
@@ -309,7 +309,9 @@
                     <div class="space-y-6 w-full max-w-5xl mx-auto">
                         <div class="flex flex-col md:flex-row gap-4">
                             <input type="text" id="departmentName" placeholder="Nome do Departamento" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
-                            <input type="text" id="departmentManager" placeholder="Nome do Gestor" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                            <select id="departmentManager" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                <option value="">Carregando gestores...</option>
+                            </select>
                         </div>
 
                         <div class="flex flex-col md:flex-row gap-4">
@@ -486,12 +488,12 @@
         // Remova a lógica de verificação de variáveis globais.
         // Use a configuração diretamente.
         const firebaseConfig = {
-            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
-            authDomain: "stake-pro-db.firebaseapp.com",
-            projectId: "stake-pro-db",
-            storageBucket: "stake-pro-db.firebasestorage.app",
-            messagingSenderId: "569517541701",
-            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+            apiKey: "AIzaSyAtmxLoEIncNY-9_zyypEPgWEUNV_0mMHs",
+            authDomain: "sistema-gp-5fe24.firebaseapp.com",
+            projectId: "sistema-gp-5fe24",
+            storageBucket: "sistema-gp-5fe24.firebasestorage.app",
+            messagingSenderId: "80532029580",
+            appId: "1:80532029580:web:ba7b41a79adad2774c7ba9"
         };
         const appId = firebaseConfig.projectId;
 
@@ -897,6 +899,47 @@
             }
         }
 
+        async function populateManagersDropdown() {
+            const managerSelect = document.getElementById('departmentManager');
+            if (!managerSelect) return;
+
+            managerSelect.innerHTML = '<option value="">Carregando gestores...</option>';
+
+            try {
+                const usersColRef = collection(db, `artifacts/${appId}/public/data/usuarios`);
+                const querySnapshot = await getDocs(usersColRef);
+                const activeManagers = [];
+                querySnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    // Assuming 'status' field for users, similar to calendars. Adjust if different.
+                    // If no status field, just push all users: activeManagers.push({ id: doc.id, ...user });
+                    if (user.status === 'Ativo' || user.status === undefined) { // Consider users without explicit status as active
+                        activeManagers.push({ id: doc.id, ...user });
+                    }
+                });
+
+                managerSelect.innerHTML = '<option value="">Selecione um gestor</option>';
+
+                if (activeManagers.length === 0) {
+                    managerSelect.innerHTML = '<option value="">Nenhum gestor encontrado</option>';
+                    return;
+                }
+                
+                activeManagers.sort((a, b) => a.nome.localeCompare(b.nome)); // Sort by 'nome' field
+
+                activeManagers.forEach(manager => {
+                    const option = document.createElement('option');
+                    option.value = manager.id.toString();
+                    option.textContent = manager.nome;
+                    managerSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar gestores:", error);
+                managerSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
         function renderDepartments(departments) {
             const departmentsTableBody = document.getElementById('departmentsTableBody');
             if (!departmentsTableBody) return;
@@ -980,18 +1023,20 @@
 
             if (show) {
                 populateCalendarsDropdown(); // Popular o dropdown de calendários
+                populateManagersDropdown(); // Popular o dropdown de gestores
                 listContainer.classList.add('hidden');
                 searchContainer.classList.add('hidden');
                 cadastroForm.classList.remove('hidden');
 
                 if (department) { // Edit mode
                     await populateCalendarsDropdown(); // Aguarda os calendários carregarem
+                    await populateManagersDropdown(); // Aguarda os gestores carregarem
                     formTitleEl.textContent = 'Editar Departamento';
                     saveButton.textContent = 'Atualizar';
                     statusContainer.classList.remove('hidden');
                     document.getElementById('departmentId').value = department.id;
                     document.getElementById('departmentName').value = department.name || '';
-                    document.getElementById('departmentManager').value = department.manager || '';
+                    document.getElementById('departmentManager').value = department.manager ? department.manager.toString() : '';
                     document.getElementById('departmentStatus').value = department.status || 'Ativo';
                     document.getElementById('departmentCalendar').value = department.calendarId || '';
                     document.getElementById('departmentObservations').value = department.observations || '';
