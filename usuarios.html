@@ -736,6 +736,7 @@
         }
 
         async function toggleForm(show, user = null) {
+            console.log('toggleForm called with show:', show, 'and user:', user);
             const listContainer = document.getElementById('listContainer');
             const formContainer = document.getElementById('formContainer');
             const formTitle = document.getElementById('formTitle');
@@ -1005,8 +1006,10 @@
 
                 if (editBtn) {
                     const userId = editBtn.dataset.id;
+                    console.log('Edit button clicked. userId:', userId);
                     const userToEdit = allUsers.find(user => user.id === userId);
                     if (userToEdit) {
+                        console.log('User to edit found:', userToEdit);
                         await toggleForm(true, userToEdit);
                     }
                 } else if (deleteBtn) {
