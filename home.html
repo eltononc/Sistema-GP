@@ -284,11 +284,14 @@
                 today.setHours(0, 0, 0, 0); // Normalize today to start of day
 
                 allUsers.forEach(user => {
-                    if (user.vacation && user.vacation.start && user.vacation.end) {
-                        const vacationStart = new Date(user.vacation.start + 'T00:00:00');
-                        const vacationEnd = new Date(user.vacation.end + 'T23:59:59'); // End of day for inclusive comparison
+                    if (user.vacation && Array.isArray(user.vacation) && user.vacation.length > 0) {
+                        const isOnVacation = user.vacation.some(period => {
+                            const vacationStart = new Date(period.start + 'T00:00:00');
+                            const vacationEnd = new Date(period.end + 'T23:59:59');
+                            return today >= vacationStart && today <= vacationEnd;
+                        });
 
-                        if (today >= vacationStart && today <= vacationEnd) {
+                        if (isOnVacation) {
                             vacationingUsers.push(user);
                         }
                     }
