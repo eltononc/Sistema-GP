@@ -698,9 +698,23 @@
                 if (status === 'Ativo') statusColor = 'bg-green-500/20 text-green-400';
                 if (status === 'Inativo') statusColor = 'bg-red-500/20 text-red-400';
 
-                const vacationDisplay = user.vacation && user.vacation.start && user.vacation.end 
-                    ? `${user.vacation.start.split('-').reverse().join('/')} - ${user.vacation.end.split('-').reverse().join('/')}` 
-                    : '<span class="text-red-400">Não Informado</span>';
+                let vacationDisplay = '<span class="text-red-400">Não Informado</span>'; // Default
+
+                if (user.vacation && user.vacation.start && user.vacation.end) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const vacationEnd = new Date(user.vacation.end + 'T23:59:59');
+
+                    // Check if the vacation ended in a previous year
+                    if (vacationEnd.getFullYear() < today.getFullYear()) {
+                        vacationDisplay = '<span class="text-red-400">Não Informado</span>'; // Reset for new year
+                    } else if (today > vacationEnd) {
+                        vacationDisplay = '<span class="text-green-400">Concluído</span>'; // Vacation ended in current year
+                    } else {
+                        // Vacation is in the future or ongoing
+                        vacationDisplay = `${user.vacation.start.split('-').reverse().join('/')} - ${user.vacation.end.split('-').reverse().join('/')}`;
+                    }
+                }
 
                 let vacationTag = '';
                 if (user.vacation && user.vacation.start && user.vacation.end) {
