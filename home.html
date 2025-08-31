@@ -9,7 +9,7 @@
     <!-- Links para as fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
     
-    <script src="settings.js" defer></script>
+    <script type="module" src="settings.js" defer></script>
     <style>
         /* Estilos base */
         body {
@@ -170,7 +170,7 @@
                 </button>
             </div>
 
-            <nav class="flex-1">
+            <nav class="flex-1 flex flex-col">
             </nav>
         </aside>
     
@@ -209,6 +209,15 @@
                         <p class="text-slate-400">Fique de olho nos feriados e dias não úteis configurados para o ano.</p>
                         <a href="calendarios.html" class="mt-4 inline-block text-sm font-semibold text-white bg-yellow-600 px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">Ver Calendário</a>
                     </div>
+
+                    <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <h3 class="font-bold text-blue-400 text-xl mb-2">Usuários de Férias</h3>
+                        <p class="text-slate-400">Veja quem está aproveitando um merecido descanso.</p>
+                        <ul id="vacationUsersList" class="mt-4 space-y-2 text-slate-300">
+                            <!-- Vacationing users will be listed here -->
+                            <li>Nenhum usuário de férias no momento.</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="mt-8 p-6 bg-slate-800/50 rounded-lg border border-slate-700">
@@ -231,27 +240,80 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { renderSidebar } from './sidebar.js';
+        import { db, auth } from './firebase-config.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc, addDoc, setDoc, getDocs, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
+        // Firebase Configuration (duplicate from usuarios.html for now, ideally centralize)
         const firebaseConfig = {
-            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
-            authDomain: "stake-pro-db.firebaseapp.com",
-            projectId: "stake-pro-db",
-            storageBucket: "stake-pro-db.firebasestorage.app",
-            messagingSenderId: "569517541701",
-            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+            apiKey: "AIzaSyAtmxLoEIncNY-9_zyypEPgWEUNV_0mMHs",
+            authDomain: "sistema-gp-5fe24.firebaseapp.com",
+            projectId: "sistema-gp-5fe24",
+            storageBucket: "sistema-gp-5fe24.firebasestorage.app",
+            messagingSenderId: "80532029580",
+            appId: "1:80532029580:web:ba7b41a79adad2774c7ba9"
         };
+        const appId = firebaseConfig.projectId;
 
-        // Inicialize o Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        // Initialize Firebase (if not already initialized by firebase-config.js)
+        let app;
+        try {
+            app = initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error("Erro ao inicializar o Firebase em home.html:", error);
+        }
 
         // --- FUNÇÕES DE MODAIS (showAlert) ---
         function showAlert(message) {
             // Implementação simples de alerta para home.html
             alert(message);
+        }
+
+        // Function to display vacationing users
+        async function displayVacationingUsers() {
+            const vacationUsersList = document.getElementById('vacationUsersList');
+            vacationUsersList.innerHTML = '<li>Carregando usuários...</li>'; // Loading state
+
+            try {
+                const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
+                const querySnapshot = await getDocs(usersColRef);
+                const allUsers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                const vacationingUsers = [];
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
+                allUsers.forEach(user => {
+                    if (user.vacation && user.vacation.start && user.vacation.end) {
+                        const vacationStart = new Date(user.vacation.start + 'T00:00:00');
+                        const vacationEnd = new Date(user.vacation.end + 'T23:59:59'); // End of day for inclusive comparison
+
+                        if (today >= vacationStart && today <= vacationEnd) {
+                            vacationingUsers.push(user);
+                        }
+                    }
+                });
+
+                if (vacationingUsers.length === 0) {
+                    vacationUsersList.innerHTML = '<li>Nenhum usuário de férias no momento.</li>';
+                } else {
+                    vacationUsersList.innerHTML = ''; // Clear loading state
+                    vacationingUsers.forEach(user => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'flex items-center space-x-2';
+                        listItem.innerHTML = `
+                            <img src="${user.profilePictureUrl || 'https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg'}" alt="${user.fullName}" class="w-6 h-6 rounded-full object-cover">
+                            <span>${user.fullName}</span>
+                        `;
+                        vacationUsersList.appendChild(listItem);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar usuários de férias:', error);
+                vacationUsersList.innerHTML = '<li>Erro ao carregar usuários.</li>';
+                showAlert('Erro ao carregar usuários de férias.');
+            }
         }
 
         // LÓGICA DA ANIMAÇÃO DE FUNDO
@@ -312,6 +374,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeGanttBackground();
+            displayVacationingUsers(); // Call the new function
 
             const sidebar = document.getElementById('sidebar-container');
             const sidebarToggleButton = document.getElementById('sidebarToggleButton');
@@ -327,8 +390,6 @@
 
             // Render sidebar
             renderSidebar(window.location.pathname, showAlert); // Pass showAlert to sidebar
-
-            // Lógica de Logout (removida daqui, agora no sidebar.js)
         });
     </script>
 </body>
