@@ -245,7 +245,7 @@
                             <!-- Foto de Perfil (col-span-1) -->
                             <div class="flex flex-col items-center space-y-4 p-2 border border-slate-700 rounded-lg">
                                 <label for="profilePictureInput" class="block text-slate-300 text-sm font-bold">Foto de Perfil:</label>
-                                <img id="profilePicturePreview" src="https://res.cloudinary.com/djikr5paz/image/upload/v1700000000/default_avatar.png" alt="Pré-visualização da Foto de Perfil" class="w-20 h-20 rounded-full object-cover border-2 border-sky-500">
+                                <img id="profilePicturePreview" src="https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg" alt="Pré-visualização da Foto de Perfil" class="w-20 h-20 rounded-full object-cover border-2 border-sky-500">
                                 <input type="file" id="profilePictureInput" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-500 file:text-white hover:file:bg-sky-600">
                                 <input type="hidden" id="profilePictureUrl" value="">
                             </div>
@@ -568,11 +568,11 @@
                     profilePictureUrl = uploadedUrl;
                 } else {
                     // If upload failed, keep existing URL or set to default
-                    profilePictureUrl = document.getElementById('profilePictureUrl').value || "https://res.cloudinary.com/djikr5paz/image/upload/v1700000000/default_avatar.png";
+                    profilePictureUrl = document.getElementById('profilePictureUrl').value || "https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg";
                 }
             } else if (!profilePictureUrl) {
                 // If no file selected and no existing URL, set to default avatar
-                profilePictureUrl = "https://res.cloudinary.com/djikr5paz/image/upload/v1700000000/default_avatar.png";
+                profilePictureUrl = "https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg";
             }
 
 
@@ -704,7 +704,7 @@
                 tr.innerHTML = `
                     <td class="px-3 py-4 font-medium text-white table-cell-responsive">${user.id || 'N/A'}</td>
                     <td class="px-3 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
-                    <td class="px-3 py-4 table-cell-responsive"><img src="${user.profilePictureUrl || 'https://res.cloudinary.com/djikr5paz/image/upload/v1700000000/default_avatar.png'}" alt="Foto" class="w-8 h-8 rounded-full object-cover"></td>
+                    <td class="px-3 py-4 table-cell-responsive"><img src="${user.profilePictureUrl || 'https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg'}" alt="Foto" class="w-8 h-8 rounded-full object-cover"></td>
                     <td class="px-3 py-4 font-medium text-white table-cell-responsive">${user.fullName}</td>
                     <td class="px-3 py-4 table-cell-responsive">${user.email || 'N/A'}</td>
                     <td class="px-3 py-4 table-cell-responsive">${user.department.name || 'N/A'}</td>
@@ -761,7 +761,7 @@
             
             // New: Reset profile picture preview and hidden URL
             profilePictureInput.value = ''; // Clear selected file
-            profilePicturePreview.src = "https://res.cloudinary.com/djikr5paz/image/upload/v1700000000/default_avatar.png";
+            profilePicturePreview.src = "https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg";
             profilePictureUrlHidden.value = '';
 
             if (show) {
@@ -788,7 +788,7 @@
                         profilePicturePreview.src = user.profilePictureUrl;
                         profilePictureUrlHidden.value = user.profilePictureUrl;
                     } else {
-                        profilePicturePreview.src = "https://res.cloudinary.com/djikr5paz/image/upload/v1700000000/default_avatar.png";
+                        profilePicturePreview.src = "https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg";
                         profilePictureUrlHidden.value = '';
                     }
 
