@@ -710,7 +710,7 @@
                     const vacationEnd = new Date(user.vacation.end + 'T23:59:59'); // End of day for inclusive comparison
 
                     if (today >= vacationStart && today <= vacationEnd) {
-                        vacationTag = '<span class="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400">Férias</span>'; // Small red tag
+                        vacationTag = '<span class="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 whitespace-nowrap">Férias</span>'; // Small red tag
                     }
                 }
 
