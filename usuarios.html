@@ -967,36 +967,12 @@
             }
 
             try {
-                const deptRef = doc(db, `artifacts/${appId}/public/data/departments`, departmentId);
-                const deptSnap = await getDoc(deptRef);
-                if (!deptSnap.exists()) {
-                    console.error('Departamento não encontrado para cálculo de férias.');
-                    return 0;
-                }
-                const department = deptSnap.data();
-                const workDays = department.workDays || [];
-                const calendarId = department.calendarId;
-
-                let holidays = [];
-                if (calendarId) {
-                    const calRef = doc(db, `artifacts/${appId}/public/data/calendars`, calendarId);
-                    const calSnap = await getDoc(calRef);
-                    if (calSnap.exists()) {
-                        holidays = (calSnap.data().holidays || []).map(h => h.date);
-                    }
-                }
-
                 let startDate = new Date(startDateString + 'T00:00:00');
                 let endDate = new Date(endDateString + 'T23:59:59');
                 let days = 0;
 
                 while (startDate <= endDate) {
-                    const dayName = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'][startDate.getUTCDay()];
-                    const dateString = startDate.toISOString().split('T')[0];
-
-                    if (workDays.includes(dayName) && !holidays.includes(dateString)) {
-                        days++;
-                    }
+                    days++; // Increment for every day
                     startDate.setUTCDate(startDate.getUTCDate() + 1);
                 }
                 return days;
