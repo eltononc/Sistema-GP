@@ -1002,9 +1002,29 @@
             document.getElementById('usersTableBody').addEventListener('click', async (e) => {
                 console.log('Click event on usersTableBody:', e.target);
                 document.addEventListener('click', async (e) => {
-                const editBtn = e.target.closest('.edit-btn');
-                const deleteBtn = e.target.closest('.delete-btn');
-                const resetPasswordBtn = e.target.closest('.reset-password-btn');
+                let targetElement = e.target;
+                let editBtn = null;
+                let deleteBtn = null;
+                let resetPasswordBtn = null;
+
+                // Manually traverse up the DOM to find the button
+                while (targetElement && targetElement !== document.body) {
+                    if (targetElement.nodeType === 1) { // Element node
+                        if (targetElement.classList.contains('edit-btn')) {
+                            editBtn = targetElement;
+                            break;
+                        }
+                        if (targetElement.classList.contains('delete-btn')) {
+                            deleteBtn = targetElement;
+                            break;
+                        }
+                        if (targetElement.classList.contains('reset-password-btn')) {
+                            resetPasswordBtn = targetElement;
+                            break;
+                        }
+                    }
+                    targetElement = targetElement.parentNode;
+                }
 
                 if (editBtn) {
                     const userId = editBtn.dataset.id;
