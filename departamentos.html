@@ -906,7 +906,7 @@
             managerSelect.innerHTML = '<option value="">Carregando gestores...</option>';
 
             try {
-                const usersColRef = collection(db, `artifacts/${appId}/public/data/usuarios`);
+                const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
                 const querySnapshot = await getDocs(usersColRef);
                 const activeManagers = [];
                 querySnapshot.forEach((doc) => {

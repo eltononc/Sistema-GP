@@ -35,7 +35,7 @@ async function populateFirestore() {
 
     // Adicionar um usuário de exemplo
     const usuarioId = "1"; // Exemplo de ID
-    const usuarioRef = doc(collection(db, `artifacts/${appId}/public/data/usuarios`), usuarioId);
+    const usuarioRef = doc(collection(db, `artifacts/${appId}/public/data/users`), usuarioId);
     await setDoc(usuarioRef, {
       id: parseInt(usuarioId),
       nome: 'João Silva',
