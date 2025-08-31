@@ -699,19 +699,33 @@
 
                 let vacationDisplay = '<span class="text-red-400">Não Informado</span>'; // Default
 
-                if (user.vacation && user.vacation.start && user.vacation.end) {
+                if (user.vacation && Array.isArray(user.vacation) && user.vacation.length > 0) {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    const vacationEnd = new Date(user.vacation.end + 'T23:59:59');
 
-                    // Check if the vacation ended in a previous year
-                    if (vacationEnd.getFullYear() < today.getFullYear()) {
-                        vacationDisplay = '<span class="text-red-400">Não Informado</span>'; // Reset for new year
-                    } else if (today > vacationEnd) {
-                        vacationDisplay = '<span class="text-green-400">Concluído</span>'; // Vacation ended in current year
+                    // Filter for upcoming or ongoing vacations
+                    const upcomingOrOngoingVacations = user.vacation.filter(period => {
+                        const periodEnd = new Date(period.end + 'T23:59:59');
+                        return today <= periodEnd; // Period ends today or in the future
+                    }).sort((a, b) => new Date(a.start) - new Date(b.start)); // Sort by start date
+
+                    if (upcomingOrOngoingVacations.length > 0) {
+                        // Display the start date of the closest upcoming/ongoing vacation
+                        const closestVacation = upcomingOrOngoingVacations[0];
+                        vacationDisplay = closestVacation.start.split('-').reverse().join('/');
                     } else {
-                        // Vacation is in the future or ongoing
-                        vacationDisplay = `${user.vacation.start.split('-').reverse().join('/')} - ${user.vacation.end.split('-').reverse().join('/')}`;
+                        // All vacations are in the past. Check if any ended in the current year.
+                        const anyEndedThisYear = user.vacation.some(period => {
+                            const periodEnd = new Date(period.end + 'T23:59:59');
+                            return periodEnd.getFullYear() === today.getFullYear();
+                        });
+
+                        if (anyEndedThisYear) {
+                            vacationDisplay = '<span class="text-green-400">Concluído</span>';
+                        } else {
+                            // All vacations ended in previous years
+                            vacationDisplay = '<span class="text-red-400">Não Informado</span>';
+                        }
                     }
                 }
 
