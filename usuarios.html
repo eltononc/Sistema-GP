@@ -298,6 +298,7 @@
                             <button id="addVacationPeriodButton" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all">
                                 Adicionar Período de Férias
                             </button>
+                            <p class="text-sm text-slate-400 mt-2">Total de Dias de Férias: <span id="totalVacationDaysDisplay" class="font-bold text-white">0</span></p>
                         </div>
 
                         <div class="flex gap-4 mt-6">
@@ -764,10 +765,10 @@
         }
 
         // Function to create a new vacation period input block
-        function createVacationPeriodBlock(startDate = '', endDate = '') {
+        function createVacationPeriodBlock(startDate = '', endDate = '', calculatedDays = 0) {
             const container = document.getElementById('vacationPeriodsContainer');
             const block = document.createElement('div');
-            block.className = 'vacation-period-block grid grid-cols-1 md:grid-cols-3 gap-4 items-end p-4 border border-slate-700 rounded-lg';
+            block.className = 'vacation-period-block grid grid-cols-1 md:grid-cols-4 gap-4 items-end p-4 border border-slate-700 rounded-lg';
             block.innerHTML = `
                 <div>
                     <label class="block text-slate-400 text-sm font-semibold mb-1">Início das Férias</label>
@@ -777,8 +778,12 @@
                     <label class="block text-slate-400 text-sm font-semibold mb-1">Fim das Férias</label>
                     <input type="date" class="vacation-end-date w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" value="${endDate}">
                 </div>
-                <div class="flex justify-end">
+                <div class="flex justify-end space-x-2">
+                    <button type="button" class="confirm-vacation-period-button px-3 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all">Confirmar</button>
                     <button type="button" class="remove-vacation-period-button px-3 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Remover</button>
+                </div>
+                <div class="col-span-full text-right">
+                    <span class="text-sm text-slate-400">Dias Calculados: <span class="calculated-vacation-days font-bold text-white">${calculatedDays}</span></span>
                 </div>
             `;
             container.appendChild(block);
@@ -956,6 +961,52 @@
 
         
         
+        async function calculateDaysForPeriod(startDateString, endDateString, departmentId) {
+            if (!startDateString || !endDateString || !departmentId) {
+                return 0;
+            }
+
+            try {
+                const deptRef = doc(db, `artifacts/${appId}/public/data/departments`, departmentId);
+                const deptSnap = await getDoc(deptRef);
+                if (!deptSnap.exists()) {
+                    console.error('Departamento não encontrado para cálculo de férias.');
+                    return 0;
+                }
+                const department = deptSnap.data();
+                const workDays = department.workDays || [];
+                const calendarId = department.calendarId;
+
+                let holidays = [];
+                if (calendarId) {
+                    const calRef = doc(db, `artifacts/${appId}/public/data/calendars`, calendarId);
+                    const calSnap = await getDoc(calRef);
+                    if (calSnap.exists()) {
+                        holidays = (calSnap.data().holidays || []).map(h => h.date);
+                    }
+                }
+
+                let startDate = new Date(startDateString + 'T00:00:00');
+                let endDate = new Date(endDateString + 'T23:59:59');
+                let days = 0;
+
+                while (startDate <= endDate) {
+                    const dayName = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'][startDate.getUTCDay()];
+                    const dateString = startDate.toISOString().split('T')[0];
+
+                    if (workDays.includes(dayName) && !holidays.includes(dateString)) {
+                        days++;
+                    }
+                    startDate.setUTCDate(startDate.getUTCDate() + 1);
+                }
+                return days;
+
+            } catch (error) {
+                console.error("Erro ao calcular dias de férias para o período:", error);
+                return 0;
+            }
+        }
+
         async function main() {
             // Inicializa a animação de fundo
             initializeGanttBackground();
@@ -1065,13 +1116,29 @@
                 createVacationPeriodBlock();
             });
 
-            document.getElementById('vacationPeriodsContainer').addEventListener('click', (e) => {
+            document.getElementById('vacationPeriodsContainer').addEventListener('click', async (e) => {
                 if (e.target.classList.contains('remove-vacation-period-button')) {
                     e.target.closest('.vacation-period-block').remove();
                     // Re-enable add button if less than 4 periods
                     if (document.getElementById('vacationPeriodsContainer').children.length < 4) {
                         document.getElementById('addVacationPeriodButton').disabled = false;
                     }
+                    updateTotalVacationDays();
+                } else if (e.target.classList.contains('confirm-vacation-period-button')) {
+                    const block = e.target.closest('.vacation-period-block');
+                    const startDateInput = block.querySelector('.vacation-start-date');
+                    const endDateInput = block.querySelector('.vacation-end-date');
+                    const calculatedDaysSpan = block.querySelector('.calculated-vacation-days');
+                    const departmentId = document.getElementById('department').value;
+
+                    if (!departmentId) {
+                        showAlert('Por favor, selecione um departamento primeiro para calcular os dias de férias.');
+                        return;
+                    }
+
+                    const days = await calculateDaysForPeriod(startDateInput.value, endDateInput.value, departmentId);
+                    calculatedDaysSpan.textContent = days;
+                    updateTotalVacationDays();
                 }
             });
 
@@ -1081,6 +1148,42 @@
             // document.getElementById('vacationDays').removeEventListener('input', calculateVacationEndDate);
 
             document.getElementById('hourlyCost').addEventListener('input', (e) => formatCurrency(e.target));
+
+            // Add listener for department change to re-calculate all periods
+            document.getElementById('department').addEventListener('change', () => {
+                updateAllVacationPeriodCalculations();
+            });
+        }
+
+        // Function to update total vacation days display
+        function updateTotalVacationDays() {
+            let totalDays = 0;
+            document.querySelectorAll('.calculated-vacation-days').forEach(span => {
+                totalDays += parseInt(span.textContent || '0', 10);
+            });
+            document.getElementById('totalVacationDaysDisplay').textContent = totalDays;
+        }
+
+        // Function to re-calculate all vacation periods when department changes
+        async function updateAllVacationPeriodCalculations() {
+            const departmentId = document.getElementById('department').value;
+            if (!departmentId) {
+                document.querySelectorAll('.calculated-vacation-days').forEach(span => span.textContent = '0');
+                updateTotalVacationDays();
+                return;
+            }
+
+            const vacationPeriodBlocks = document.querySelectorAll('.vacation-period-block');
+            for (const block of vacationPeriodBlocks) {
+                const startDateInput = block.querySelector('.vacation-start-date');
+                const endDateInput = block.querySelector('.vacation-end-date');
+                const calculatedDaysSpan = block.querySelector('.calculated-vacation-days');
+
+                const days = await calculateDaysForPeriod(startDateInput.value, endDateInput.value, departmentId);
+                calculatedDaysSpan.textContent = days;
+            }
+            updateTotalVacationDays();
+        }
         }
 
         // Removed calculateVacationEndDate function
