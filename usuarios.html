@@ -1029,7 +1029,7 @@
                 }
 
                 if (editBtn) {
-                    const userId = editBtn.dataset.id;
+                    const userId = parseInt(editBtn.dataset.id); // Converted to integer
                     console.log('Edit button clicked. userId:', userId); // New log
                     const userToEdit = allUsers.find(user => user.id === userId);
                     console.log('User to edit found:', userToEdit); // New log
