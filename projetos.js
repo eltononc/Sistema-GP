@@ -310,17 +310,7 @@ function renderProjects(projects) {
     });
 }
 
-async function toggleForm(show, project = null) {
-    const cadastroForm = document.getElementById('cadastroFormContainer');
-    const listContainer = document.getElementById('projetosListContainer');
-    const searchContainer = document.getElementById('search-form-container');
-    const saveButton = document.getElementById('saveProjectButton');
-    const approveButton = document.getElementById('approveProjectButton');
-    const csatSection = document.getElementById('csatSection');
-    const formTitleEl = document.getElementById('formTitle');
-    const statusContainer = document.getElementById('statusContainer');
-
-    function resetProjectForm() {
+function resetProjectForm() {
     document.getElementById('projetoId').value = "";
     document.getElementById('projectName').value = "";
     document.getElementById('projectPortfolio').value = "";
