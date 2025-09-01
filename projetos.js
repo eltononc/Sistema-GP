@@ -506,7 +506,15 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
         const pill = document.createElement('div');
         pill.className = 'tag-pill';
         pill.dataset.id = id;
-        pill.textContent = name;
+        pill.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>${name}</span>
+        `;
         
         const removeBtn = document.createElement('span');
         removeBtn.className = 'tag-pill-remove';
@@ -558,7 +566,10 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
                 item.className = 'tag-result-item';
                 const startDate = p.startDate ? new Date(p.startDate).toLocaleDateString() : 'N/A';
                 const endDate = p.endDate ? new Date(p.endDate).toLocaleDateString() : 'N/A';
-                item.textContent = `${p.name} (Início: ${startDate}, Fim: ${endDate})`;
+                item.innerHTML = `
+                    <strong>${p.name}</strong><br>
+                    <small>Início: ${startDate}, Fim: ${endDate}</small>
+                `;
                 item.onclick = () => {
                     addDependencyTag(p.name, p.id.toString());
                     input.value = '';
@@ -567,7 +578,11 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
                 resultsDropdown.appendChild(item);
             });
         } else {
-            resultsDropdown.classList.add('hidden');
+            resultsDropdown.classList.remove('hidden');
+            const noResultsItem = document.createElement('div');
+            noResultsItem.className = 'tag-result-item text-slate-400';
+            noResultsItem.textContent = 'Nenhum projeto encontrado.';
+            resultsDropdown.appendChild(noResultsItem);
         }
     };
 
