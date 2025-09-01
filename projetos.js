@@ -311,28 +311,70 @@ function renderProjects(projects) {
 }
 
 function resetProjectForm() {
-    document.getElementById('projetoId').value = "";
-    document.getElementById('projectName').value = "";
-    document.getElementById('projectPortfolio').value = "";
-    document.getElementById('projectPriority').value = "Baixa";
-    document.getElementById('projectStartDate').value = "";
-    document.getElementById('projectEndDate').value = "";
-    document.getElementById('projectAction').value = "Acompanhar";
-    document.getElementById('projectOrigin').value = "Projeto TI";
-    document.getElementById('projectTechPerson').value = "";
-    document.getElementById('projectBusinessPerson').value = "";
-    document.getElementById('projectPartner').value = "";
-    document.getElementById('projectClient').value = "";
-    document.getElementById('projectLink').value = "";
-    document.getElementById('projectSuccessCriteria').value = "";
+    const projetoIdEl = document.getElementById('projetoId');
+    if (projetoIdEl) projetoIdEl.value = "";
+
+    const projectNameEl = document.getElementById('projectName');
+    if (projectNameEl) projectNameEl.value = "";
+
+    const projectPortfolioEl = document.getElementById('projectPortfolio');
+    if (projectPortfolioEl) projectPortfolioEl.value = "";
+
+    const projectPriorityEl = document.getElementById('projectPriority');
+    if (projectPriorityEl) projectPriorityEl.value = "Baixa";
+
+    const projectStartDateEl = document.getElementById('projectStartDate');
+    if (projectStartDateEl) projectStartDateEl.value = "";
+
+    const projectEndDateEl = document.getElementById('projectEndDate');
+    if (projectEndDateEl) projectEndDateEl.value = "";
+
+    const projectActionEl = document.getElementById('projectAction');
+    if (projectActionEl) projectActionEl.value = "Acompanhar";
+
+    const projectOriginEl = document.getElementById('projectOrigin');
+    if (projectOriginEl) projectOriginEl.value = "Projeto TI";
+
+    const projectTechPersonEl = document.getElementById('projectTechPerson');
+    if (projectTechPersonEl) projectTechPersonEl.value = "";
+
+    const projectBusinessPersonEl = document.getElementById('projectBusinessPerson');
+    if (projectBusinessPersonEl) projectBusinessPersonEl.value = "";
+
+    const projectPartnerEl = document.getElementById('projectPartner');
+    if (projectPartnerEl) projectPartnerEl.value = "";
+
+    const projectClientEl = document.getElementById('projectClient');
+    if (projectClientEl) projectClientEl.value = "";
+
+    const projectLinkEl = document.getElementById('projectLink');
+    if (projectLinkEl) projectLinkEl.value = "";
+
+    const projectSuccessCriteriaEl = document.getElementById('projectSuccessCriteria');
+    if (projectSuccessCriteriaEl) projectSuccessCriteriaEl.value = "";
+
     initializeDependenciesComponent(null, []);
-    document.getElementById('projectJustification').value = "";
-    document.getElementById('projectObservations').value = "";
-    document.getElementById('projectStatus').value = "Portfólio";
-    document.getElementById('projectCsatScore').value = "";
-    document.getElementById('projectCsatFeedback').value = "";
-    document.getElementById('csatSection').classList.add('hidden');
-    document.getElementById('approveProjectButton').classList.add('hidden');
+
+    const projectJustificationEl = document.getElementById('projectJustification');
+    if (projectJustificationEl) projectJustificationEl.value = "";
+
+    const projectObservationsEl = document.getElementById('projectObservations');
+    if (projectObservationsEl) projectObservationsEl.value = "";
+
+    const projectStatusEl = document.getElementById('projectStatus');
+    if (projectStatusEl) projectStatusEl.value = "Portfólio";
+
+    const projectCsatScoreEl = document.getElementById('projectCsatScore');
+    if (projectCsatScoreEl) projectCsatScoreEl.value = "";
+
+    const projectCsatFeedbackEl = document.getElementById('projectCsatFeedback');
+    if (projectCsatFeedbackEl) projectCsatFeedbackEl.value = "";
+
+    const csatSectionEl = document.getElementById('csatSection');
+    if (csatSectionEl) csatSectionEl.classList.add('hidden');
+
+    const approveProjectButtonEl = document.getElementById('approveProjectButton');
+    if (approveProjectButtonEl) approveProjectButtonEl.classList.add('hidden');
 }
 
 async function toggleForm(show, project = null) {
@@ -529,8 +571,10 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
 
 
 async function populateUsersDropdown() {
+    console.log("DEBUG: populateUsersDropdown started.");
     try {
         const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
+        console.log("DEBUG: Querying users from path:", `artifacts/${appId}/public/data/users`);
         const querySnapshot = await getDocs(usersColRef);
         
         allUsersWithPhotos = querySnapshot.docs
@@ -538,13 +582,16 @@ async function populateUsersDropdown() {
             .filter(user => user.status === 'Ativo')
             .sort((a, b) => a.fullName.localeCompare(b.fullName));
 
+        console.log("DEBUG: Users fetched and filtered:", allUsersWithPhotos);
+
     } catch (error) {
-        console.error("Erro ao carregar usuários para o dropdown:", error);
+        console.error("ERROR: Erro ao carregar usuários para o dropdown:", error);
         // Handle error display for custom dropdowns if needed
     }
 }
 
 function renderCustomUserDropdown(dropdownIdPrefix, users) {
+    console.log(`DEBUG: renderCustomUserDropdown called for ${dropdownIdPrefix} with ${users.length} users.`);
     const displayElement = document.getElementById(`${dropdownIdPrefix}Display`);
     const hiddenIdInput = document.getElementById(`${dropdownIdPrefix}Id`);
     const dropdownContainer = document.getElementById(`${dropdownIdPrefix}Dropdown`);
@@ -552,13 +599,14 @@ function renderCustomUserDropdown(dropdownIdPrefix, users) {
     const nameElement = document.getElementById(`${dropdownIdPrefix}Name`);
 
     if (!displayElement || !hiddenIdInput || !dropdownContainer) {
-        console.warn(`Elementos para ${dropdownIdPrefix} não encontrados.`);
+        console.warn(`WARN: Elementos para ${dropdownIdPrefix} não encontrados.`);
         return;
     }
 
     dropdownContainer.innerHTML = ''; // Clear previous options
 
     users.forEach(user => {
+        console.log(`DEBUG: Rendering user: ${user.fullName} (ID: ${user.id})`);
         const userItem = document.createElement('div');
         userItem.className = 'flex items-center p-2 cursor-pointer hover:bg-slate-700';
         userItem.dataset.id = user.id;
@@ -572,6 +620,7 @@ function renderCustomUserDropdown(dropdownIdPrefix, users) {
         dropdownContainer.appendChild(userItem);
 
         userItem.addEventListener('click', () => {
+            console.log(`DEBUG: User selected: ${user.fullName} (ID: ${user.id})`);
             hiddenIdInput.value = user.id;
             nameElement.textContent = user.fullName;
             photoElement.src = user.profilePictureUrl || 'https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg';
@@ -601,28 +650,30 @@ function renderCustomUserDropdown(dropdownIdPrefix, users) {
 }
 
 function setCustomDropdownValue(dropdownIdPrefix, userId) {
+    console.log(`DEBUG: setCustomDropdownValue called for ${dropdownIdPrefix} with userId: ${userId}`);
     const hiddenIdInput = document.getElementById(`${dropdownIdPrefix}Id`);
     const nameElement = document.getElementById(`${dropdownIdPrefix}Name`);
     const photoElement = document.getElementById(`${dropdownIdPrefix}Photo`);
 
-    console.log(`DEBUG: setCustomDropdownValue for ${dropdownIdPrefix}`);
     console.log(`DEBUG: hiddenIdInput:`, hiddenIdInput);
     console.log(`DEBUG: nameElement:`, nameElement);
     console.log(`DEBUG: photoElement:`, photoElement);
 
     if (!hiddenIdInput || !nameElement || !photoElement) {
-        console.warn(`Elementos para ${dropdownIdPrefix} não encontrados ao tentar definir valor.`);
+        console.warn(`WARN: Elementos para ${dropdownIdPrefix} não encontrados ao tentar definir valor.`);
         return;
     }
 
     const user = allUsersWithPhotos.find(u => u.id === userId);
 
     if (user) {
+        console.log(`DEBUG: User found for setting value: ${user.fullName}`);
         hiddenIdInput.value = user.id;
         nameElement.textContent = user.fullName;
         photoElement.src = user.profilePictureUrl || 'https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg';
         photoElement.classList.remove('hidden');
     } else {
+        console.log(`DEBUG: User not found for setting value. Resetting display.`);
         hiddenIdInput.value = '';
         nameElement.textContent = 'Selecione um usuário...';
         photoElement.classList.add('hidden');
