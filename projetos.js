@@ -163,9 +163,7 @@ async function saveProject() {
     const projectPartnerId = projectPartnerSelect.value;
     const projectPartnerName = projectPartnerId ? projectPartnerSelect.options[projectPartnerSelect.selectedIndex].textContent : '';
     
-    const projectClientSelect = document.getElementById('projectClient');
-    const projectClientId = projectClientSelect.value;
-    const projectClientName = projectClientId ? projectClientSelect.options[projectClientSelect.selectedIndex].textContent : '';
+    
     
     const projectLink = document.getElementById('projectLink').value.trim();
     const projectSuccessCriteria = document.getElementById('projectSuccessCriteria').value.trim();
@@ -182,11 +180,14 @@ async function saveProject() {
     const projectCsatScore = document.getElementById('projectCsatScore').value;
     const projectCsatFeedback = document.getElementById('projectCsatFeedback').value.trim();
 
-    const clientsForNotificationCheckboxes = document.querySelectorAll('#clientsForNotification input[type="checkbox"]:checked');
-    const clientsToNotify = [...clientsForNotificationCheckboxes].map(cb => cb.value);
+    const stakeholdersPills = document.getElementById('stakeholders-pills-container');
+    const stakeholdersToNotify = [...stakeholdersPills.children].map(pill => ({
+        id: pill.dataset.id,
+        name: pill.textContent.slice(0, -1).trim()
+    }));
 
-    if (!projectName || !projectClientId) {
-        showAlert('Por favor, preencha os campos obrigatórios: Nome do Projeto e Cliente.');
+    if (!projectName) {
+        showAlert('Por favor, preencha os campos obrigatórios: Nome do Projeto.');
         return;
     }
 
@@ -201,13 +202,13 @@ async function saveProject() {
         techPerson: { id: projectTechPersonId, name: projectTechPersonName },
         businessPerson: { id: projectBusinessPersonId, name: projectBusinessPersonName },
         partner: { id: projectPartnerId, name: projectPartnerName },
-        client: { id: projectClientId, name: projectClientName },
+        
         link: projectLink,
         successCriteria: projectSuccessCriteria,
         dependencies: projectDependencies,
         justification: projectJustification,
         observations: projectObservations,
-        notifiedClients: clientsToNotify, // Add this line
+        stakeholders: stakeholdersToNotify, // Add this line
         csat: {
             score: projectCsatScore ? parseInt(projectCsatScore) : null,
             feedback: projectCsatFeedback,
@@ -226,14 +227,17 @@ async function saveProject() {
             projectData.status = 'Portfólio'; // Set default status for new projects
             projectData.createdAt = new Date();
 
-            // Deixe o Firestore gerar um ID único
-            const newProjectRef = doc(collection(db, `artifacts/${appId}/public/data/projects`));
-            
-            // Defina o ID gerado no objeto de dados do projeto
-            projectData.id = newProjectRef.id;
+            const projectsColRef = collection(db, `artifacts/${appId}/public/data/projects`);
+            const querySnapshot = await getDocs(projectsColRef);
+            const lastId = querySnapshot.docs.reduce((max, doc) => {
+                const docIdNum = parseInt(doc.id);
+                return docIdNum > max ? docIdNum : max;
+            }, 0);
+            const newId = lastId + 1;
 
-            // Salve o projeto com o ID gerado
-            await setDoc(newProjectRef, projectData);
+            projectData.id = newId;
+
+            await setDoc(doc(db, `artifacts/${appId}/public/data/projects`, newId.toString()), projectData);
             showAlert("Projeto cadastrado com sucesso!");
         }
         toggleForm(false);
@@ -263,7 +267,7 @@ function renderProjects(projects) {
     projects.sort((a, b) => parseInt(a.id) - parseInt(b.id));
 
     if (projects.length === 0) {
-        projetosTableBody.innerHTML = '<tr><td colspan="10" class="text-center p-8">Nenhum projeto encontrado.</td></tr>';
+        projetosTableBody.innerHTML = '<tr><td colspan="9" class="text-center p-8">Nenhum projeto encontrado.</td></tr>';
         return;
     }
 
@@ -286,12 +290,12 @@ function renderProjects(projects) {
 
         tr.innerHTML = `
             <td class="px-6 py-4 font-medium text-white table-cell-responsive">${project.id}</td>
+            <td class="px-6 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${statusColor}">${status}</span></td>
             <td class="px-6 py-4 table-cell-responsive">${project.name}</td>
             <td class="px-6 py-4 table-cell-responsive">${project.portfolio?.name || 'N/A'}</td>
-            <td class="px-6 py-4 table-cell-responsive">${project.client.name || 'N/A'}</td>
+            
             <td class="px-6 py-4 table-cell-responsive">${dependenciesCount}</td>
             <td class="px-6 py-4 table-cell-responsive">${csatScore}</td>
-            <td class="px-6 py-4 table-cell-responsive"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
             <td class="px-6 py-4 text-right table-cell-responsive">
                 <div class="flex items-center justify-end gap-4">
                     <button class="text-sky-400 hover:text-sky-500 edit-btn transition-transform hover:scale-110" data-id="${project.id}" title="Editar">
@@ -344,8 +348,7 @@ function resetProjectForm() {
     const projectPartnerEl = document.getElementById('projectPartner');
     if (projectPartnerEl) projectPartnerEl.value = "";
 
-    const projectClientEl = document.getElementById('projectClient');
-    if (projectClientEl) projectClientEl.value = "";
+    
 
     const projectLinkEl = document.getElementById('projectLink');
     if (projectLinkEl) projectLinkEl.value = "";
@@ -394,6 +397,8 @@ async function toggleForm(show, project = null) {
 
         setTimeout(async () => {
             resetProjectForm();
+            // Ensure users are populated before rendering dropdowns
+            await populateUsersDropdown();
             // Render custom dropdowns after the form is visible
             renderCustomUserDropdown('projectTechPerson', allUsersWithPhotos);
             renderCustomUserDropdown('projectBusinessPerson', allUsersWithPhotos);
@@ -420,7 +425,7 @@ async function toggleForm(show, project = null) {
                     console.error("ERROR: Erro ao definir dropdowns personalizados:", e);
                 }
                 document.getElementById('projectPartner').value = project.partner?.id || '';
-                await populateClientsDropdown(project.client?.id);
+                
                 document.getElementById('projectLink').value = project.link || '';
                 document.getElementById('projectSuccessCriteria').value = project.successCriteria || '';
                 initializeDependenciesComponent(project.id, project.dependencies || []);
@@ -429,13 +434,11 @@ async function toggleForm(show, project = null) {
                 document.getElementById('projectStatus').value = project.status || 'Portfólio';
                 
                 // Populate departments dropdown and clients for notification
-                if (project.notifiedClients && project.notifiedClients.length > 0) {
-                    const firstNotifiedClientDepartmentId = project.notifiedClients[0].department.id;
-                    await populateDepartmentsDropdown(firstNotifiedClientDepartmentId);
-                    populateClientsForNotification(firstNotifiedClientDepartmentId);
-                } else {
-                    await populateDepartmentsDropdown(); // Just populate departments without pre-selection
-                }
+                if (project.stakeholders && project.stakeholders.length > 0) {
+                initializeStakeholdersComponent(project.stakeholders);
+            } else {
+                initializeStakeholdersComponent([]);
+            }
 
                 if (project.status === 'Portfólio') {
                     approveButton.classList.remove('hidden');
@@ -470,8 +473,8 @@ async function toggleForm(show, project = null) {
                 formTitleEl.textContent = 'Cadastrar Novo Projeto';
                 saveButton.textContent = 'Salvar';
                 initializeDependenciesComponent(null, []);
-                await populateDepartmentsDropdown(); // Call to populate departments for new project
-                await populateClientsDropdown(); // ADD THIS LINE: Call to populate clients for new project
+                initializeStakeholdersComponent([]);
+            
 
                 // Reset custom user dropdowns using the helper function with a small delay
                 setCustomDropdownValue('projectTechPerson', null);
@@ -609,6 +612,100 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
     });
 }
 
+function initializeStakeholdersComponent(existingStakeholders) {
+    const container = document.getElementById('stakeholders-container');
+    const pillsContainer = document.getElementById('stakeholders-pills-container');
+    const input = document.getElementById('projectStakeholdersInput');
+    const resultsDropdown = document.getElementById('stakeholders-results');
+
+    pillsContainer.innerHTML = '';
+    input.value = '';
+
+    let selectedIds = new Set(existingStakeholders.map(stakeholder => stakeholder.id));
+
+    existingStakeholders.forEach(stakeholder => {
+        const user = allUsersWithPhotos.find(u => u.id === stakeholder.id);
+        addStakeholderTag(stakeholder.name, stakeholder.id, user ? user.profilePictureUrl : null);
+    });
+
+    function addStakeholderTag(name, id, photoUrl = 'https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg') {
+        if (selectedIds.has(id)) return;
+
+        const pill = document.createElement('div');
+        pill.className = 'tag-pill';
+        pill.dataset.id = id;
+        pill.innerHTML = `
+            <img src="${photoUrl}" alt="Foto" class="w-5 h-5 rounded-full object-cover mr-1">
+            <span>${name}</span>
+        `;
+        
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'tag-pill-remove';
+        removeBtn.innerHTML = ' &times;';
+        removeBtn.onclick = (e) => {
+            e.stopPropagation();
+            removeStakeholderTag(id);
+        };
+        
+        pill.appendChild(removeBtn);
+        pillsContainer.appendChild(pill);
+        selectedIds.add(id);
+    }
+
+    function removeStakeholderTag(id) {
+        const pill = pillsContainer.querySelector(`[data-id="${id}"]`);
+        if (pill) {
+            pillsContainer.removeChild(pill);
+            selectedIds.delete(id.toString());
+        }
+    }
+
+    input.oninput = () => {
+        const searchTerm = input.value.toLowerCase();
+        resultsDropdown.innerHTML = '';
+
+        if (searchTerm.length === 0) {
+            resultsDropdown.classList.add('hidden');
+            return;
+        }
+
+        const filtered = allUsersWithPhotos.filter(user =>
+            !selectedIds.has(user.id.toString()) &&
+            user.fullName.toLowerCase().includes(searchTerm)
+        );
+
+        if (filtered.length > 0) {
+            resultsDropdown.classList.remove('hidden');
+            filtered.forEach(user => {
+                const item = document.createElement('div');
+                item.className = 'tag-result-item flex items-center';
+                item.innerHTML = `
+                    <img src="${user.profilePictureUrl || 'https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg'}" alt="Foto" class="w-8 h-8 rounded-full object-cover mr-2">
+                    <span>${user.fullName}</span>
+                `;
+                item.onclick = () => {
+                    addStakeholderTag(user.fullName, user.id.toString(), user.profilePictureUrl);
+                    input.value = '';
+                    resultsDropdown.classList.add('hidden');
+                };
+                resultsDropdown.appendChild(item);
+            });
+        } else {
+            resultsDropdown.classList.remove('hidden');
+            const noResultsItem = document.createElement('div');
+            noResultsItem.className = 'tag-result-item text-slate-400';
+            noResultsItem.textContent = 'Nenhum usuário encontrado.';
+            resultsDropdown.appendChild(noResultsItem);
+        }
+    };
+
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            resultsDropdown.classList.add('hidden');
+        }
+    });
+}
+
 
 async function populateUsersDropdown() {
     console.log("DEBUG: populateUsersDropdown started.");
@@ -721,60 +818,7 @@ function setCustomDropdownValue(dropdownIdPrefix, userId) {
     }
 }
 
-async function populateClientsDropdown(selectedClientId = null) {
-    console.log("DEBUG: populateClientsDropdown function started.");
-    const clientSelect = document.getElementById('projectClient');
-    console.log("DEBUG: populateClientsDropdown called. selectedClientId:", selectedClientId);
-    clientSelect.innerHTML = '<option value="">Carregando clientes...</option>';
-    try {
-        const clientsColRef = collection(db, `artifacts/default-app-id/public/data/clients`);
-        console.log("DEBUG: Fetching clients from path:", `artifacts/${appId}/public/data/clients`);
-        const querySnapshot = await getDocs(clientsColRef);
-        
-        console.log("DEBUG: Query Snapshot size (before filtering):", querySnapshot.size);
-        if (querySnapshot.empty) {
-            console.log("DEBUG: No documents found in clients collection.");
-        }
 
-        const allClientsData = querySnapshot.docs.map(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            console.log("DEBUG: Client document read - ID:", data.id, "Name:", data.fullName, "Status:", data.status); 
-            return data;
-        });
-
-        const activeClients = allClientsData.filter(client => {
-            const isActive = client.status === 'Ativo';
-            console.log(`DEBUG: Filtering client - Name: ${client.fullName} (ID: ${client.id}), Status: ${client.status}, Is Active: ${isActive}`);
-            return isActive;
-        }).sort((a, b) => a.fullName.localeCompare(b.fullName));
-
-        console.log("DEBUG: Active clients after filtering and sorting:", activeClients);
-
-        clientSelect.innerHTML = '<option value="">Selecione um cliente</option>';
-        if (activeClients.length === 0) {
-            clientSelect.innerHTML += '<option value="">Nenhum cliente ativo encontrado</option>';
-        }
-
-        activeClients.forEach(client => {
-            const option = document.createElement('option');
-            option.value = client.id;
-            option.textContent = client.fullName;
-            clientSelect.appendChild(option);
-            console.log(`DEBUG: Added option for client: ${client.fullName} (Value: ${client.id})`);
-        });
-
-        if (selectedClientId) {
-            clientSelect.value = selectedClientId;
-            console.log("DEBUG: Attempting to select client with ID:", selectedClientId, "Current select value:", clientSelect.value);
-            if (clientSelect.value !== selectedClientId) {
-                console.warn("WARN: Failed to select client with ID:", selectedClientId, "Dropdown value remains:", clientSelect.value);
-            }
-        }
-    } catch (error) {
-        console.error("ERROR: Erro ao carregar clientes para o dropdown:", error);
-        clientSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-    }
-}
 
 async function populateDepartmentsDropdown(selectedDepartmentId = null) {
     const departmentSelect = document.getElementById('clientDepartment');
@@ -816,85 +860,7 @@ async function populateDepartmentsDropdown(selectedDepartmentId = null) {
     }
 }
 
-async function populateClientsForNotification(departmentId) {
-    const clientsContainer = document.getElementById('clientsForNotification');
-    clientsContainer.innerHTML = '';
 
-    console.log("populateClientsForNotification called with departmentId:", departmentId);
-
-    if (!departmentId) {
-        console.log("No departmentId provided, returning.");
-        return;
-    }
-
-    try {
-        const clientsColRef = collection(db, `artifacts/default-app-id/public/data/clients`);
-        const q = query(clientsColRef, where("department.id", "==", departmentId));
-        console.log("Querying clients for department.id ==", departmentId);
-        const querySnapshot = await getDocs(q);
-        
-        console.log("Query Snapshot size for clients in department:", querySnapshot.size);
-        if (querySnapshot.empty) {
-            console.log("No clients found for this department.");
-        }
-
-        const activeClients = querySnapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }))
-            .filter(client => {
-                const isActive = client.status === 'Ativo';
-                console.log(`Client ${client.fullName} (ID: ${client.id}) status: ${client.status}, Is Active: ${isActive} (for notification)`);
-                return isActive;
-            })
-            .sort((a, b) => a.fullName.localeCompare(b.fullName));
-
-        console.log("Active clients for notification after filtering:", activeClients);
-
-        if (activeClients.length > 0) {
-            const selectAllContainer = document.createElement('div');
-            selectAllContainer.className = 'flex items-center mb-2';
-            const selectAllCheckbox = document.createElement('input');
-            selectAllCheckbox.type = 'checkbox';
-            selectAllCheckbox.id = 'selectAllClients';
-            selectAllCheckbox.className = 'h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500';
-            selectAllCheckbox.addEventListener('change', (e) => {
-                const checkboxes = clientsContainer.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = e.target.checked;
-                });
-            });
-            const selectAllLabel = document.createElement('label');
-            selectAllLabel.htmlFor = 'selectAllClients';
-            selectAllLabel.className = 'ml-2 block text-sm text-slate-400';
-            selectAllLabel.textContent = 'Selecionar Todos';
-            selectAllContainer.appendChild(selectAllCheckbox);
-            selectAllContainer.appendChild(selectAllLabel);
-            clientsContainer.appendChild(selectAllContainer);
-
-            activeClients.forEach(client => {
-                const clientContainer = document.createElement('div');
-                clientContainer.className = 'flex items-center';
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `client-${client.id}`;
-                checkbox.value = client.id;
-                checkbox.className = 'h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500';
-                const label = document.createElement('label');
-                label.htmlFor = `client-${client.id}`;
-                label.className = 'ml-2 block text-sm text-slate-400';
-                label.textContent = client.fullName;
-                clientContainer.appendChild(checkbox);
-                clientContainer.appendChild(label);
-                clientsContainer.appendChild(clientContainer);
-                console.log(`Created checkbox for client: ${client.fullName} (ID: ${client.id})`);
-            });
-        } else {
-            clientsContainer.innerHTML = '<p class="text-slate-400">Nenhum cliente encontrado para este departamento.</p>';
-        }
-    } catch (error) {
-        console.error("Erro ao carregar clientes para notificação:", error);
-        clientsContainer.innerHTML = '<p class="text-red-400">Erro ao carregar clientes.</p>';
-    }
-}
 
 async function populatePartnersDropdown(selectedPartnerId = null) {
     const partnerSelect = document.getElementById('projectPartner');
@@ -1005,7 +971,7 @@ async function main() {
         });
 
         await Promise.all([
-            populateClientsDropdown(),
+            
             populatePartnersDropdown(),
             populateUsersDropdown(),
             populatePortfoliosDropdown(),
@@ -1013,10 +979,7 @@ async function main() {
         ]);
     });
 
-    const clientDepartmentSelect = document.getElementById('clientDepartment');
-    clientDepartmentSelect.addEventListener('change', (e) => {
-        populateClientsForNotification(e.target.value);
-    });
+    
 
     // Sidebar event listeners (now that elements are guaranteed to exist)
     sidebarToggleButton?.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
@@ -1091,8 +1054,7 @@ async function main() {
     function filterAndRenderProjects() {
         const searchTerm = searchProjetosInput.value.toLowerCase();
         const filtered = allProjects.filter(project =>
-            project.name.toLowerCase().includes(searchTerm) ||
-            (project.client && project.client.name.toLowerCase().includes(searchTerm))
+            project.name.toLowerCase().includes(searchTerm)
         );
         renderProjects(filtered);
     }
