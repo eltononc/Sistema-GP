@@ -527,6 +527,22 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
         pill.appendChild(removeBtn);
         pillsContainer.appendChild(pill);
         selectedIds.add(id);
+
+        // Check if the added dependency has an end date and prompt to update project start date
+        const addedProject = allProjects.find(p => p.id.toString() === id.toString());
+        if (addedProject && addedProject.endDate) {
+            const dependencyEndDate = new Date(addedProject.endDate);
+            const newProjectStartDate = new Date(dependencyEndDate);
+            newProjectStartDate.setDate(dependencyEndDate.getDate() + 1);
+
+            const projectStartDateInput = document.getElementById('projectStartDate');
+            if (projectStartDateInput) {
+                const formattedNewDate = newProjectStartDate.toISOString().split('T')[0];
+                showConfirmation(`A data de término do projeto dependente (${addedProject.name}) é ${dependencyEndDate.toLocaleDateString()}. Deseja alterar a data de previsão de início deste projeto para ${newProjectStartDate.toLocaleDateString()}?`, () => {
+                    projectStartDateInput.value = formattedNewDate;
+                });
+            }
+        }
     }
 
     function removeDependencyTag(id) {
