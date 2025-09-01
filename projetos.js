@@ -556,7 +556,9 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
             filtered.forEach(p => {
                 const item = document.createElement('div');
                 item.className = 'tag-result-item';
-                item.textContent = p.name;
+                const startDate = p.startDate ? new Date(p.startDate).toLocaleDateString() : 'N/A';
+                const endDate = p.endDate ? new Date(p.endDate).toLocaleDateString() : 'N/A';
+                item.textContent = `${p.name} (Início: ${startDate}, Fim: ${endDate})`;
                 item.onclick = () => {
                     addDependencyTag(p.name, p.id.toString());
                     input.value = '';
