@@ -533,6 +533,11 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
         const searchTerm = input.value.toLowerCase();
         resultsDropdown.innerHTML = '';
 
+        console.log("DEBUG: Dependencies input - searchTerm:", searchTerm);
+        console.log("DEBUG: Dependencies input - allProjects.length:", allProjects.length);
+        console.log("DEBUG: Dependencies input - currentProjectId:", currentProjectId);
+        console.log("DEBUG: Dependencies input - selectedIds:", selectedIds);
+
         if (searchTerm.length === 0) {
             resultsDropdown.classList.add('hidden');
             return;
@@ -543,6 +548,8 @@ function initializeDependenciesComponent(currentProjectId, existingDependencies)
             !selectedIds.has(p.id.toString()) &&
             p.name.toLowerCase().includes(searchTerm)
         );
+
+        console.log("DEBUG: Dependencies input - filtered projects:", filtered);
 
         if (filtered.length > 0) {
             resultsDropdown.classList.remove('hidden');
