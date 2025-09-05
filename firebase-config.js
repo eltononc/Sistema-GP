@@ -1,21 +1,22 @@
 
-// firebase-config.js
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
-  authDomain: "stake-pro-db.firebaseapp.com",
-  projectId: "stake-pro-db",
-  storageBucket: "stake-pro-db.appspot.com",
-  messagingSenderId: "569517541701",
-  appId: "1:569517541701:web:11b31335fca1d5a708562c"
+  apiKey: "AIzaSyAtmxLoEIncNY-9_zyypEPgWEUNV_0mMHs",
+  authDomain: "sistema-gp-5fe24.firebaseapp.com",
+  projectId: "sistema-gp-5fe24",
+  storageBucket: "sistema-gp-5fe24.firebasestorage.app",
+  messagingSenderId: "80532029580",
+  appId: "1:80532029580:web:ba7b41a79adad2774c7ba9"
 };
 
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 
-// Inicializa o Firestore
+// Inicializa os serviços
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-export { db };
+export { db, auth, app, firebaseConfig };

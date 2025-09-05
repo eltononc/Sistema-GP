@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Processos</title>
+    <!-- Incluindo Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Links para as fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <script type="module" src="settings.js" defer></script>
+    
+    <style>
+        /* Estilos base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        .logotext-stake {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.75rem; /* Menor que o anterior */
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+        .logotext-sub {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.65rem; /* Menor que o anterior */
+            color: #94A3B8;
+        }
+        #backgroundCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        .glass-effect {
+            background-color: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .sidebar-link.active {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid #0EA5E9;
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+        .sidebar-link:not(.active):hover {
+            background-color: rgba(30, 41, 59, 0.6);
+            transform: scale(1.02);
+        }
+        .sidebar-link, .sidebar-link-button {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link-button:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Estilos do botão 'Liquid Fill' */
+        .btn-liquid-fill {
+            position: relative;
+            background: transparent;
+            border: 1px solid #06B6D4;
+            color: #06B6D4;
+            overflow: hidden;
+            z-index: 10;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+        }
+        .btn-liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #06B6D4;
+            transition: transform 0.5s ease;
+            z-index: -1;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        .btn-liquid-fill:hover::before {
+            transform: scaleX(1);
+        }
+        .btn-liquid-fill:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-liquid-fill:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .btn-liquid-fill svg {
+            transition: color 0.3s ease;
+        }
+        .btn-liquid-fill:hover svg {
+            color: white;
+        }
+
+        /* Estilos do Título Modelo 6 */
+        .title-6 {
+            font-size: 2rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            color: white;
+            position: relative;
+            padding-bottom: 0.5rem;
+            width: fit-content;
+            margin-right: auto;
+        }
+        .title-6::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0EA5E9, #22C55E);
+        }
+
+        .table-cell-responsive {
+            padding-left: 1.5rem; /* Default px-6 */
+            padding-right: 1.5rem; /* Default px-6 */
+        }
+
+        /* Apply smaller padding on medium screens and below */
+        @media (max-width: 1023px) { /* Corresponds to Tailwind's 'lg' breakpoint */
+            .table-cell-responsive {
+                padding-left: 0.75rem; /* px-3 */
+                padding-right: 0.75rem; /* px-3 */
+            }
+        }
+        .submenu-content.max-h-0 {
+            max-height: 0;
+        }
+        .submenu-content.max-h-screen {
+            max-height: 100vh; /* Or a sufficiently large value */
+        }
+        .submenu-arrow.rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        /* Styles for month cards */
+        .month-card-label {
+            cursor: pointer;
+            user-select: none;
+        }
+        .month-card {
+            background-color: #1E293B; /* slate-800 */
+            border: 1px solid #475569; /* slate-700 */
+            color: #E2E8F0; /* slate-200 */
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: all 0.2s ease-in-out;
+            font-size: 0.875rem; /* text-sm */
+            text-align: center;
+            min-width: 50px; /* Adjust as needed */
+        }
+        .month-card-label input[type="checkbox"]:checked + .month-card {
+            background-color: #0EA5E9; /* sky-500 */
+            border-color: #0EA5E9;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .month-card-label:hover .month-card {
+            background-color: #334155; /* slate-700 on hover */
+        }
+
+        /* Styles for frequency buttons */
+        .frequency-button {
+            background-color: #1E293B; /* slate-800 */
+            border: 1px solid #475569; /* slate-700 */
+            color: #E2E8F0; /* slate-200 */
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: all 0.2s ease-in-out;
+            font-size: 0.875rem; /* text-sm */
+            cursor: pointer;
+            min-width: 80px; /* Adjust as needed */
+            text-align: center;
+        }
+        .frequency-button.selected {
+            background-color: #0EA5E9; /* sky-500 */
+            border-color: #0EA5E9;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .frequency-button:hover:not(.selected) {
+            background-color: #334155; /* slate-700 on hover */
+        }
+
+        /* Estilos para o campo de dependências (tags) */
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 0.5rem;
+            border: 1px solid #4A5568;
+            border-radius: 0.5rem;
+            background-color: #2D3748;
+        }
+        .tag-pill {
+            display: flex;
+            align-items: center;
+            background-color: #4A5568;
+            color: #E2E8F0;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .tag-pill-remove {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tag-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+            color: white;
+        }
+        .tag-results-dropdown {
+            position: absolute;
+            width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: #2D3748;
+            border: 1px solid #4A5568;
+            border-radius: 0.5rem;
+            z-index: 10;
+        }
+        .tag-result-item {
+            padding: 0.75rem;
+            cursor: pointer;
+        }
+        .tag-result-item:hover {
+            background-color: #4A5568;
+        }
+
+        /* Tab Styles */
+        .tab-button.active-tab {
+            border-color: #0EA5E9; /* sky-500 */
+            color: #0EA5E9;
+        }
+        .tab-button {
+            border-color: transparent;
+            color: #94A3B8; /* slate-400 */
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-button:hover {
+            border-color: #64748B; /* slate-500 */
+            color: #CBD5E1; /* slate-300 */
+        }
+        .tab-pane {
+            display: none;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        .progress-bar-fill {
+            transition: width 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+    <script>
+        // Verifica o estado de login ao carregar a página
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html'; // Redireciona para a página de login se não estiver logado
+        }
+    </script>
+
+    <!-- Canvas para o fundo de animação Gantt -->
+    <canvas id="backgroundCanvas"></canvas>
+
+    <!-- Botão para abrir sidebar em telas pequenas -->
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
+    <div class="flex flex-1">
+        <!-- Sidebar (Barra Lateral) -->
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <!-- Logo do Stake Pro ATUALIZADO -->
+                <div class="flex items-center">
+                    <!-- A imagem agora é redonda -->
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <!-- O título foi redimensionado -->
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Projects & Process</p>
+                    </div>
+                </div>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1">
+            </nav>
+        </aside>
+    
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
+                
+                <div id="mainContentHeader" class="flex justify-between items-center mb-6">
+                    <h2 class="title-6">
+                        Gestão de Processos
+                    </h2>
+                </div>
+
+                <!-- Formulário com barra de pesquisa -->
+                <div id="search-form-container" class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div class="relative flex-1 w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="searchProcessosInput" placeholder="Pesquisar por nome ou responsável..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-900 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                    </div>
+                    <!-- Botão Liquid Fill integrado -->
+                    <button id="showFormButton" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm w-full md:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Cadastrar Processo
+                    </button>
+                </div>
+
+                <!-- Área de Cadastro/Edição (inicialmente oculta) -->
+                <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full">
+                    <input type="hidden" id="processoId">
+                    <div class="flex justify-between items-start mb-4">
+                         <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Processo</h3>
+                         <button id="approveProcessButton" class="hidden bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Aprovar Processo</button>
+                    </div>
+                   
+                    <div class="w-full max-w-5xl mx-auto">
+                        <div class="space-y-6">
+                            <!-- Progress Bar for Multi-step Form -->
+                            <div class="mb-8">
+                                <div class="bg-slate-700 rounded-full h-2 w-full">
+                                    <div id="progress-bar" class="bg-sky-500 h-2 rounded-full progress-bar-fill" style="width: 25%;"></div>
+                                </div>
+                                <ol class="flex justify-between text-sm font-medium text-slate-400 mt-2">
+                                    <li id="step-label-0" class="text-sky-500 font-semibold">Informações Básicas</li>
+                                    <li id="step-label-1">Riscos e Docs</li>
+                                    <li id="step-label-2">Maturidade</li>
+                                    <li id="step-label-3">Revisão com IA</li>
+                                </ol>
+                            </div>
+
+                            <!-- Step 0: Informações Básicas -->
+                            <div id="step-0" class="form-step active">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                    <div class="md:col-span-2 space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Nome do Processo</h4>
+                                        <input type="text" id="processName" placeholder="Nome do Processo" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                                    </div>
+                                    <div class="md:col-span-2 space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Descrição</h4>
+                                        <textarea id="processDescription" placeholder="Descreva o processo..." rows="3" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required></textarea>
+                                    </div>
+                                    <div class="md:col-span-2 space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Saída (resultado esperado)</h4>
+                                        <textarea id="processOutput" placeholder="Descreva o resultado esperado do processo..." rows="3" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400"></textarea>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Dono do Processo</h4>
+                                        <div class="relative">
+                                            <div id="processOwnerDisplay" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 cursor-pointer flex items-center">
+                                                <img id="processOwnerPhoto" src="https://res.cloudinary.com/djikr5paz/image/upload/v1756664637/default_avatar_lxdi55.jpg" alt="Foto" class="w-6 h-6 rounded-full object-cover mr-2 hidden">
+                                                <span id="processOwnerName">Selecione um usuário...</span>
+                                            </div>
+                                            <input type="hidden" id="processOwnerId">
+                                            <div id="processOwnerDropdown" class="absolute z-10 w-full bg-slate-800 border border-slate-700 rounded-lg shadow-lg mt-1 hidden max-h-60 overflow-y-auto">
+                                                <!-- Users will be populated here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Equipes Participantes</h4>
+                                        <div id="processTeamsContainer" class="relative">
+                                            <div class="tag-input-container">
+                                                <div id="processTeamsPillsContainer" class="flex flex-wrap gap-2"></div>
+                                                <input type="text" id="processTeamsInput" class="tag-input" placeholder="Pesquisar departamentos (ex: TI, RH, Marketing)...">
+                                            </div>
+                                            <div id="processTeamsResults" class="tag-results-dropdown hidden"></div>
+                                            <p id="noTeamsSelectedMessage" class="text-slate-400 text-sm mt-2 hidden">Nenhuma equipe selecionada.</p>
+                                            <button type="button" id="clearTeamsButton" class="text-red-400 hover:text-red-500 text-sm mt-2 hidden">Limpar Todas as Equipes</button>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Criticidade</h4>
+                                        <select id="processCriticality" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" required>
+                                            <option value="Baixa">Baixa</option>
+                                            <option value="Média">Média</option>
+                                            <option value="Alta">Alta</option>
+                                            <option value="Crítica">Crítica</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Frequência</h4>
+                                        <div id="processFrequencyContainer" class="flex flex-wrap gap-2">
+                                            <button type="button" class="frequency-button" data-value="Mapeado">Mapeado</button>
+                                            <button type="button" class="frequency-button" data-value="Sob Demanda">Sob Demanda</button>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Início</h4>
+                                        <div id="startMonthsContainer" class="flex flex-wrap gap-2">
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="1" hidden>
+                                                <div class="month-card">Jan</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="2" hidden>
+                                                <div class="month-card">Fev</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="3" hidden>
+                                                <div class="month-card">Mar</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="4" hidden>
+                                                <div class="month-card">Abr</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="5" hidden>
+                                                <div class="month-card">Mai</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="6" hidden>
+                                                <div class="month-card">Jun</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="7" hidden>
+                                                <div class="month-card">Jul</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="8" hidden>
+                                                <div class="month-card">Ago</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="9" hidden>
+                                                <div class="month-card">Set</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="10" hidden>
+                                                <div class="month-card">Out</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="11" hidden>
+                                                <div class="month-card">Nov</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="12" hidden>
+                                                <div class="month-card">Dez</div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Fim</h4>
+                                        <div id="endMonthsContainer" class="flex flex-wrap gap-2">
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="1" hidden>
+                                                <div class="month-card">Jan</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="2" hidden>
+                                                <div class="month-card">Fev</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="3" hidden>
+                                                <div class="month-card">Mar</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="4" hidden>
+                                                <div class="month-card">Abr</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="5" hidden>
+                                                <div class="month-card">Mai</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="6" hidden>
+                                                <div class="month-card">Jun</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="7" hidden>
+                                                <div class="month-card">Jul</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="8" hidden>
+                                                <div class="month-card">Ago</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="9" hidden>
+                                                <div class="month-card">Set</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="10" hidden>
+                                                <div class="month-card">Out</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="11" hidden>
+                                                <div class="month-card">Nov</div>
+                                            </label>
+                                            <label class="month-card-label">
+                                                <input type="checkbox" class="month-checkbox" value="12" hidden>
+                                                <div class="month-card">Dez</div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Step 1: Riscos e Docs -->
+                            <div id="step-1" class="form-step">
+                                <h2 class="text-lg font-semibold text-white mb-6">Riscos e Documentação</h2>
+                                <div class="space-y-4">
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Processos Pré-Requisitos (Opcional)</h4>
+                                        <div id="prerequisites-multiselect" class="relative">
+                                            <div id="prerequisites-select-box" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 flex justify-between items-center cursor-pointer">
+                                                <span id="prerequisites-selected-values">Selecione os processos</span>
+                                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
+                                            <div id="prerequisites-checkboxes" class="hidden absolute w-full bg-slate-800 border border-slate-700 rounded-lg mt-1 z-10 max-h-60 overflow-y-auto">
+                                                <!-- Checkboxes will be populated by JavaScript -->
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="processPrerequisites">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Nível de impacto</h4>
+                                        <select id="processImpactLevel" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                            <option value="">Selecione um nível de impacto</option>
+                                            <option value="Acadêmico/Pedagógico" title="Possivelmente relacionado a instituições de ensino, envolvendo a qualidade da educação ou o desempenho de alunos e professores.">Acadêmico/Pedagógico</option>
+                                            <option value="Atendimento/Experiência do Cliente" title="Focado em problemas que afetam a satisfação e a relação com os clientes.">Atendimento/Experiência do Cliente</option>
+                                            <option value="Financeiro" title="Envolve perdas monetárias, como riscos de crédito, mercado ou liquidez.">Financeiro</option>
+                                            <option value="Humano/Clima Organizacional" title="Associado à gestão de pessoas, bem-estar dos funcionários e à cultura da empresa.">Humano/Clima Organizacional</option>
+                                            <option value="Operacional" title="Relacionado a falhas em processos, sistemas, pessoas ou eventos externos.">Operacional</option>
+                                            <option value="Regulatório/Legal" title="Associado ao não cumprimento de leis, regulamentos ou contratos.">Regulatório/Legal</option>
+                                            <option value="Reputacional" title="Relacionado a danos à imagem ou à marca da empresa.">Reputacional</option>
+                                            <option value="Tecnológico" title="Envolve falhas em tecnologia, segurança cibernética ou infraestrutura de TI.">Tecnológico</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Quais são os principais riscos se esse processo falhar?</h4>
+                                        <textarea id="processImpact" rows="3" placeholder="Descreva os principais riscos..." class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required></textarea>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <h4 class="text-sm font-semibold text-slate-400">Link para Documentação</h4>
+                                        <input type="url" id="processDocumentationLink" placeholder="http://wiki.suaempresa.com/processo" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Maturidade (Placeholder) -->
+                            <div id="step-2" class="form-step">
+                                <h2 class="text-lg font-semibold text-white mb-1">Análise de Maturidade</h2>
+                                <p class="text-slate-400 text-sm mb-6">Avalie o processo em cada uma das 8 dimensões abaixo.</p>
+                                <div id="maturity-container" class="space-y-6">
+                                    <!-- Conteúdo gerado por JS -->
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Revisão com IA (Placeholder) -->
+                            <div id="step-3" class="form-step">
+                                <h2 class="text-lg font-semibold text-white mb-6">Revisão e Análise com IA</h2>
+                                <div class="bg-slate-800 border border-slate-700 rounded-lg p-6 grid grid-cols-1 lg:grid-cols-5 gap-8">
+                                    <div class="lg:col-span-2 space-y-4 text-sm" id="review-data">
+                                        <!-- Dossiê do Processo gerado por JS -->
+                                    </div>
+                                    <div class="lg:col-span-3 space-y-4">
+                                       <h3 class="text-base font-semibold text-white text-center">Gráfico de Maturidade</h3>
+                                       <div class="chart-container relative mx-auto w-full max-w-md h-64">
+                                            <canvas id="maturityChart"></canvas>
+                                       </div>
+                                       <div id="ai-analysis-container" class="mt-4">
+                                           <!-- Análise da IA será inserida aqui -->
+                                       </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Navegação -->
+                        <div class="flex gap-4 mt-6 pt-5 border-t border-slate-700">
+                            <button type="button" id="prevBtn" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Anterior</button>
+                            <button type="button" id="cancelButton" class="w-full px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Cancelar</button>
+                            <button type="button" id="nextBtn" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">Próximo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Listagem -->
+                <div id="processosListContainer" class="text-left w-full">
+                    <div class="overflow-x-auto rounded-lg border border-slate-800">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-200 uppercase bg-slate-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 table-cell-responsive">ID</th>
+                                    <th scope="col" class="px-6 py-3">Status</th>
+                                    <th scope="col" class="px-6 py-3">Nome do Processo</th>
+                                    <th scope="col" class="px-6 py-3">Dono</th>
+                                    <th scope="col" class="px-6 py-3">Equipes Participantes</th>
+                                    <th scope="col" class="px-6 py-3">Meses de Início</th>
+                                    <th scope="col" class="px-6 py-3">Meses de Fim</th>
+                                    <th scope="col" class="px-6 py-3">Criticidade</th>
+                                    <th scope="col" class="px-6 py-3">Gestor IA</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="processosTableBody">
+                                <!-- Itens de processo serão injetados aqui -->
+                                <tr><td colspan="10" class="text-center p-8">Carregando processos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal de Alerta Genérico -->
+    <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
+            <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
+            <p id="alertModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-center">
+                <button id="alertModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação Genérico -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
+            <p id="confirmationModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirmationModalCancelBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="confirmationModalConfirmBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Análise da IA -->
+    <div id="aiAnalysisModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-2xl shadow-xl p-6 w-full max-w-4xl border border-slate-700 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="aiAnalysisModalTitle" class="text-lg font-bold text-sky-400">Análise do Gestor IA</h3>
+                <button id="aiAnalysisModalCloseBtn" class="text-slate-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="aiAnalysisModalContent" class="text-slate-300 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                <!-- Conteúdo da análise da IA será inserido aqui -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs e script da página -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="./processos.js"></script>
+</body>
+</html>

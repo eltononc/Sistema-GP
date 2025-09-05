@@ -292,13 +292,20 @@
 
                         <div class="pt-4 mt-4 border-t border-slate-700">
                             <h4 class="text-lg font-bold text-sky-400 mb-4">Previsão de Férias</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                <div>
+                                    <label for="annualVacationDays" class="block text-slate-300 text-sm font-bold mb-2">Dias de Férias Anual:</label>
+                                    <input type="number" id="annualVacationDays" value="30" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                                </div>
+                            </div>
                             <div id="vacationPeriodsContainer" class="space-y-4">
                                 <!-- Vacation periods will be added here dynamically -->
                             </div>
                             <button id="addVacationPeriodButton" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all">
                                 Adicionar Período de Férias
                             </button>
-                            <p class="text-sm text-slate-400 mt-2">Total de Dias de Férias: <span id="totalVacationDaysDisplay" class="font-bold text-white">0</span></p>
+                            <p class="text-sm text-slate-400 mt-2">Total de Dias de Férias Gozados: <span id="totalVacationDaysDisplay" class="font-bold text-white">0</span></p>
+                            <p class="text-sm text-slate-400 mt-2">Dias de Férias Restantes: <span id="remainingVacationDaysDisplay" class="font-bold text-white">30</span></p>
                         </div>
 
                         <div class="flex gap-4 mt-6">
@@ -519,6 +526,7 @@
             const profile = document.getElementById('profile').value;
             const hourlyCostInput = document.getElementById('hourlyCost');
             const hourlyCost = hourlyCostInput.value ? parseFloat(hourlyCostInput.value.replace('R$ ', '').replace('.', '').replace(',', '.')) : null;
+            const annualVacationDays = parseInt(document.getElementById('annualVacationDays').value, 10);
 
             // New: Collect multiple vacation periods
             const vacationPeriods = [];
@@ -527,9 +535,11 @@
                 const startDateInput = block.querySelector('.vacation-start-date');
                 const endDateInput = block.querySelector('.vacation-end-date');
                 if (startDateInput.value && endDateInput.value) {
+                    const yearsSpanned = getYearsInDateRange(startDateInput.value, endDateInput.value);
                     vacationPeriods.push({
                         start: startDateInput.value,
-                        end: endDateInput.value
+                        end: endDateInput.value,
+                        years: yearsSpanned // Store the years spanned by this period
                     });
                 }
             });
@@ -589,6 +599,7 @@
                 status: 'Ativo', // Default status to Active
                 hourlyCost: hourlyCost, // Add hourlyCost to userData
                 vacation: vacationPeriods, // Store as an array
+                annualVacationDays: annualVacationDays, // Add annual vacation days
                 profilePictureUrl: profilePictureUrl // Add profile picture URL
             };
 
@@ -790,12 +801,12 @@
             block.className = 'vacation-period-block grid grid-cols-1 md:grid-cols-4 gap-4 items-end p-4 border border-slate-700 rounded-lg';
             block.innerHTML = `
                 <div>
-                    <label class="block text-slate-400 text-sm font-semibold mb-1">Início das Férias</label>
-                    <input type="date" class="vacation-start-date w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" value="${startDate}">
+                    <label class="block text-slate-400 text-sm font-semibold mb-0.5">Início das Férias</label>
+                    <input type="date" class="vacation-start-date w-full px-4 py-1 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" value="${startDate}">
                 </div>
                 <div>
-                    <label class="block text-slate-400 text-sm font-semibold mb-1">Fim das Férias</label>
-                    <input type="date" class="vacation-end-date w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" value="${endDate}">
+                    <label class="block text-slate-400 text-sm font-semibold mb-0.5">Fim das Férias</label>
+                    <input type="date" class="vacation-end-date w-full px-4 py-1 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500" value="${endDate}">
                 </div>
                 <div class="flex justify-end space-x-2">
                     <button type="button" class="confirm-vacation-period-button px-3 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all">Confirmar</button>
@@ -836,6 +847,7 @@
             document.getElementById('email').value = '';
             document.getElementById('profile').value = '';
             document.getElementById('hourlyCost').value = ''; // Reset hourlyCost
+            document.getElementById('annualVacationDays').value = 30; // Reset annual vacation days to default
             
             // Clear existing vacation periods
             vacationPeriodsContainer.innerHTML = '';
@@ -860,6 +872,8 @@
                     } else {
                         document.getElementById('hourlyCost').value = '';
                     }
+                    // Populate annual vacation days
+                    document.getElementById('annualVacationDays').value = user.annualVacationDays || 30;
                     // Populate vacation periods
                     if (user.vacation && Array.isArray(user.vacation)) {
                         user.vacation.forEach(period => {
@@ -892,6 +906,7 @@
                     await populateDepartmentsDropdown();
                     populateRolesDropdown(null);
                 }
+                updateTotalVacationDays(); // Call after populating all fields
             }
         }
         
@@ -1144,9 +1159,16 @@
 
             document.getElementById('hourlyCost').addEventListener('input', (e) => formatCurrency(e.target));
 
+            // Add listener for annual vacation days change
+            document.getElementById('annualVacationDays').addEventListener('input', () => {
+                updateTotalVacationDays();
+            });
+
             // Add listener for department change to re-calculate all periods
             document.getElementById('department').addEventListener('change', () => {
                 updateAllVacationPeriodCalculations();
+                const departmentId = document.getElementById('department').value;
+                populateRolesDropdown(departmentId);
             });
         }
 
@@ -1157,6 +1179,11 @@
                 totalDays += parseInt(span.textContent || '0', 10);
             });
             document.getElementById('totalVacationDaysDisplay').textContent = totalDays;
+
+            const annualDaysInput = document.getElementById('annualVacationDays');
+            const annualDays = parseInt(annualDaysInput.value, 10) || 0;
+            const remainingDays = annualDays - totalDays;
+            document.getElementById('remainingVacationDaysDisplay').textContent = remainingDays;
         }
 
         // Function to re-calculate all vacation periods when department changes
@@ -1203,6 +1230,22 @@
             value = value.replace('.', ','); // Troca ponto por vírgula
             value = value.replace(/(\d)(?=(\d{3})+,)/g, '$1.'); // Adiciona pontos nos milhares
             input.value = 'R$ ' + value;
+        }
+
+        // Helper function to get all years spanned by a date range
+        function getYearsInDateRange(startDateString, endDateString) {
+            const years = new Set();
+            if (!startDateString || !endDateString) {
+                return Array.from(years);
+            }
+            let currentDate = new Date(startDateString + 'T00:00:00');
+            const endDate = new Date(endDateString + 'T00:00:00');
+
+            while (currentDate <= endDate) {
+                years.add(currentDate.getFullYear());
+                currentDate.setFullYear(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+            }
+            return Array.from(years).sort((a, b) => a - b);
         }
 
         async function resetUserPassword(userId, userEmail) {

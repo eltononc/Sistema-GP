@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Links para as fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
-    <script src="settings.js" defer></script>
+    <script type="module" src="settings.js" defer></script>
     
     <style>
         /* Estilos base */
@@ -418,14 +418,14 @@
 
         // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
         const firebaseConfig = {
-            apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
-            authDomain: "stake-pro-db.firebaseapp.com",
-            projectId: "stake-pro-db",
-            storageBucket: "stake-pro-db.firebasestorage.app",
-            messagingSenderId: "569517541701",
-            appId: "1:569517541701:web:11b31335fca1d5a708562c"
+            apiKey: "AIzaSyAtmxLoEIncNY-9_zyypEPgWEUNV_0mMHs",
+            authDomain: "sistema-gp-5fe24.firebaseapp.com",
+            projectId: "sistema-gp-5fe24",
+            storageBucket: "sistema-gp-5fe24.firebasestorage.app",
+            messagingSenderId: "80532029580",
+            appId: "1:80532029580:web:ba7b41a79adad2774c7ba9"
         };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const appId = firebaseConfig.projectId;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let app, db, auth, userId;

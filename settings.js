@@ -1,24 +1,5 @@
-// settings.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-// --- VARIÁVEIS GLOBAIS E CONFIGURAÇÃO ---
-const firebaseConfig = {
-    apiKey: "AIzaSyDS2bc8QBdpxaUiQjF-duyzgQK2JrGoucg",
-    authDomain: "stake-pro-db.firebaseapp.com",
-    projectId: "stake-pro-db",
-    storageBucket: "stake-pro-db.appspot.com",
-    messagingSenderId: "569517541701",
-    appId: "1:569517541701:web:11b31335fca1d5a708562c"
-};
-
-let app, db;
-try {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-} catch (error) {
-    console.error("Erro ao inicializar o Firebase no settings.js:", error);
-}
+import { db } from './firebase-config.js';
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 let responsibleEmails = [];
 
@@ -206,58 +187,66 @@ function initializeSettings() {
     const previewMessageButton = document.getElementById('previewMessageButton');
     const closePreviewModal = document.getElementById('closePreviewModal');
 
-    // Abrir modal de configurações
-    settingsButton.addEventListener('click', () => {
-        loadSettings();
-        settingsModal.classList.remove('hidden');
-    });
+    if (settingsButton) {
+        settingsButton.addEventListener('click', () => {
+            loadSettings();
+            if (settingsModal) settingsModal.classList.remove('hidden');
+        });
+    }
 
-    // Fechar modal de configurações
-    const closeModal = () => settingsModal.classList.add('hidden');
-    closeSettingsModal.addEventListener('click', closeModal);
-    cancelSettings.addEventListener('click', closeModal);
-    settingsModal.addEventListener('click', (event) => {
-        if (event.target === settingsModal) closeModal();
-    });
+    const closeModal = () => {
+        if (settingsModal) settingsModal.classList.add('hidden');
+    };
 
-    // Salvar configurações
-    saveSettingsBtn.addEventListener('click', saveSettings);
+    if (closeSettingsModal) closeSettingsModal.addEventListener('click', closeModal);
+    if (cancelSettings) cancelSettings.addEventListener('click', closeModal);
+    if (settingsModal) {
+        settingsModal.addEventListener('click', (event) => {
+            if (event.target === settingsModal) closeModal();
+        });
+    }
 
-    // Atualizar label do slider
-    usagePercentageSlider.addEventListener('input', () => {
-        usagePercentageLabel.textContent = `${usagePercentageSlider.value}%`;
-    });
+    if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveSettings);
 
-    // Adicionar e-mail
-    addEmailButton.addEventListener('click', () => {
-        const email = responsibleEmailInput.value.trim();
-        if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            if (!responsibleEmails.includes(email)) {
-                responsibleEmails.push(email);
+    if (usagePercentageSlider && usagePercentageLabel) {
+        usagePercentageSlider.addEventListener('input', () => {
+            usagePercentageLabel.textContent = `${usagePercentageSlider.value}%`;
+        });
+    }
+
+    if (addEmailButton && responsibleEmailInput) {
+        addEmailButton.addEventListener('click', () => {
+            const email = responsibleEmailInput.value.trim();
+            if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                if (!responsibleEmails.includes(email)) {
+                    responsibleEmails.push(email);
+                    renderEmailList();
+                }
+                responsibleEmailInput.value = '';
+            } else {
+                alert('Por favor, insira um e-mail válido.');
+            }
+        });
+    }
+    
+    if (emailList) {
+        emailList.addEventListener('click', (event) => {
+            const removeButton = event.target.closest('.remove-email-btn');
+            if (removeButton) {
+                const emailToRemove = removeButton.dataset.email;
+                responsibleEmails = responsibleEmails.filter(email => email !== emailToRemove);
                 renderEmailList();
             }
-            responsibleEmailInput.value = '';
-        } else {
-            alert('Por favor, insira um e-mail válido.');
-        }
-    });
-    
-    // Remover e-mail
-    emailList.addEventListener('click', (event) => {
-        const removeButton = event.target.closest('.remove-email-btn');
-        if (removeButton) {
-            const emailToRemove = removeButton.dataset.email;
-            responsibleEmails = responsibleEmails.filter(email => email !== emailToRemove);
-            renderEmailList();
-        }
-    });
+        });
+    }
 
-    // Abrir/Fechar modal de preview
-    previewMessageButton.addEventListener('click', () => previewModal.classList.remove('hidden'));
-    closePreviewModal.addEventListener('click', () => previewModal.classList.add('hidden'));
-    previewModal.addEventListener('click', (event) => {
-        if (event.target === previewModal) previewModal.classList.add('hidden');
-    });
+    if (previewMessageButton) previewMessageButton.addEventListener('click', () => previewModal?.classList.remove('hidden'));
+    if (closePreviewModal) closePreviewModal.addEventListener('click', () => previewModal?.classList.add('hidden'));
+    if (previewModal) {
+        previewModal.addEventListener('click', (event) => {
+            if (event.target === previewModal) previewModal.classList.add('hidden');
+        });
+    }
 }
 
 // Adiciona um listener para garantir que o DOM esteja carregado antes de rodar o script

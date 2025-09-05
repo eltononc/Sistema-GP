@@ -395,19 +395,20 @@
                                 <div class="space-y-2">
                                     <h4 class="text-sm font-semibold text-slate-400">Cliente</h4>
                                     <select id="projectClient" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" required>
+                                        <option value="">Carregando clientes...</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <h4 class="text-sm font-semibold text-slate-400">Partes Interessadas</h4>
-                                <div id="stakeholders-container" class="relative">
-                                    <div class="tag-input-container">
-                                        <div id="stakeholders-pills-container" class="flex flex-wrap gap-2"></div>
-                                        <input type="text" id="projectStakeholdersInput" class="tag-input" placeholder="Pesquisar usuários...">
-                                    </div>
-                                    <div id="stakeholders-results" class="tag-results-dropdown hidden"></div>
+                                <h4 class="text-sm font-semibold text-slate-400">Notificar Clientes</h4>
+                                <div class="space-y-2">
+                                    <label for="clientDepartment" class="text-sm font-medium text-slate-400">Departamento</label>
+                                    <select id="clientDepartment" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                        <option value="">Selecione um departamento</option>
+                                    </select>
                                 </div>
+                                <div id="clientsForNotification" class="mt-2 space-y-2"></div>
                             </div>
                             
                             <input type="url" id="projectLink" placeholder="Link para mais detalhes" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
@@ -490,11 +491,11 @@
                         <table class="w-full text-sm text-left text-slate-400">
                             <thead class="text-xs text-slate-200 uppercase bg-slate-800">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3">ID</th>
+                                    <th scope="col" class="px-6 py-3 table-cell-responsive">ID</th>
                                     <th scope="col" class="px-6 py-3">Status</th>
                                     <th scope="col" class="px-6 py-3">Nome do Projeto</th>
                                     <th scope="col" class="px-6 py-3">Portfólio</th>
-                                    
+                                    <th scope="col" class="px-6 py-3">Cliente</th>
                                     <th scope="col" class="px-6 py-3">Dependências</th>
                                     <th scope="col" class="px-6 py-3">CSAT</th>
                                     <th scope="col" class="px-6 py-3 text-right">Ações</th>
@@ -502,7 +503,7 @@
                             </thead>
                             <tbody id="projetosTableBody">
                                 <!-- Itens de projeto serão injetados aqui -->
-                                <tr><td colspan="6" class="text-center p-8">Carregando projetos...</td></tr>
+                                <tr><td colspan="7" class="text-center p-8">Carregando projetos...</td></tr>
                             </tbody>
                         </table>
                     </div>

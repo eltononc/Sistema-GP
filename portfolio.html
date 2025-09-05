@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Pro - Portfólio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+    <script type="module" src="settings.js" defer></script>
+    
+    <style>
+        #backgroundCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.15; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        .logotext-stake { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.75rem; line-height: 1; letter-spacing: -0.05em; }
+        .logotext-sub { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 0.65rem; color: #94A3B8; }
+        #backgroundCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.15; }
+        .glass-effect { background-color: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(71, 85, 105, 0.5); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .sidebar-link.active { background-color: rgba(30, 41, 59, 0.6); border-left: 4px solid #0EA5E9; color: #0EA5E9; font-weight: 600; }
+        .sidebar-link:not(.active):hover { background-color: rgba(30, 41, 59, 0.6); transform: scale(1.02); }
+        .sidebar-link, .sidebar-link-button { transition: all 0.3s ease; }
+        .sidebar-link-button:hover { transform: scale(1.02); }
+        .btn-liquid-fill { position: relative; background: transparent; border: 1px solid #06B6D4; color: #06B6D4; overflow: hidden; z-index: 10; font-weight: 600; transition: all 0.3s ease; padding: 0.5rem 1rem; font-size: 0.875rem; border-radius: 0.5rem; }
+        .btn-liquid-fill::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #06B6D4; transition: transform 0.5s ease; z-index: -1; transform-origin: left; transform: scaleX(0); }
+        .btn-liquid-fill:hover::before { transform: scaleX(1); }
+        .btn-liquid-fill:hover { color: white; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .btn-liquid-fill:active { transform: translateY(0); box-shadow: none; }
+        .btn-liquid-fill svg { transition: color 0.3s ease; }
+        .btn-liquid-fill:hover svg { color: white; }
+        .title-6 { font-size: 2rem; font-weight: 800; color: white; position: relative; padding-bottom: 0.5rem; width: fit-content; margin-right: auto; }
+        .title-6::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(to right, #0EA5E9, #22C55E); }
+        .submenu-content.max-h-0 { max-height: 0; }
+        .submenu-content.max-h-screen { max-height: 100vh; }
+        .submenu-arrow.rotate-180 { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 antialiased font-inter flex flex-col md:flex-row min-h-screen">
+    <canvas id="backgroundCanvas"></canvas>
+    <script> if (localStorage.getItem('isLoggedIn') !== 'true') { window.location.href = 'login.html'; } </script>
+    <canvas id="backgroundCanvas"></canvas>
+    <button id="sidebarToggleButton" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/50 rounded-md text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    <div class="flex flex-1">
+        <aside id="sidebar-container" class="glass-effect shadow-lg w-full md:w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-50 flex flex-col">
+            <div class="flex items-center justify-between px-4">
+                <div class="flex items-center">
+                    <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
+                    <div>
+                        <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
+                        <p class="logotext-sub">Projects & Process</p>
+                    </div>
+                </div>
+                <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <nav class="flex-1"></nav>
+        </aside>
+        <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
+            <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
+                <div id="mainContentHeader" class="flex justify-between items-center mb-6">
+                    <h2 class="title-6">Gestão de Portfólio</h2>
+                </div>
+                <div id="search-form-container" class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div class="relative flex-1 w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
+                        </div>
+                        <input type="text" id="searchPortfoliosInput" placeholder="Pesquisar por nome ou responsável..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-900 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all placeholder:text-slate-400">
+                    </div>
+                    <button id="showFormButton" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm w-full md:w-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Cadastrar Portfólio
+                    </button>
+                </div>
+                <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full">
+                    <input type="hidden" id="portfolioId">
+                    <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Portfólio</h3>
+                    <div class="space-y-6 w-full max-w-5xl mx-auto mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="portfolioName" placeholder="Nome do Portfólio" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                            <select id="portfolioResponsible" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                <option value="">Carregando responsáveis...</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="portfolioStartDate" class="text-sm text-slate-400">Data de Início</label>
+                                <input type="date" id="portfolioStartDate" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                            </div>
+                            <div>
+                                <label for="portfolioEndDate" class="text-sm text-slate-400">Data Fim</label>
+                                <input type="date" id="portfolioEndDate" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" style="color-scheme: dark;">
+                            </div>
+                        </div>
+                        <input type="text" id="portfolioStakeholders" placeholder="Partes Interessadas (separadas por vírgula)" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                        <textarea id="portfolioObservations" placeholder="Observações..." rows="4" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400"></textarea>
+                        <div class="flex-1 space-y-2 hidden" id="statusContainer">
+                            <h4 class="text-sm font-semibold text-slate-400">Status</h4>
+                            <select id="portfolioStatus" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                                <option value="Ativo">Ativo</option>
+                                <option value="Inativo">Inativo</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-4 mt-6">
+                            <button id="cancelButton" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                            <button id="savePortfolioButton" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="portfoliosListContainer" class="text-left w-full">
+                    <div class="overflow-x-auto rounded-lg border border-slate-800">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-200 uppercase bg-slate-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">ID</th>
+                                    <th scope="col" class="px-6 py-3">Status</th>
+                                    <th scope="col" class="px-6 py-3">Nome do Portfólio</th>
+                                    <th scope="col" class="px-6 py-3">Responsável</th>
+                                    <th scope="col" class="px-6 py-3">Data de Início</th>
+                                    <th scope="col" class="px-6 py-3">Data Fim</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portfoliosTableBody">
+                                <tr><td colspan="7" class="text-center p-8">Carregando portfólios...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div id="alertModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700 text-center">
+            <h3 id="alertModalTitle" class="text-lg font-bold text-sky-400 mb-2">Aviso</h3>
+            <p id="alertModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-center"><button id="alertModalOkBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">OK</button></div>
+        </div>
+    </div>
+    <div id="confirmationModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
+        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 id="confirmationModalTitle" class="text-lg font-bold text-white mb-2">Confirmação</h3>
+            <p id="confirmationModalMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirmationModalCancelBtn" class="px-4 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
+                <button id="confirmationModalConfirmBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { renderSidebar } from './sidebar.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc, getDocs, setDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtmxLoEIncNY-9_zyypEPgWEUNV_0mMHs",
+            authDomain: "sistema-gp-5fe24.firebaseapp.com",
+            projectId: "sistema-gp-5fe24",
+            storageBucket: "sistema-gp-5fe24.firebasestorage.app",
+            messagingSenderId: "80532029580",
+            appId: "1:80532029580:web:ba7b41a79adad2774c7ba9"
+        };
+        const appId = firebaseConfig.projectId;
+
+        let app, db, auth;
+        let isAuthReady = false;
+        let allPortfolios = [];
+        let confirmCallback = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (error) {
+            console.error("Erro ao inicializar o Firebase:", error);
+            document.body.innerHTML = "Erro na configuração do Firebase. Verifique o console.";
+        }
+
+        function initializeGanttBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const barHeight = 20, barGap = 40, numBarsPerLine = 3;
+            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)'};
+            const bars = [];
+            const barColors = [colors.bar1, colors.bar2, colors.bar3];
+
+            function initializeBars() {
+                bars.length = 0;
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines * numBarsPerLine; i++) { 
+                    bars.push({ 
+                        width: (Math.random() * 0.2 + 0.1) * window.innerWidth, 
+                        color: barColors[Math.floor(Math.random() * barColors.length)], 
+                        initialXOffset: Math.random() * window.innerWidth 
+                    }); 
+                }
+            }
+            
+            function roundRect(ctx, x, y, width, height, radius) { 
+                ctx.beginPath(); 
+                ctx.moveTo(x + radius, y); 
+                ctx.arcTo(x + width, y, x + width, y + height, radius); 
+                ctx.arcTo(x + width, y + height, x, y + height, radius); 
+                ctx.arcTo(x, y + height, x, y, radius); 
+                ctx.arcTo(x, y, x + width, y, radius); 
+                ctx.closePath(); 
+                ctx.fill(); 
+            }
+            
+            function drawBackgroundElements() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines; i++) { 
+                    const y = (i * (barHeight + barGap)) + (barGap / 2); 
+                    for (let j = 0; j < numBarsPerLine; j++) { 
+                        const bar = bars[i * numBarsPerLine + j]; 
+                        if (!bar) continue;
+                        let x = bar.initialXOffset;
+                        ctx.fillStyle = bar.color; 
+                        roundRect(ctx, x, y, bar.width, barHeight, 5); 
+                    } 
+                }
+            }
+            
+            function resizeAnimationCanvas() { 
+                canvas.width = window.innerWidth; 
+                canvas.height = window.innerHeight; 
+                initializeBars();
+                drawBackgroundElements(); 
+            }
+            
+            resizeAnimationCanvas();
+            window.addEventListener('resize', resizeAnimationCanvas);
+        }
+
+        function showConfirmation(message, callback) { /* ... */ }
+        function closeConfirmationModal() { /* ... */ }
+        function showAlert(message) { /* ... */ }
+        function closeAlertModal() { /* ... */ }
+
+        async function populateUsersDropdown(selectedResponsibleId = null) {
+            const responsibleSelect = document.getElementById('portfolioResponsible');
+            responsibleSelect.innerHTML = '<option value="">Carregando...</option>';
+            try {
+                const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
+                const q = query(usersRef, where("profile", "in", ["Administrador", "Agente"]));
+                const querySnapshot = await getDocs(q);
+                const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                responsibleSelect.innerHTML = '<option value="">Selecione um responsável</option>';
+                users.sort((a, b) => a.fullName.localeCompare(b.fullName));
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.fullName;
+                    responsibleSelect.appendChild(option);
+                });
+                if (selectedResponsibleId) {
+                    responsibleSelect.value = selectedResponsibleId;
+                }
+            } catch (error) {
+                console.error("Erro ao carregar usuários:", error);
+                responsibleSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        async function savePortfolio() {
+            const portfolioId = document.getElementById('portfolioId').value;
+            const portfolioName = document.getElementById('portfolioName').value.trim();
+            const responsibleSelect = document.getElementById('portfolioResponsible');
+            const responsibleId = responsibleSelect.value;
+            const responsibleName = responsibleSelect.options[responsibleSelect.selectedIndex].text;
+            const startDate = document.getElementById('portfolioStartDate').value;
+            const endDate = document.getElementById('portfolioEndDate').value;
+            const stakeholders = document.getElementById('portfolioStakeholders').value.trim();
+            const observations = document.getElementById('portfolioObservations').value.trim();
+
+            if (portfolioName === "" || responsibleId === "") {
+                showAlert("Nome e Responsável são obrigatórios.");
+                return;
+            }
+
+            const portfolioData = {
+                name: portfolioName,
+                responsible: { id: responsibleId, name: responsibleName },
+                startDate,
+                endDate,
+                stakeholders,
+                observations,
+            };
+
+            if (portfolioId) {
+                portfolioData.status = document.getElementById('portfolioStatus').value;
+                try {
+                    portfolioData.id = parseInt(portfolioId);
+                    portfolioData.updatedAt = new Date();
+                    const docRef = doc(db, `artifacts/${appId}/public/data/portfolios`, portfolioId);
+                    await setDoc(docRef, portfolioData, { merge: true });
+                    toggleForm(false);
+                } catch (error) {
+                    console.error("Erro ao atualizar portfólio:", error);
+                    showAlert("Ocorreu um erro ao atualizar. Tente novamente.");
+                }
+            } else {
+                portfolioData.status = 'Ativo';
+                const portfoliosColRef = collection(db, `artifacts/${appId}/public/data/portfolios`);
+                const querySnapshot = await getDocs(portfoliosColRef);
+                const lastId = querySnapshot.docs.reduce((max, doc) => (parseInt(doc.id) > max ? parseInt(doc.id) : max), 0);
+                const newId = lastId + 1;
+                portfolioData.id = newId;
+                portfolioData.createdAt = new Date();
+                try {
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/portfolios`, newId.toString()), portfolioData);
+                    toggleForm(false);
+                } catch (error) {
+                    console.error("Erro ao adicionar portfólio:", error);
+                    showAlert("Ocorreu um erro ao salvar. Tente novamente.");
+                }
+            }
+        }
+
+        async function deletePortfolio(id) {
+            if (!isAuthReady) { showAlert("Autenticação não está pronta."); return; }
+            showConfirmation(`Tem certeza que deseja excluir o portfólio com ID ${id}?`, async () => {
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/portfolios`, id));
+                } catch (error) {
+                    console.error("Erro ao deletar portfólio:", error);
+                    showAlert("Ocorreu um erro ao excluir.");
+                }
+            });
+        }
+        
+        function renderPortfolios(portfolios) {
+            const portfoliosTableBody = document.getElementById('portfoliosTableBody');
+            if (!portfoliosTableBody) return;
+            portfoliosTableBody.innerHTML = '';
+            portfolios.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+            if (portfolios.length === 0) {
+                portfoliosTableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8">Nenhum portfólio encontrado.</td></tr>';
+                return;
+            }
+            portfolios.forEach(port => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-slate-900 border-b border-slate-700 hover:bg-slate-800 transition-colors";
+                const status = port.status || 'Ativo';
+                const statusColor = status === 'Ativo' ? 'bg-green-500/20 text-green-400' : 'bg-slate-500/20 text-slate-400';
+                const formatDate = (date) => date ? new Date(date + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-white">${port.id}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusColor}">${status}</span></td>
+                    <td class="px-6 py-4">${port.name}</td>
+                    <td class="px-6 py-4">${port.responsible ? port.responsible.name : 'N/A'}</td>
+                    <td class="px-6 py-4">${formatDate(port.startDate)}</td>
+                    <td class="px-6 py-4">${formatDate(port.endDate)}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-4">
+                            <button class="text-sky-400 hover:text-sky-500 edit-btn" data-id="${port.id}" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                            <button class="text-red-500 hover:text-red-600 delete-btn" data-id="${port.id}" title="Excluir"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        </div>
+                    </td>
+                `;
+                portfoliosTableBody.appendChild(tr);
+            });
+        }
+
+        function filterAndRenderPortfolios() {
+            const searchTerm = document.getElementById('searchPortfoliosInput').value.toLowerCase();
+            const filtered = allPortfolios.filter(port =>
+                port.name.toLowerCase().includes(searchTerm) ||
+                (port.responsible && port.responsible.name.toLowerCase().includes(searchTerm))
+            );
+            renderPortfolios(filtered);
+        }
+
+        function toggleForm(show, portfolio = null) {
+            const cadastroForm = document.getElementById('cadastroFormContainer');
+            const listContainer = document.getElementById('portfoliosListContainer');
+            const searchContainer = document.getElementById('search-form-container');
+            const formTitleEl = document.getElementById('formTitle');
+            const saveButton = document.getElementById('savePortfolioButton');
+            const statusContainer = document.getElementById('statusContainer');
+
+            document.getElementById('portfolioId').value = "";
+            document.getElementById('portfolioName').value = "";
+            document.getElementById('portfolioResponsible').value = "";
+            document.getElementById('portfolioStartDate').value = "";
+            document.getElementById('portfolioEndDate').value = "";
+            document.getElementById('portfolioStakeholders').value = "";
+            document.getElementById('portfolioObservations').value = "";
+
+            if (show) {
+                populateUsersDropdown();
+                listContainer.classList.add('hidden');
+                searchContainer.classList.add('hidden');
+                cadastroForm.classList.remove('hidden');
+
+                if (portfolio) {
+                    formTitleEl.textContent = 'Editar Portfólio';
+                    saveButton.textContent = 'Atualizar';
+                    statusContainer.classList.remove('hidden');
+                    document.getElementById('portfolioId').value = portfolio.id;
+                    document.getElementById('portfolioName').value = portfolio.name || '';
+                    populateUsersDropdown(portfolio.responsible ? portfolio.responsible.id : null);
+                    document.getElementById('portfolioStartDate').value = portfolio.startDate || '';
+                    document.getElementById('portfolioEndDate').value = portfolio.endDate || '';
+                    document.getElementById('portfolioStakeholders').value = portfolio.stakeholders || '';
+                    document.getElementById('portfolioObservations').value = portfolio.observations || '';
+                    document.getElementById('portfolioStatus').value = portfolio.status || 'Ativo';
+                } else {
+                    formTitleEl.textContent = 'Cadastrar Novo Portfólio';
+                    saveButton.textContent = 'Salvar';
+                    statusContainer.classList.add('hidden');
+                }
+            } else {
+                cadastroForm.classList.add('hidden');
+                listContainer.classList.remove('hidden');
+                searchContainer.classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGanttBackground();
+            renderSidebar(window.location.pathname);
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) { try { await signInAnonymously(auth); } catch (error) { console.error("Auth Error:", error); } }
+                isAuthReady = true;
+                const portfoliosColRef = collection(db, `artifacts/${appId}/public/data/portfolios`);
+                onSnapshot(portfoliosColRef, (snapshot) => {
+                    allPortfolios = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    filterAndRenderPortfolios();
+                }, (error) => {
+                    console.error("Erro ao carregar portfólios:", error);
+                    document.getElementById('portfoliosTableBody').innerHTML = '<tr><td colspan="7" class="text-center p-8 text-red-400">Erro ao carregar. Verifique as permissões e o console.</td></tr>';
+                });
+            });
+            document.getElementById('showFormButton').addEventListener('click', () => toggleForm(true, null));
+            document.getElementById('cancelButton').addEventListener('click', () => toggleForm(false));
+            document.getElementById('savePortfolioButton').addEventListener('click', () => savePortfolio());
+            document.getElementById('searchPortfoliosInput').addEventListener('input', filterAndRenderPortfolios);
+            document.getElementById('portfoliosTableBody').addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) { deletePortfolio(deleteButton.dataset.id); return; }
+                const editButton = e.target.closest('.edit-btn');
+                if (editButton) {
+                    const id = editButton.dataset.id;
+                    const portfolioToEdit = allPortfolios.find(port => port.id.toString() === id.toString());
+                    if (portfolioToEdit) { toggleForm(true, portfolioToEdit); }
+                }
+            });
+            document.getElementById('confirmationModalCancelBtn').addEventListener('click', () => closeConfirmationModal());
+            document.getElementById('confirmationModalConfirmBtn').addEventListener('click', () => { if (typeof confirmCallback === 'function') { confirmCallback(); } closeConfirmationModal(); });
+            document.getElementById('alertModalOkBtn').addEventListener('click', () => closeAlertModal());
+        });
+    </script>
+</body>
+</html>

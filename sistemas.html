@@ -7,10 +7,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script>
+        // Register the datalabels plugin globally
+        Chart.register(ChartDataLabels);
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
-    <script src="settings.js" defer></script>
+    <script type="module" src="settings.js" defer></script>
     
     <style>
+        select option {
+            background: #1E293B; /* bg-slate-800 */
+            color: #FFFFFF;      /* white */
+        }
         /* Estilos base */
         body {
             font-family: 'Inter', sans-serif;
@@ -234,6 +242,21 @@
             transform: rotate(180deg);
         }
 
+        /* Estilos para manter a altura da aba constante */
+        .tab-content-fixed-height {
+            min-height: 400px; /* Ajuste este valor conforme necessário */
+            overflow-y: auto; /* Adiciona scroll se o conteúdo exceder a altura */
+        }
+
+        .break-words-force {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .grid-min-width-content {
+            min-width: fit-content; /* Ou max-content, dependendo do comportamento desejado */
+        }
+
         @media (max-width: 1024px) {
             .responsive-table thead {
                 display: none;
@@ -289,7 +312,7 @@
                     <img src="https://stakepro.netlify.app/logo.png" alt="Logo Stake Pro" class="w-10 h-10 mr-3 rounded-full" />
                     <div>
                         <h1 class="logotext-stake text-white">Stake <span style="color: #22C55E;">Pro</span></h1>
-                        <p class="logotext-sub">Sistema de Governança da TI</p>
+                        <p class="logotext-sub">Projects & Process</p>
                     </div>
                 </div>
                 <button id="sidebarCloseButton" class="md:hidden text-white hover:text-slate-400 focus:outline-none">
@@ -307,13 +330,14 @@
         <main class="flex-1 flex flex-col p-2 md:p-4 transition-all duration-300 ease-in-out">
             <div class="glass-effect p-4 md:p-6 rounded-2xl shadow-2xl w-full border border-slate-700">
                 
-                <div id="mainContentHeader" class="flex justify-between items-center mb-6">
-                    <h2 class="title-6">
+                <div id="mainContentHeader" class="flex items-center mb-6">
+                    <h2 id="pageTitle" class="title-6">
                         Gestão de Sistemas
                     </h2>
+                    <h3 id="formTitle" class="text-xl font-bold text-white hidden">Cadastrar Novo Sistema</h3>
                 </div>
 
-                <div id="kpi-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+                <div id="kpi-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10">
                 </div>
 
                 <div id="search-form-container" class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -334,48 +358,204 @@
                     </button>
                 </div>
 
-                <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full">
-                    <input type="hidden" id="systemId">
-                    <div class="flex justify-between items-start mb-4">
-                            <h3 id="formTitle" class="text-xl font-bold text-white">Cadastrar Novo Sistema</h3>
+                <div id="cadastroFormContainer" class="hidden mb-10 text-left w-full max-w-5xl mx-auto space-y-8">
+    <input type="hidden" id="systemId">
+
+    
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-slate-700 mb-4">
+            <button class="tab-button px-4 py-2 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-sky-500 focus:outline-none active-tab" data-tab="general">Informações Gerais</button>
+            <button class="tab-button px-4 py-2 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-sky-500 focus:outline-none" data-tab="contract">Detalhes do Contrato</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-general" class="tab-content">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="systemName" class="block text-sm font-medium text-slate-400 mb-2">Nome do Sistema</label>
+                    <input type="text" id="systemName" placeholder="Nome do Sistema" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400" required>
+                </div>
+                <div class="flex-1">
+                    <label for="systemCategory" class="block text-sm font-medium text-slate-400 mb-2">Categoria</label>
+                    <select id="systemCategory" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Análise de Dados (DA)">Análise de Dados (DA)</option>
+                        <option value="Automação de Escritório (OA)">Automação de Escritório (OA)</option>
+                        <option value="Automação de Processos (BPA)">Automação de Processos (BPA)</option>
+                        <option value="BI (Business Intelligence)">BI (Business Intelligence)</option>
+                        <option value="Cibersegurança (CS)">Cibersegurança (CS)</option>
+                        <option value="CMS (Content Management System)">CMS (Content Management System)</option>
+                        <option value="Comunicação e Colaboração (CC)">Comunicação e Colaboração (CC)</option>
+                        <option value="CRM (Customer Relationship Management)">CRM (Customer Relationship Management)</option>
+                        <option value="ERP (Enterprise Resource Planning)">ERP (Enterprise Resource Planning)</option>
+                        <option value="Gestão de Ativos (EAM)">Gestão de Ativos (EAM)</option>
+                        <option value="Gestão de Conhecimento (KM)">Gestão de Conhecimento (KM)</option>
+                        <option value="Gestão de Projetos (PM)">Gestão de Projetos (PM)</option>
+                        <option value="Help Desk (HD)">Help Desk (HD)</option>
+                        <option value="Infraestrutura de TI (IT)">Infraestrutura de TI (IT)</option>
+                        <option value="Inteligência Artificial (IA)">Inteligência Artificial (IA)</option>
+                        <option value="Plataformas de Nuvem (Cloud)">Plataformas de Nuvem (Cloud)</option>
+                        <option value="Recursos Humanos (RH)">Recursos Humanos (RH)</option>
+                        <option value="SCM (Supply Chain Management)">SCM (Supply Chain Management)</option>
+                        <option value="SGBD (Sistema de Gerenciamento de Banco de Dados)">SGBD (Sistema de Gerenciamento de Banco de Dados)</option>
+                        <option value="Sistemas de Controle de Estoque (ICS)">Sistemas de Controle de Estoque (ICS)</option>
+                        <option value="Sistemas de Informação Gerencial (MIS)">Sistemas de Informação Gerencial (MIS)</option>
+                        <option value="Sistemas de Processamento de Transações (TPS)">Sistemas de Processamento de Transações (TPS)</option>
+                        <option value="Sistemas de Suporte à Decisão (DSS)">Sistemas de Suporte à Decisão (DSS)</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label for="apiLink" class="block text-sm font-medium text-slate-400 mb-2">Link da API</label>
+                    <select id="apiLink" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                        <option value="">Selecione a API</option>
+                        <option value="movidesk">GET - API USUÁRIOS MOVIDESK</option>
+                    </select>
+                    
+                </div>
+            </div>
+
+            <!-- New Fields for General Information -->
+            <div>
+                <label for="systemDescription" class="block text-sm font-medium text-slate-400 mb-2">Descrição do Sistema</label>
+                <textarea id="systemDescription" placeholder="Breve descrição do sistema..." class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400"></textarea>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="technicalResponsible" class="block text-sm font-medium text-slate-400 mb-2">Responsável Externo</label>
+                    <select id="technicalResponsible" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                        <option value="">Carregando parceiros...</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label for="internalResponsible" class="block text-sm font-medium text-slate-400 mb-2">Responsável Interno</label>
+                    <select id="internalResponsible" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                        <option value="">Carregando usuários...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="implementationDate" class="block text-sm font-medium text-slate-400 mb-2">Data de Implantação</label>
+                    <input type="date" id="implementationDate" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                </div>
+                <div class="flex-1">
+                    <label for="accessUrl" class="block text-sm font-medium text-slate-400 mb-2">URL de Acesso</label>
+                    <input type="url" id="accessUrl" placeholder="https://exemplo.com" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
+                </div>
+            </div>
+            <div>
+                <label for="systemNotes" class="block text-sm font-medium text-slate-400 mb-2">Observações</label>
+                <textarea id="systemNotes" placeholder="Observações adicionais..." class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400"></textarea>
+            </div>
+        </div>
+
+        <div id="tab-contract" class="tab-content hidden">
+            <input type="hidden" id="contractSystemIdTab">
+
+            <!-- Tab Navigation for Contract Details -->
+            <div class="flex border-b border-slate-700 mb-4">
+                <button class="tab-button-contract px-4 py-2 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-sky-500 focus:outline-none active-tab-contract" data-tab-contract="details">Detalhes do Contrato</button>
+                <button class="tab-button-contract px-4 py-2 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-sky-500 focus:outline-none" data-tab-contract="licenses">Licenças Contratadas</button>
+            </div>
+
+            <!-- Tab Content for Contract Details -->
+            <div id="tab-contract-details" class="tab-content-contract">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <!-- Coluna 1 -->
+                    <div>
+                        <label for="contractNegotiationDateTab" class="block text-sm font-medium text-slate-400 mb-2">Data de Negociação</label>
+                        <input type="date" id="contractNegotiationDateTab" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <!-- Coluna 2 -->
+                    <div>
+                        <label for="contractExpirationDateTab" class="block text-sm font-medium text-slate-400 mb-2">Data de Expiração</label>
+                        <input type="date" id="contractExpirationDateTab" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                        <div class="flex items-center mt-2">
+                            <input type="checkbox" id="contractNoExpirationTab" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500">
+                            <label for="contractNoExpirationTab" class="ml-2 block text-sm text-slate-400">Não expira</label>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 1 e 2 (span) -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-400">Tipo de Licença</label>
+                        <div class="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                            <label class="flex items-center"><input type="radio" name="licenseTypeTab" value="total" checked class="mr-2 h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-600">Valor Total</label>
+                            <label class="flex items-center"><input type="radio" name="licenseTypeTab" value="per_license" class="mr-2 h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-600">Valor por Licença</label>
+                        </div>
+                    </div>
+
+                    <!-- 3 colunas em uma linha -->
+                    <div class="md:col-span-2">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8">
+                            <div>
+                                <label for="contractLicenseCountTab" class="block text-sm font-medium text-slate-400 mb-2">Quantidade de Licenças</label>
+                                <input type="number" id="contractLicenseCountTab" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label for="contractValueTab" class="block text-sm font-medium text-slate-400 mb-2">Valor</label>
+                                <input type="text" id="contractValueTab" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label for="contractLinkTab" class="block text-sm font-medium text-slate-400 mb-2">Link do Contrato</label>
+                                <input type="text" id="contractLinkTab" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nova linha para Responsável Orçamentário -->
+                    <div class="md:col-span-2">
+                        <label for="budgetResponsible" class="block text-sm font-medium text-slate-400 mb-2">Responsável Orçamentário</label>
+                        <select id="budgetResponsible" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
+                            <option value="">Carregando usuários...</option>
+                        </select>
                     </div>
                     
-                    <div class="space-y-6 w-full max-w-5xl mx-auto">
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <input type="text" id="systemName" placeholder="Nome do Sistema" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500 placeholder:text-slate-400">
-                            <select id="systemCategory" class="flex-1 w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500" required>
-                                <option value="">Selecione a Categoria</option>
-                                <option value="Help Desk">Help Desk</option>
-                                <option value="CRM">CRM</option>
-                                <option value="ERP">ERP</option>
-                                <option value="Financeiro">Financeiro</option>
-                                <option value="Recursos Humanos">Recursos Humanos</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-
-                        <div class="space-y-2">
-                            <h4 class="text-sm font-semibold text-slate-400">Link da API (apenas para consulta GET de usuários)</h4>
-                            <select id="apiLink" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
-                                <option value="">Selecione a API</option>
-                                <option value="movidesk">GET - API USUÁRIOS MOVIDESK</option>
-                            </select>
-                            <p class="text-xs text-slate-500">A API deve retornar dados de usuários com os campos obrigatórios: `status`, `nome completo`, `login`, `departamento`. Opcionais: `função/cargo`, `perfil`.</p>
-                        </div>
-                        
-
-                        <div class="flex gap-4 mt-6">
-                            <button id="cancelButton" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">
-                                Cancelar
-                            </button>
-                            <button id="saveSystemButton" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">
-                                Salvar
-                            </button>
-                        </div>
+                    <!-- Coluna 1 e 2 (span) -->
+                    <div class="md:col-span-2">
+                         <p class="text-sm text-slate-400">Valor Total Calculado: <span id="calculatedTotalTab" class="font-bold text-white">R$ 0,00</span></p>
                     </div>
                 </div>
+            </div>
 
-                <div id="systemsListContainer" class="text-left w-full overflow-x-auto">
+            <!-- Tab Content for Contracted Licenses -->
+            <div id="tab-contract-licenses" class="tab-content-contract hidden">
+                <div class="border-t border-slate-700 pt-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-md font-semibold text-white">Distribuição de Licenças por Departamento</h4>
+                        <button type="button" id="autoFillLicensesBtnTab" class="btn-liquid-fill flex items-center justify-center px-4 py-2 rounded-lg text-sm">
+                            Preencher Licenças em Uso
+                        </button>
+                    </div>
+
+                    <!-- KPI Cards for Totals -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                            <h4 class="text-sm font-semibold text-slate-400">Total em Uso</h4>
+                            <p id="totalLicensesInUseTab" class="text-2xl font-bold text-white">0</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                            <h4 class="text-sm font-semibold text-slate-400">Total Alocado</h4>
+                            <p id="allocatedLicensesTotalTab" class="text-2xl font-bold text-white">0</p>
+                        </div>
+                    </div>
+
+                    <div id="departmentLicenseDistributionTab" class="space-y-1"></div>
+                </div>
+            </div>
+        </div>
+    
+    <div class="flex gap-4 mt-6">
+        <button id="cancelButton" class="w-full px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">
+            Cancelar
+        </button>
+        <button id="saveSystemButton" class="w-full px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">
+            Salvar
+        </button>
+    </div>
+</div>
+
+                <div id="systemsListContainer" class="text-left w-full overflow-x-auto mt-6">
                     <div class="rounded-lg border border-slate-800">
                         <table class="w-full text-sm text-left text-slate-400 responsive-table">
                             <thead class="text-xs text-slate-200 uppercase bg-slate-800">
@@ -435,67 +615,7 @@
         </div>
     </div>
 
-    <div id="contractModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
-        <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-4xl border border-slate-700 flex flex-col max-h-[90vh]">
-            <input type="hidden" id="contractSystemId">
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                <h3 id="contractModalTitle" class="text-lg font-bold text-sky-400">Gerenciar Contrato</h3>
-                <button id="contractModalCloseBtn" class="text-white text-2xl">&times;</button>
-            </div>
-            <div class="space-y-4 overflow-y-auto pr-2">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <label for="contractNegotiationDate" class="block text-sm font-medium text-slate-400">Data de Negociação</label>
-                        <input type="date" id="contractNegotiationDate" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
-                    </div>
-                    <div class="flex-1">
-                        <label for="contractExpirationDate" class="block text-sm font-medium text-slate-400">Data de Expiração</label>
-                        <input type="date" id="contractExpirationDate" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="contractNoExpiration" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500">
-                    <label for="contractNoExpiration" class="ml-2 block text-sm text-slate-400">Não expira</label>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-400">Tipo de Licença</label>
-                    <div class="flex flex-wrap gap-4 mt-1">
-                        <label><input type="radio" name="licenseType" value="total" checked class="mr-1">Valor Total</label>
-                        <label><input type="radio" name="licenseType" value="per_license" class="mr-1">Valor por Licença</label>
-                    </div>
-                </div>
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <label for="contractLicenseCount" class="block text-sm font-medium text-slate-400">Quantidade de Licenças</label>
-                        <input type="number" id="contractLicenseCount" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
-                    </div>
-                    <div class="flex-1">
-                        <label for="contractValue" class="block text-sm font-medium text-slate-400">Valor</label>
-                        <input type="text" id="contractValue" class="w-full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
-                    </div>
-                </div>
-                <div>
-                    <p class="text-sm text-slate-400">Valor Total Calculado: <span id="calculatedTotal" class="font-bold text-white">R$ 0,00</span></p>
-                </div>
-                <div>
-                    <label for="contractLink" class="block text-sm font-medium text-slate-400">Link do Contrato</label>
-                    <input type="text" id="contractLink" class="w-.full mt-1 px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none transition-all focus:ring-2 focus:ring-sky-500">
-                </div>
-                <div class="border-t border-slate-700 pt-4">
-                    <h4 class="text-md font-semibold text-white mb-2">Distribuição de Licenças por Departamento</h4>
-                    <div id="departmentLicenseDistribution" class="space-y-2 max-h-48 overflow-y-auto"></div>
-                    <div class="flex justify-between text-sm text-slate-400 mt-2">
-                        <p>Total em Uso: <span id="totalLicensesInUse" class="font-bold text-white">0</span></p>
-                        <p>Total Alocado: <span id="allocatedLicensesTotal" class="font-bold text-white">0</span></p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end mt-6 gap-4 flex-shrink-0">
-                <button id="contractModalCancelBtn" class="px-6 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition-all">Cancelar</button>
-                <button id="contractModalSaveBtn" class="px-6 py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-all">Salvar</button>
-            </div>
-        </div>
-    </div>
+    
 
     <div id="dashboardModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
         <div class="glass-effect rounded-lg shadow-xl p-6 w-full max-w-4xl border border-slate-700">
@@ -514,319 +634,792 @@
         </div>
     </div>
 
-    <script type="module">
-        import { renderSidebar } from './sidebar-no-firebase.js';
+        <script type="module">
+        import { db, auth, app, firebaseConfig } from './firebase-config.js';
+        import { renderSidebar } from './sidebar.js';
         import { getMovideskClients, getMovideskDepartments } from './src/movidesk.js';
+        import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("sistemas.html: Script started.");
+        const appId = firebaseConfig.projectId;
+        let systems = [];
+        let licenseChart = null;
 
-            let systems = JSON.parse(localStorage.getItem('systems')) || [];
+        function showAlert(message) {
+            const alertModal = document.getElementById('alertModal');
+            const alertMessage = document.getElementById('alertModalMessage');
+            alertMessage.textContent = message;
+            alertModal.classList.remove('hidden');
+            alertModal.classList.add('flex');
+        }
 
-            function saveSystems() {
-                localStorage.setItem('systems', JSON.stringify(systems));
-            }
-            let licenseChart = null;
+        function showConfirmation(message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmationModal');
+                const messageEl = document.getElementById('confirmationModalMessage');
+                const confirmBtn = document.getElementById('confirmationModalConfirmBtn');
+                const cancelBtn = document.getElementById('confirmationModalCancelBtn');
 
-            // --- LÓGICA DA ANIMAÇÃO DE FUNDO ---
-            function initializeGanttBackground() {
-                const canvas = document.getElementById('backgroundCanvas');
-                if (!canvas) return;
-                const ctx = canvas.getContext('2d');
+                messageEl.textContent = message;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                confirmBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve(true);
+                };
+
+                cancelBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve(false);
+                };
+            });
+        }
+
+        async function populatePartnersDropdownForSystems(selectedPartnerId = null) {
+            const partnerSelect = document.getElementById('technicalResponsible');
+            partnerSelect.innerHTML = '<option value="">Carregando parceiros...</option>';
+            try {
+                const partnersColRef = collection(db, `artifacts/${appId}/public/data/partners`);
+                const querySnapshot = await getDocs(partnersColRef);
                 
-                const barHeight = 20, barGap = 40, numBarsPerLine = 3;
-                const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)'};
-                const bars = [];
-                const barColors = [colors.bar1, colors.bar2, colors.bar3];
+                const activePartners = querySnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(partner => partner.status === 'Ativo')
+                    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
-                function initializeBars() {
-                    bars.length = 0;
-                    const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
-                    for (let i = 0; i < totalLines * numBarsPerLine; i++) { 
-                        bars.push({ 
-                            width: (Math.random() * 0.2 + 0.1) * window.innerWidth, 
-                            color: barColors[Math.floor(Math.random() * barColors.length)], 
-                            initialXOffset: Math.random() * window.innerWidth 
-                        }); 
+                partnerSelect.innerHTML = '<option value="">Selecione um parceiro</option>';
+                activePartners.forEach(partner => {
+                    const option = document.createElement('option');
+                    option.value = partner.id;
+                    option.textContent = partner.name;
+                    partnerSelect.appendChild(option);
+                });
+
+                if (selectedPartnerId) {
+                    partnerSelect.value = selectedPartnerId;
+                }
+            } catch (error) {
+                console.error("Erro ao carregar parceiros para o dropdown de sistemas:", error);
+                partnerSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        async function populateUsersDropdown(selectedUserId = null) {
+            console.log("Iniciando populateUsersDropdown...");
+            const userSelect = document.getElementById('internalResponsible');
+            if (!userSelect) {
+                console.error("Elemento 'internalResponsible' não encontrado.");
+                return;
+            }
+            userSelect.innerHTML = '<option value="">Carregando usuários...</option>';
+            try {
+                const usersColRef = collection(db, `artifacts/${appId}/public/data/users`);
+                console.log("Buscando usuários de:", `artifacts/${appId}/public/data/users`);
+                const querySnapshot = await getDocs(usersColRef);
+                console.log("Snapshot recebido. Total de documentos:", querySnapshot.size);
+                
+                const allUsers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Todos os usuários mapeados:", allUsers);
+
+                const activeUsers = allUsers.filter(user => user.status === 'Ativo');
+                console.log("Usuários ativos encontrados:", activeUsers.length, activeUsers);
+
+                if (activeUsers.length === 0) {
+                    console.log("Nenhum usuário ativo encontrado.");
+                    userSelect.innerHTML = '<option value="">Nenhum usuário ativo encontrado</option>';
+                    return;
+                }
+                
+                activeUsers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                console.log("Usuários ativos ordenados.");
+
+                userSelect.innerHTML = '<option value="">Selecione um usuário</option>';
+                activeUsers.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    userSelect.appendChild(option);
+                });
+                console.log("Dropdown de usuários preenchido.");
+
+                if (selectedUserId) {
+                    userSelect.value = selectedUserId;
+                    console.log("Usuário selecionado:", selectedUserId);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar usuários para o dropdown:", error);
+                userSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        async function loadSystems() {
+            try {
+                console.log("Attempting to load systems from Firebase...");
+                const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/public/data/systems`));
+                systems = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Systems loaded:", systems); // Log dos sistemas carregados
+                renderSystems(systems);
+            } catch (error) {
+                console.error("Error loading systems: ", error);
+                showAlert("Erro ao carregar os sistemas do Firebase.");
+            }
+        }
+
+        function initializeGanttBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const barHeight = 20, barGap = 40, numBarsPerLine = 3;
+            const colors = { bar1: 'rgba(59, 130, 246, 0.1)', bar2: 'rgba(34, 197, 94, 0.1)', bar3: 'rgba(139, 92, 246, 0.1)'};
+            const bars = [];
+            const barColors = [colors.bar1, colors.bar2, colors.bar3];
+
+            function initializeBars() {
+                bars.length = 0;
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines * numBarsPerLine; i++) { 
+                    bars.push({ 
+                        width: (Math.random() * 0.2 + 0.1) * window.innerWidth, 
+                        color: barColors[Math.floor(Math.random() * barColors.length)], 
+                        initialXOffset: Math.random() * window.innerWidth 
+                    }); 
+                }
+            }
+            
+            function roundRect(ctx, x, y, width, height, radius) { 
+                ctx.beginPath(); 
+                ctx.moveTo(x + radius, y); 
+                ctx.arcTo(x + width, y, x + width, y + height, radius); 
+                ctx.arcTo(x + width, y + height, x, y + height, radius); 
+                ctx.arcTo(x, y + height, x, y, radius); 
+                ctx.arcTo(x, y, x + width, y, radius); 
+                ctx.closePath(); 
+                ctx.fill(); 
+            }
+            
+            function drawBackgroundElements() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
+                for (let i = 0; i < totalLines; i++) { 
+                    const y = (i * (barHeight + barGap)) + (barGap / 2); 
+                    for (let j = 0; j < numBarsPerLine; j++) { 
+                        const bar = bars[i * numBarsPerLine + j]; 
+                        if (!bar) continue;
+                        let x = bar.initialXOffset;
+                        ctx.fillStyle = bar.color; 
+                        roundRect(ctx, x, y, bar.width, barHeight, 5); 
                     }
                 }
-                
-                function roundRect(ctx, x, y, width, height, radius) { 
-                    ctx.beginPath(); 
-                    ctx.moveTo(x + radius, y); 
-                    ctx.arcTo(x + width, y, x + width, y + height, radius); 
-                    ctx.arcTo(x + width, y + height, x, y + height, radius); 
-                    ctx.arcTo(x, y + height, x, y, radius); 
-                    ctx.arcTo(x, y, x + width, y, radius); 
-                    ctx.closePath(); 
-                    ctx.fill(); 
-                }
-                
-                function drawBackgroundElements() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    const totalLines = Math.ceil(canvas.height / (barHeight + barGap));
-                    for (let i = 0; i < totalLines; i++) { 
-                        const y = (i * (barHeight + barGap)) + (barGap / 2); 
-                        for (let j = 0; j < numBarsPerLine; j++) { 
-                            const bar = bars[i * numBarsPerLine + j]; 
-                            if (!bar) continue;
-                            let x = bar.initialXOffset;
-                            ctx.fillStyle = bar.color; 
-                            roundRect(ctx, x, y, bar.width, barHeight, 5); 
-                        }
-                    }
-                }
-                
-                function resizeAnimationCanvas() { 
-                    canvas.width = window.innerWidth; 
-                    canvas.height = window.innerHeight; 
-                    initializeBars();
-                    drawBackgroundElements(); 
-                }
-                
-                resizeAnimationCanvas();
-                window.addEventListener('resize', resizeAnimationCanvas);
             }
+            
+            function resizeAnimationCanvas() { 
+                canvas.width = window.innerWidth; 
+                canvas.height = window.innerHeight; 
+                initializeBars();
+                drawBackgroundElements(); 
+            }
+            
+            resizeAnimationCanvas();
+            window.addEventListener('resize', resizeAnimationCanvas);
+        }
 
-            function toggleForm(show) {
+        function toggleForm(show, system = null, formType = 'general') { // formType can be 'general' or 'contract'
                 const cadastroForm = document.getElementById('cadastroFormContainer');
                 const listContainer = document.getElementById('systemsListContainer');
                 const searchContainer = document.getElementById('search-form-container');
                 const formTitleEl = document.getElementById('formTitle');
+                const pageTitleEl = document.getElementById('pageTitle');
                 const saveButton = document.getElementById('saveSystemButton');
-
-                document.getElementById('systemId').value = "";
-                document.getElementById('systemName').value = "";
-                document.getElementById('systemCategory').value = "";
-                document.getElementById('apiLink').value = "";
                 
+                const generalTabButton = document.querySelector('.tab-button[data-tab="general"]');
+                const contractTabButton = document.querySelector('.tab-button[data-tab="contract"]');
+                const generalTabContent = document.getElementById('tab-general');
+                const contractTabContent = document.getElementById('tab-contract');
+                const tabContainer = generalTabButton.parentElement;
+
+                // Reset all form fields
+                const systemIdInput = document.getElementById('systemId');
+                if (systemIdInput) {
+                    systemIdInput.value = "";
+                } else {
+                    console.error("Element with id 'systemId' not found.");
+                }
+                const systemNameInput = document.getElementById('systemName');
+                if (systemNameInput) systemNameInput.value = "";
+                const systemCategorySelect = document.getElementById('systemCategory');
+                if (systemCategorySelect) systemCategorySelect.value = "";
+                const apiLinkSelect = document.getElementById('apiLink');
+                if (apiLinkSelect) apiLinkSelect.value = "";
+                const systemDescriptionTextarea = document.getElementById('systemDescription');
+                if (systemDescriptionTextarea) systemDescriptionTextarea.value = "";
+                const technicalResponsibleSelect = document.getElementById('technicalResponsible');
+                if (technicalResponsibleSelect) technicalResponsibleSelect.value = "";
+                const internalResponsibleSelect = document.getElementById('internalResponsible');
+                if (internalResponsibleSelect) internalResponsibleSelect.value = "";
+                const accessUrlInput = document.getElementById('accessUrl');
+                if (accessUrlInput) accessUrlInput.value = "";
+                const implementationDateInput = document.getElementById('implementationDate');
+                if (implementationDateInput) implementationDateInput.value = "";
+                const systemNotesTextarea = document.getElementById('systemNotes');
+                if (systemNotesTextarea) systemNotesTextarea.value = "";
 
                 if (show) {
                     listContainer.classList.add('hidden');
                     searchContainer.classList.add('hidden');
                     cadastroForm.classList.remove('hidden');
-                    formTitleEl.textContent = 'Cadastrar Novo Sistema';
-                    saveButton.textContent = 'Salvar';
+                    document.getElementById('kpi-container').classList.add('hidden');
+                    pageTitleEl.classList.add('hidden');
+                    formTitleEl.classList.remove('hidden');
+
+                    if(system){
+                        // Populate system fields
+                        if (systemIdInput) systemIdInput.value = system.id;
+                        if (systemNameInput) systemNameInput.value = system.name || '';
+                        if (systemCategorySelect) systemCategorySelect.value = system.category || '';
+                        if (apiLinkSelect) apiLinkSelect.value = system.apiLink || '';
+                        if (systemDescriptionTextarea) systemDescriptionTextarea.value = system.description || '';
+                        if (technicalResponsibleSelect) technicalResponsibleSelect.value = system.technicalResponsible || '';
+                        if (internalResponsibleSelect) internalResponsibleSelect.value = system.internalResponsible || '';
+                        if (accessUrlInput) accessUrlInput.value = system.accessUrl || '';
+                        if (implementationDateInput) implementationDateInput.value = system.implementationDate || '';
+                        if (systemNotesTextarea) systemNotesTextarea.value = system.notes || '';
+                        
+                        tabContainer.classList.add('hidden'); // Hide tabs for existing system editing
+
+                        if (formType === 'contract') {
+                            formTitleEl.textContent = 'Detalhes do contrato';
+                            generalTabContent.classList.add('hidden');
+                            contractTabContent.classList.remove('hidden');
+                            populateDepartmentLicenseDistributionTab(system.id);
+                        } else { // 'general'
+                            formTitleEl.textContent = 'Editar Sistema';
+                            contractTabContent.classList.add('hidden');
+                            generalTabContent.classList.remove('hidden');
+                        }
+                    } else { // New System
+                        populatePartnersDropdownForSystems();
+                        populateUsersDropdown();
+                        tabContainer.classList.remove('hidden'); // Show tabs for new system creation
+                        formTitleEl.textContent = 'Cadastrar Novo Sistema';
+                        saveButton.textContent = 'Salvar';
+                        contractTabButton.classList.add('hidden');
+                        contractTabContent.classList.add('hidden');
+                        generalTabContent.classList.remove('hidden');
+                        generalTabButton.click();
+                    }
                 } else {
                     cadastroForm.classList.add('hidden');
                     listContainer.classList.remove('hidden');
                     searchContainer.classList.remove('hidden');
+                    document.getElementById('kpi-container').classList.remove('hidden');
+                    pageTitleEl.classList.remove('hidden');
+                    formTitleEl.classList.add('hidden');
                 }
             }
 
-            function renderKpiCards(systems) {
-                const kpiContainer = document.getElementById('kpi-container');
-                if (!kpiContainer) return;
+        function renderKpiCards(systems) {
+            const kpiContainer = document.getElementById('kpi-container');
+            if (!kpiContainer) return;
 
-                const totalSystems = systems.length;
+            const totalSystems = systems.length;
 
-                const systemsByCategory = systems.reduce((acc, system) => {
-                    acc[system.category] = (acc[system.category] || 0) + 1;
-                    return acc;
-                }, {});
+            const systemsByCategory = systems.reduce((acc, system) => {
+                acc[system.category] = (acc[system.category] || 0) + 1;
+                return acc;
+            }, {});
 
-                const categoryIcons = {
-                    'Help Desk': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-sky-400"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
-                    'CRM': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-green-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
-                    'ERP': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-yellow-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>',
-                    'Financeiro': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-400"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
-                    'Recursos Humanos': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-purple-400"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>',
-                    'Outros': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
-                };
+            const categoryIcons = {
+                'Help Desk': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-sky-400"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+                'CRM': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-green-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+                'ERP': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-yellow-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>',
+                'Financeiro': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-400"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+                'Recursos Humanos': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-purple-400"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>',
+                'Outros': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+            };
 
-                let kpiCardsHtml = `
-                    <div class="glass-effect p-4 rounded-lg flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+            let kpiCardsHtml = `
+                <div class="glass-effect p-3 rounded-lg flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                    <div class="bg-slate-900 p-3 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-white"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-slate-400">Total de Sistemas</h4>
+                        <p class="text-2xl font-bold text-white">${totalSystems}</p>
+                    </div>
+                </div>
+            `;
+
+            const sortedCategories = Object.keys(systemsByCategory).sort();
+
+            for (const category of sortedCategories) {
+                kpiCardsHtml += `
+                    <div class="glass-effect p-3 rounded-lg flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                         <div class="bg-slate-900 p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-white"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            ${categoryIcons[category] || categoryIcons['Outros']}
                         </div>
                         <div>
-                            <h4 class="text-sm font-semibold text-slate-400">Total de Sistemas</h4>
-                            <p class="text-3xl font-bold text-white">${totalSystems}</p>
+                            <h4 class="text-sm font-semibold text-slate-400">${category}</h4>
+                            <p class="text-2xl font-bold text-white">${systemsByCategory[category]}</p>
                         </div>
                     </div>
                 `;
-
-                const sortedCategories = Object.keys(systemsByCategory).sort();
-
-                for (const category of sortedCategories) {
-                    kpiCardsHtml += `
-                        <div class="glass-effect p-4 rounded-lg flex items-center gap-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-                            <div class="bg-slate-900 p-3 rounded-full">
-                                ${categoryIcons[category] || categoryIcons['Outros']}
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-semibold text-slate-400">${category}</h4>
-                                <p class="text-3xl font-bold text-white">${systemsByCategory[category]}</p>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                kpiContainer.innerHTML = kpiCardsHtml;
             }
 
-            function renderSystems(systemsToRender) {
-                const systemsTableBody = document.getElementById('systemsTableBody');
-                if (!systemsTableBody) return;
+            kpiContainer.innerHTML = kpiCardsHtml;
+        }
 
-                renderKpiCards(systemsToRender);
+        function renderSystems(systemsToRender) {
+            const systemsTableBody = document.getElementById('systemsTableBody');
+            if (!systemsTableBody) return;
 
-                if (systemsToRender.length === 0) {
-                    systemsTableBody.innerHTML = '<tr><td colspan="10" class="text-center p-8">Nenhum sistema cadastrado.</td></tr>';
-                    return;
-                }
-                
-                systemsTableBody.innerHTML = systemsToRender.map(system => {
-                    let expirationDateHtml = 'N/A';
-                    let licenseCountHtml = 'N/A';
-                    if (system.contract) {
-                        if (system.contract.noExpiration) {
-                            expirationDateHtml = 'Não expira';
-                        } else if (system.contract.expirationDate) {
-                            expirationDateHtml = new Date(system.contract.expirationDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-                        }
-                        if (system.contract.licenseCount) {
-                            licenseCountHtml = system.contract.licenseCount;
-                        }
+            renderKpiCards(systemsToRender);
+
+            if (systemsToRender.length === 0) {
+                systemsTableBody.innerHTML = '<tr><td colspan="10" class="text-center p-8">Nenhum sistema cadastrado.</td></tr>';
+                return;
+            }
+            
+            systemsTableBody.innerHTML = systemsToRender.map(system => {
+                let expirationDateHtml = 'N/A';
+                let licenseCountHtml = 'N/A';
+                if (system.contract) {
+                    if (system.contract.noExpiration) {
+                        expirationDateHtml = 'Não expira';
                     }
-
-                    // Calculate usage percentage for the progress bar
-                    let usagePercentage = 0;
-                    if (system.contract && system.contract.licenseCount && system.userCount !== undefined && system.userCount !== 'N/A') {
-                        const contracted = parseInt(system.contract.licenseCount);
-                        const used = parseInt(system.userCount);
-                        if (contracted > 0) {
-                            usagePercentage = (used / contracted) * 100;
-                        }
+                    if (system.contract.expirationDate) {
+                        expirationDateHtml = new Date(system.contract.expirationDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
                     }
-                    const progressBarColor = usagePercentage > 90 ? 'bg-red-500' : (usagePercentage > 70 ? 'bg-yellow-500' : 'bg-green-500');
-
-
-                    return `
-                    <tr class="border-b border-slate-800 hover:bg-slate-800/50">
-                        <td data-label="ID" class="px-6 py-4">${system.id}</td>
-                        <td data-label="Status" class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-400">Ativo</span></td>
-                        <td data-label="Nome do Sistema" class="px-6 py-4">${system.name}</td>
-                        <td data-label="Categoria" class="px-6 py-4">${system.category}</td>
-                        <td data-label="Uso de Licenças" class="px-6 py-4">
-                            <div class="w-full bg-slate-700 rounded-full h-2.5 dark:bg-slate-700">
-                                <div class="${progressBarColor} h-2.5 rounded-full" style="width: ${usagePercentage}%;"></div>
-                            </div>
-                            <div class="text-xs text-slate-400 mt-1">${system.userCount !== undefined && system.userCount !== 'N/A' ? system.userCount : '0'} / ${system.contract && system.contract.licenseCount ? system.contract.licenseCount : '0'} (${usagePercentage.toFixed(1)}%)</div>
-                        </td>
-                        <td data-label="Encerramento do Contrato" class="px-6 py-4">${expirationDateHtml}</td>
-                        <td data-label="Ações" class="px-4 py-4 flex items-center justify-start">
-                            <button class="edit-btn p-1 text-yellow-400 hover:text-yellow-300" data-id="${system.id}"><!-- Edit icon --></button>
-                            <button class="contract-btn p-1 text-blue-400 hover:text-blue-300" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></button>
-                            <button class="dashboard-btn p-1 text-green-400 hover:text-green-300" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></button>
-                            <button class="delete-btn p-1 text-red-500 hover:text-red-400" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
-                            <button class="view-api-btn p-1 text-sky-400 hover:text-sky-300" data-api-link="${system.apiLink}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            </button>
-                        </td>
-                    </tr>
-                `}).join('');
-            }
-
-            function filterAndRenderSystems() {
-                const searchTerm = document.getElementById('searchSystemsInput').value.toLowerCase();
-                const filteredSystems = systems.filter(system => 
-                    system.name.toLowerCase().includes(searchTerm) || 
-                    system.category.toLowerCase().includes(searchTerm)
-                );
-                renderSystems(filteredSystems);
-            }
-
-            function createTableFromData(data) {
-                if (!data || data.length === 0) {
-                    return '<p>Nenhum dado retornado pela API.</p>';
+                    if (system.contract.licenseCount) {
+                        licenseCountHtml = system.contract.licenseCount;
+                    }
                 }
 
-                const headerMapping = {
-                    'isActive': 'Status',
-                    'createdDate': 'Data da Criação',
-                    'businessName': 'Nome do Usuário',
-                    'profileType': 'Perfil',
-                    'accessProfile': 'Permissão',
-                    'userName': 'Login',
-                    'role': 'Função/Cargo',
-                    'teams': 'Departamento',
-                    'createdBy': 'Quem Criou'
-                };
+                // Calculate usage percentage for the progress bar
+                let usagePercentage = 0;
+                if (system.contract && system.contract.licenseCount && system.userCount !== undefined && system.userCount !== 'N/A') {
+                    const contracted = parseInt(system.contract.licenseCount);
+                    const used = parseInt(system.userCount);
+                    if (contracted > 0) {
+                        usagePercentage = (used / contracted) * 100;
+                    }
+                }
+                const progressBarColor = usagePercentage > 90 ? 'bg-red-500' : (usagePercentage > 70 ? 'bg-yellow-500' : 'bg-green-500');
 
-                const headers = Object.keys(data[0]);
-                const headerHtml = headers.map(header => `<th class="px-4 py-2 text-left">${headerMapping[header] || header}</th>`).join('');
-                
-                const rowsHtml = data.map(row => {
-                    const rowData = headers.map(header => {
-                        let cellData = row[header];
-                        if (header === 'isActive') {
-                            cellData = cellData ? 'Ativo' : 'Inativo';
-                        } else if (header === 'createdDate') {
-                            cellData = new Date(cellData).toLocaleDateString('pt-BR');
-                        }
-                        return `<td class="px-4 py-2" data-label="${headerMapping[header] || header}">${cellData !== null ? cellData : ''}</td>`
-                    }).join('');
-                    return `<tr class="border-b border-slate-700">${rowData}</tr>`;
-                }).join('');
 
                 return `
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-slate-400 responsive-table">
-                            <thead class="text-xs text-slate-200 uppercase bg-slate-700">
-                                <tr>${headerHtml}</tr>
-                            </thead>
-                            <tbody class="bg-slate-800">
-                                ${rowsHtml}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
+                <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                    <td data-label="ID" class="px-6 py-4">${system.id}</td>
+                    <td data-label="Status" class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-400">Ativo</span></td>
+                    <td data-label="Nome do Sistema" class="px-6 py-4">${system.name}</td>
+                    <td data-label="Categoria" class="px-6 py-4">${system.category}</td>
+                    <td data-label="Uso de Licenças" class="px-6 py-4">
+                        <div class="w-full bg-slate-700 rounded-full h-2.5 dark:bg-slate-700">
+                            <div class="${progressBarColor} h-2.5 rounded-full" style="width: ${usagePercentage}%;"></div>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-1">${system.userCount !== undefined && system.userCount !== 'N/A' ? system.userCount : '0'} / ${system.contract && system.contract.licenseCount ? system.contract.licenseCount : '0'} (${usagePercentage.toFixed(1)}%)</div>
+                    </td>
+                    <td data-label="Encerramento do Contrato" class="px-6 py-4">${expirationDateHtml}</td>
+                    <td data-label="Ações" class="px-4 py-4 flex items-center justify-start">
+                        <button class="edit-btn p-1 text-yellow-400 hover:text-yellow-300" data-id="${system.id}" title="Editar Sistema"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button class="contract-btn p-1 text-blue-400 hover:text-blue-300" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></button>
+                        <button class="dashboard-btn p-1 text-green-400 hover:text-green-300" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></button>
+                        <button class="delete-btn p-1 text-red-500 hover:text-red-400" data-id="${system.id}"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                        <button class="view-api-btn p-1 text-sky-400 hover:text-sky-300" data-api-link="${system.apiLink}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function filterAndRenderSystems() {
+            const searchTerm = document.getElementById('searchSystemsInput').value.toLowerCase();
+            const filteredSystems = systems.filter(system => 
+                system.name.toLowerCase().includes(searchTerm) || 
+                system.category.toLowerCase().includes(searchTerm)
+            );
+            renderSystems(filteredSystems);
+        }
+
+        function createTableFromData(data) {
+            if (!data || data.length === 0) {
+                return '<p>Nenhum dado retornado pela API.</p>';
             }
 
-            function showApiDataModal(apiLink) {
-                console.log("showApiDataModal called with apiLink:", apiLink);
-                const modal = document.getElementById('viewApiDataModal');
-                const contentEl = document.getElementById('apiDataContent');
-                const titleEl = document.getElementById('viewApiDataModalTitle');
+            const headerMapping = {
+                'isActive': 'Status',
+                'createdDate': 'Data da Criação',
+                'businessName': 'Nome do Usuário',
+                'profileType': 'Perfil',
+                'accessProfile': 'Permissão',
+                'userName': 'Login',
+                'role': 'Função/Cargo',
+                'teams': 'Departamento',
+                'createdBy': 'Quem Criou'
+            };
 
-                titleEl.textContent = `Visualizar Dados da API: ${apiLink}`;
-                contentEl.innerHTML = '<p>Carregando...</p>';
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
+            const headers = Object.keys(data[0]);
+            const headerHtml = headers.map(header => `<th class="px-4 py-2 text-left">${headerMapping[header] || header}</th>`).join('');
+            
+            const rowsHtml = data.map(row => {
+                const rowData = headers.map(header => {
+                    let cellData = row[header];
+                    if (header === 'isActive') {
+                        cellData = cellData ? 'Ativo' : 'Inativo';
+                    }
+                    if (header === 'createdDate') {
+                        cellData = new Date(cellData).toLocaleDateString('pt-BR');
+                    }
+                    return `<td class="px-4 py-2" data-label="${headerMapping[header] || header}">${cellData !== null ? cellData : ''}</td>`
+                }).join('');
+                return `<tr class="border-b border-slate-700">${rowData}</tr>`;
+            }).join('');
 
-                if (apiLink && apiLink.trim() === 'movidesk') {
-                    getMovideskClients().then(clients => {
-                        console.log('getMovideskClients promise resolved', clients);
-                        contentEl.innerHTML = createTableFromData(clients);
-                    }).catch(error => {
-                        console.error('getMovideskClients promise rejected', error);
-                        contentEl.innerHTML = `<p class="text-red-400">Erro ao carregar dados: ${error}</p>`;
-                    });
-                } else {
-                    contentEl.innerHTML = '<p>API não suportada para visualização.</p>';
+            return `
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-400 responsive-table">
+                        <thead class="text-xs text-slate-200 uppercase bg-slate-700">
+                            <tr>${headerHtml}</tr>
+                        </thead>
+                        <tbody class="bg-slate-800">
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function showApiDataModal(apiLink) {
+            console.log("showApiDataModal called with apiLink:", apiLink);
+            const modal = document.getElementById('viewApiDataModal');
+            const contentEl = document.getElementById('apiDataContent');
+            const titleEl = document.getElementById('viewApiDataModalTitle');
+
+            titleEl.textContent = `Visualizar Dados da API: ${apiLink}`;
+            contentEl.innerHTML = '<p>Carregando...</p>';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            if (apiLink && apiLink.trim() === 'movidesk') {
+                getMovideskClients().then(clients => {
+                    console.log('getMovideskClients promise resolved', clients);
+                    contentEl.innerHTML = createTableFromData(clients);
+                }).catch(error => {
+                    console.error('getMovideskClients promise rejected', error);
+                    contentEl.innerHTML = `<p class="text-red-400">Erro ao carregar dados: ${error}</p>`;
+                });
+            } else {
+                contentEl.innerHTML = '<p>API não suportada para visualização.</p>';
+            }
+        }
+
+        function formatCurrency(value) {
+            if (!value) return 'R$ 0,00';
+            const number = parseFloat(value.toString().replace(/[^0-9]/g, '')) / 100;
+            return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function parseCurrency(value) {
+            if (!value) return 0;
+            // Remove "R$", pontos e substitui vírgula por ponto.
+            return parseFloat(value.toString().replace(/R\$\s?/, '').replace(/\./g, '').replace(',', '.'));
+        }
+
+        function getLicenseCountByDepartment(clients) {
+            const counts = {};
+            if (!clients) return counts;
+
+            clients.forEach(client => {
+                if (client.teams && client.teams.length > 0) {
+                    // Considerar apenas a primeira equipe do agente
+                    const firstTeam = client.teams[0];
+                    counts[firstTeam] = (counts[firstTeam] || 0) + 1;
                 }
+            });
+            return counts;
+        }
+
+        function updateCalculatedTotal() {
+            const licenseTypeInput = document.querySelector('input[name="licenseTypeTab"]:checked');
+            if (!licenseTypeInput) return;
+
+            const licenseType = licenseTypeInput.value;
+            const licenseCount = parseInt(document.getElementById('contractLicenseCountTab').value) || 0;
+            const value = parseCurrency(document.getElementById('contractValueTab').value);
+
+            let total = 0;
+            if (licenseType === 'per_license') {
+                total = licenseCount * value;
+            } else {
+                total = value;
             }
+            document.getElementById('calculatedTotalTab').textContent = formatCurrency(total * 100);
+        }
+
+        function updateAllocatedTotal() {
+            const distributionEl = document.getElementById('departmentLicenseDistributionTab');
+            if (!distributionEl) return;
+            const inputs = distributionEl.querySelectorAll('input');
+            const total = Array.from(inputs).reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+            document.getElementById('allocatedLicensesTotalTab').textContent = total;
+        }
+
+        function autoPopulateContractedLicenses(isModal) {
+            const containerId = isModal ? 'departmentLicenseDistribution' : 'departmentLicenseDistributionTab';
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const licenseRows = container.querySelectorAll('.grid.grid-cols-3.gap-1.items-center.p-2.rounded-md.transition-colors.duration-200.hover:bg-slate-800/50');
+            licenseRows.forEach(row => {
+                const licensesInUseSpan = row.querySelector('span'); // O span que contém as licenças em uso
+                const contractedLicensesInput = row.querySelector('input[type="number"]'); // O input das licenças contratadas
+
+                if (licensesInUseSpan && contractedLicensesInput) {
+                    const licensesInUse = parseInt(licensesInUseSpan.textContent) || 0;
+                    contractedLicensesInput.value = licensesInUse;
+                }
+            });
+
+            // Atualizar o total alocado após o preenchimento
+            if (isModal) {
+                updateAllocatedTotal();
+            } else {
+                updateAllocatedTotalTab();
+            }
+        }
+
+        // New functions for the contract tab within the main form
+        async function populateDepartmentLicenseDistributionTab(systemId) {
+            const system = systems.find(s => s.id == systemId);
+            if (!system) return;
+
+            const departmentDistributionEl = document.getElementById('departmentLicenseDistributionTab');
+            departmentDistributionEl.innerHTML = '<p>Carregando departamentos...</p>';
+            const [departments, clients] = await Promise.all([
+                getMovideskDepartments(),
+                getMovideskClients()
+            ]);
+            const licensesInUse = getLicenseCountByDepartment(clients);
+            const totalUsed = Object.values(licensesInUse).reduce((sum, count) => sum + count, 0);
+            document.getElementById('totalLicensesInUseTab').textContent = totalUsed;
+            const savedDepartmentLicenses = system.contract?.departmentLicenses || {};
+
+            departmentDistributionEl.innerHTML = `
+                <div class="grid grid-cols-3 gap-1 font-semibold text-white mb-2 grid-min-width-content">
+                    <div>Departamento</div>
+                    <div class="text-center">Licenças em Uso</div>
+                    <div class="text-center">Licenças Contratadas</div>
+                </div>
+                ${departments.map(dept => `
+                    <div class="grid grid-cols-3 gap-1 items-center p-2 rounded-md transition-colors duration-200 hover:bg-slate-800/50">
+                        <label class="text-sm text-slate-400">${dept}</label>
+                        <span class="text-center">${licensesInUse[dept] || 0}</span>
+                        <input type="number" class="w-2/3 px-2 py-1 rounded-lg bg-slate-900 text-white border border-slate-700" data-department="${dept}" value="${Number(savedDepartmentLicenses[dept] || 0)}">
+                    </div>
+                `).join('')}
+            `;
+            updateAllocatedTotalTab();
+        }
+
+        function updateAllocatedTotalTab() {
+            const inputs = document.getElementById('departmentLicenseDistributionTab').querySelectorAll('input');
+            const total = Array.from(inputs).reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+            document.getElementById('allocatedLicensesTotalTab').textContent = total;
+        }
+
+        async function openDashboardModal(systemId) {
+            const system = systems.find(s => s.id == systemId);
+            const dashboardContent = document.getElementById('dashboardContent');
+            const kpiContainer = document.getElementById('kpiContainer');
+
+            if (!system || !system.contract) {
+                kpiContainer.innerHTML = ''; // Limpa KPIs
+                dashboardContent.innerHTML = '<p class="text-red-400">Dados de contrato não disponíveis para este sistema.</p>';
+                document.getElementById('dashboardModal').classList.remove('hidden');
+                document.getElementById('dashboardModal').classList.add('flex');
+                return;
+            }
+
+            // Limpa o conteúdo anterior enquanto carrega
+            dashboardContent.innerHTML = '<canvas id="licenseChart"></canvas>'; 
+            kpiContainer.innerHTML = '<p>Carregando KPIs...</p>';
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            document.getElementById('dashboardModal').classList.add('flex');
+
+            const [departments, clients] = await Promise.all([
+                getMovideskDepartments(),
+                getMovideskClients()
+            ]);
+
+            const licensesInUse = getLicenseCountByDepartment(clients);
+            const contractedLicenses = system.contract.departmentLicenses || {};
+
+            // Calcular KPIs
+            const totalUsedLicenses = Object.values(licensesInUse).reduce((sum, count) => sum + count, 0);
+            const totalContractedLicenses = Object.values(contractedLicenses).reduce((sum, count) => sum + count, 0);
+            const utilizationPercentage = totalContractedLicenses > 0 ? ((totalUsedLicenses / totalContractedLicenses) * 100).toFixed(1) : 0;
+
+            // Renderizar KPIs
+            kpiContainer.innerHTML = `
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                    <h4 class="text-sm font-semibold text-slate-400">Total Contratado</h4>
+                    <p class="text-2xl font-bold text-white">${totalContractedLicenses}</p>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                    <h4 class="text-sm font-semibold text-slate-400">Total em Uso</h4>
+                    <p class="text-2xl font-bold text-white">${totalUsedLicenses}</p>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
+                    <h4 class="text-sm font-semibold text-slate-400">Taxa de Utilização</h4>
+                    <p class="text-2xl font-bold text-white">${utilizationPercentage}%</p>
+                </div>
+            `;
+
+            const chartData = {
+                labels: departments,
+                datasets: [
+                    {
+                        label: 'Licenças em Uso',
+                        data: departments.map(dept => licensesInUse[dept] || 0),
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Licenças Contratadas',
+                        data: departments.map(dept => contractedLicenses[dept] || 0),
+                        backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            if (licenseChart) {
+                licenseChart.destroy();
+            }
+
+            const ctx = document.getElementById('licenseChart').getContext('2d');
+            licenseChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.raw;
+                                    return `${label}: ${value}`;
+                                },
+                                footer: function(tooltipItems) {
+                                    const deptIndex = tooltipItems[0].dataIndex;
+                                    const dept = departments[deptIndex];
+                                    const used = licensesInUse[dept] || 0;
+                                    const contracted = contractedLicenses[dept] || 0;
+                                    const available = contracted - used;
+                                    return `Disponíveis: ${available}`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: Math.round,
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function main() {
+            console.log("sistemas.html: Script started.");
+
+            const alertModalOkBtn = document.getElementById('alertModalOkBtn');
+            if (alertModalOkBtn) {
+                alertModalOkBtn.addEventListener('click', () => {
+                    const alertModal = document.getElementById('alertModal');
+                    alertModal.classList.add('hidden');
+                    alertModal.classList.remove('flex');
+                });
+            } else {
+                console.error("Element with ID 'alertModalOkBtn' not found.");
+            }
+
+            // Tab Switching Logic
+            const tabButtons = document.querySelectorAll('.tab-button');
+            if (tabButtons && tabButtons.length > 0) {
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        tabButtons.forEach(btn => btn.classList.remove('active-tab', 'border-sky-500', 'text-white'));
+                        tabButtons.forEach(btn => btn.classList.add('border-transparent', 'text-slate-400'));
+                        button.classList.add('active-tab', 'border-sky-500', 'text-white');
+                        button.classList.remove('border-transparent', 'text-slate-400');
+
+                        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                        document.getElementById(`tab-${button.dataset.tab}`).classList.remove('hidden');
+                    });
+                });
+            } else {
+                console.warn("No elements with class 'tab-button' found to attach event listeners.");
+            }
+
+            // Tab Switching Logic for Contract Details
+            const tabButtonContracts = document.querySelectorAll('.tab-button-contract');
+            if (tabButtonContracts && tabButtonContracts.length > 0) {
+                tabButtonContracts.forEach(button => {
+                    button.addEventListener('click', () => {
+                        // Remove active classes from all contract tab buttons
+                        tabButtonContracts.forEach(btn => btn.classList.remove('active-tab-contract', 'border-sky-500', 'text-white'));
+                        tabButtonContracts.forEach(btn => btn.classList.add('border-transparent', 'text-slate-400'));
+                        
+                        // Add active classes to the clicked button
+                        button.classList.add('active-tab-contract', 'border-sky-500', 'text-white');
+                        button.classList.remove('border-transparent', 'text-slate-400');
+
+                        // Hide all contract tab content
+                        document.querySelectorAll('.tab-content-contract').forEach(content => content.classList.add('hidden'));
+                        
+                        // Show the content corresponding to the clicked button
+                        document.getElementById(`tab-contract-${button.dataset.tabContract}`).classList.remove('hidden');
+                    });
+                });
+            } else {
+                console.warn("No elements with class 'tab-button-contract' found to attach event listeners.");
+            }
+
+            // Tab Switching Logic for Contract Modal
+            document.querySelectorAll('.tab-button-modal-contract').forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active classes from all modal contract tab buttons
+                    document.querySelectorAll('.tab-button-modal-contract').forEach(btn => btn.classList.remove('active-tab-modal-contract', 'border-sky-500', 'text-white'));
+                    document.querySelectorAll('.tab-button-modal-contract').forEach(btn => btn.classList.add('border-transparent', 'text-slate-400'));
+                    
+                    // Add active classes to the clicked button
+                    button.classList.add('active-tab-modal-contract', 'border-sky-500', 'text-white');
+                    button.classList.remove('border-transparent', 'text-slate-400');
+
+                    // Hide all modal contract tab content
+                    document.querySelectorAll('.tab-content-modal-contract').forEach(content => content.classList.add('hidden'));
+                    
+                    // Show the content corresponding to the clicked button
+                    document.getElementById(`tab-modal-contract-${button.dataset.tabModalContract}`).classList.remove('hidden');
+                });
+            });
 
             initializeGanttBackground();
-
-            const sidebar = document.getElementById('sidebar-container');
-            const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-            const sidebarCloseButton = document.getElementById('sidebarCloseButton');
-
-            sidebarToggleButton?.addEventListener('click', () => {
-                sidebar.classList.remove('-translate-x-full');
-            });
-            sidebarCloseButton?.addEventListener('click', () => {
-                sidebar.classList.add('-translate-x-full');
-            });
-            document.addEventListener('click', (event) => {
-                if (window.innerWidth < 768 && !sidebar.contains(event.target) && !sidebarToggleButton.contains(event.target)) {
-                    sidebar.classList.add('-translate-x-full');
-                }
-            });
-
-            renderSidebar(window.location.pathname);
+            renderSidebar(window.location.pathname, showAlert);
+            populatePartnersDropdownForSystems();
+            populateUsersDropdown();
 
             document.getElementById('showFormButton').addEventListener('click', () => toggleForm(true));
             document.getElementById('cancelButton').addEventListener('click', () => toggleForm(false));
@@ -845,57 +1438,134 @@
                     return;
                 }
 
-                const system = {
-                    id: systems.length + 1,
+                const systemId = document.getElementById('systemId').value;
+
+                // --- Gather department licenses and calculate total ---
+                const departmentLicenses = {};
+                let totalAllocatedLicenses = 0;
+                const distributionEl = document.getElementById('departmentLicenseDistributionTab');
+                if (distributionEl) {
+                    distributionEl.querySelectorAll('input[type="number"]').forEach(input => {
+                        const count = parseInt(input.value) || 0;
+                        departmentLicenses[input.dataset.department] = count;
+                        totalAllocatedLicenses += count;
+                    });
+                }
+                // --- End new ---
+
+                // --- License check logic ---
+                if (systemId) {
+                    const totalInUseEl = document.getElementById('totalLicensesInUseTab');
+                    if (totalInUseEl) {
+                        const totalInUse = parseInt(totalInUseEl.textContent) || 0;
+                        
+                        if (totalAllocatedLicenses < totalInUse) {
+                            const userConfirmed = await showConfirmation(`A quantidade de licenças contratadas (${totalAllocatedLicenses}) é menor que a de licenças em uso (${totalInUse}). Deseja salvar mesmo assim?`);
+                            if (!userConfirmed) {
+                                return; // Stop if the user cancels
+                            }
+                        }
+                    }
+                }
+                // --- End of license check ---
+
+                const contractData = {
+                    negotiationDate: document.getElementById('contractNegotiationDateTab').value,
+                    expirationDate: document.getElementById('contractExpirationDateTab').value,
+                    noExpiration: document.getElementById('contractNoExpirationTab').checked,
+                    licenseType: document.querySelector('input[name="licenseTypeTab"]:checked')?.value || 'total',
+                    licenseCount: totalAllocatedLicenses, // Use the calculated total
+                    value: parseCurrency(document.getElementById('contractValueTab').value),
+                    link: document.getElementById('contractLinkTab').value,
+                    departmentLicenses: departmentLicenses
+                };
+
+                const systemData = {
                     name: document.getElementById('systemName').value,
                     category: systemCategoryValue,
                     apiLink: apiLinkValue,
-                    status: 'Ativo',
-                    userCount: 'Carregando...'
+                    description: document.getElementById('systemDescription').value,
+                    technicalResponsible: document.getElementById('technicalResponsible').value,
+                    internalResponsible: document.getElementById('internalResponsible').value,
+                    accessUrl: document.getElementById('accessUrl').value,
+                    implementationDate: document.getElementById('implementationDate').value,
+                    notes: document.getElementById('systemNotes').value,
+                    contract: contractData
                 };
-                
-                systems.push(system);
-                saveSystems(); // Salva no localStorage
-                renderSystems(systems);
-                toggleForm(false);
 
-                if (system.apiLink === 'movidesk') {
-                    try {
-                        const clients = await getMovideskClients();
-                        const systemToUpdate = systems.find(s => s.id === system.id);
-                        if (systemToUpdate) {
-                            systemToUpdate.userCount = clients ? clients.length : 0;
-                        }
-                    } catch (error) {
-                        console.error('Failed to fetch user count', error);
-                        const systemToUpdate = systems.find(s => s.id === system.id);
-                        if (systemToUpdate) {
-                            systemToUpdate.userCount = 'Erro';
-                        }
+                try {
+                    let docRef;
+                    if (systemId) {
+                        // Update existing system
+                        docRef = doc(db, `artifacts/${appId}/public/data/systems`, systemId);
+                        await updateDoc(docRef, systemData);
+                        showAlert("Sistema atualizado com sucesso!");
+                    } else {
+                        // Add new system
+                        const systemsColRef = collection(db, `artifacts/${appId}/public/data/systems`);
+                        const querySnapshot = await getDocs(systemsColRef);
+                        const lastId = querySnapshot.docs.reduce((max, doc) => (parseInt(doc.id) > max ? parseInt(doc.id) : max), 0);
+                        const newId = lastId + 1;
+
+                        systemData.id = newId;
+                        systemData.createdAt = new Date();
+                        systemData.status = 'Ativo';
+                        systemData.userCount = 'Carregando...';
+
+                        docRef = doc(db, `artifacts/${appId}/public/data/systems`, newId.toString());
+                        await setDoc(docRef, systemData);
+                        showAlert("Sistema cadastrado com sucesso!");
                     }
-                    renderSystems(systems);
-                } else {
-                    const systemToUpdate = systems.find(s => s.id === system.id);
-                    if (systemToUpdate) {
-                        systemToUpdate.userCount = 'N/A';
+                    
+                    await loadSystems();
+                    toggleForm(false);
+
+                    if (systemData.apiLink === 'movidesk') {
+                        try {
+                            const clients = await getMovideskClients();
+                            const userCount = clients ? clients.length : 0;
+                            await updateDoc(docRef, { userCount: userCount });
+                            await loadSystems();
+                        } catch (error) {
+                            console.error('Failed to fetch user count', error);
+                            await updateDoc(docRef, { userCount: 'Erro' });
+                            await loadSystems();
+                        }
+                    } else if (!systemId) { // Only set to N/A for new systems without movidesk api
+                        await updateDoc(docRef, { userCount: 'N/A' });
+                        await loadSystems();
                     }
-                    renderSystems(systems);
+                } catch (error) {
+                    console.error("Error saving system: ", error);
+                    showAlert("Erro ao salvar o sistema no Firebase.");
                 }
             });
 
             document.getElementById('searchSystemsInput').addEventListener('input', filterAndRenderSystems);
 
-            document.getElementById('systemsTableBody').addEventListener('click', (e) => {
+            document.getElementById('systemsTableBody').addEventListener('click', async (e) => {
                 const viewButton = e.target.closest('.view-api-btn');
                 if (viewButton) {
                     const apiLink = viewButton.dataset.apiLink;
                     showApiDataModal(apiLink);
                 }
 
+                const editButton = e.target.closest('.edit-btn');
+                if (editButton) {
+                    const systemId = editButton.dataset.id;
+                    const system = systems.find(s => s.id == systemId);
+                    if (system) {
+                        await toggleForm(true, system, 'general');
+                    }
+                }
+
                 const contractButton = e.target.closest('.contract-btn');
                 if (contractButton) {
                     const systemId = contractButton.dataset.id;
-                    openContractModal(systemId);
+                    const system = systems.find(s => s.id == systemId);
+                    if (system) {
+                        await toggleForm(true, system, 'contract');
+                    }
                 }
 
                 const deleteButton = e.target.closest('.delete-btn');
@@ -910,318 +1580,21 @@
                     confirmationModal.classList.remove('hidden');
                     confirmationModal.classList.add('flex');
 
-                    confirmBtn.onclick = () => {
-                        systems = systems.filter(s => s.id != systemId);
-                        saveSystems();
-                        renderSystems(systems);
+                    confirmBtn.onclick = async () => {
+                        try {
+                            await deleteDoc(doc(db, `artifacts/${appId}/public/data/systems`, systemId));
+                            showAlert("Sistema excluído com sucesso!");
+                            await loadSystems();
+                        } catch (error) {
+                            console.error("Error deleting system: ", error);
+                            showAlert("Erro ao excluir o sistema do Firebase.");
+                        }
                         confirmationModal.classList.add('hidden');
                     };
 
                     cancelBtn.onclick = () => {
                         confirmationModal.classList.add('hidden');
                     };
-                }
-            });
-
-            const viewApiDataModal = document.getElementById('viewApiDataModal');
-            document.getElementById('viewApiDataModalCloseBtn').addEventListener('click', () => viewApiDataModal.classList.add('hidden'));
-            document.getElementById('viewApiDataModalOkBtn').addEventListener('click', () => viewApiDataModal.classList.add('hidden'));
-
-            // Contract Modal Logic
-            const contractModal = document.getElementById('contractModal');
-            const contractNoExpiration = document.getElementById('contractNoExpiration');
-            const contractExpirationDate = document.getElementById('contractExpirationDate');
-            const contractValueInput = document.getElementById('contractValue');
-            const licenseTypeRadios = document.querySelectorAll('input[name="licenseType"]');
-            const licenseCountInput = document.getElementById('contractLicenseCount');
-            const calculatedTotalEl = document.getElementById('calculatedTotal');
-            const departmentDistributionEl = document.getElementById('departmentLicenseDistribution');
-            const allocatedLicensesTotalEl = document.getElementById('allocatedLicensesTotal');
-            const totalLicensesInUseEl = document.getElementById('totalLicensesInUse');
-
-            function formatCurrency(value) {
-                if (!value) return 'R$ 0,00';
-                const number = parseFloat(value.toString().replace(/[^0-9]/g, '')) / 100;
-                return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            }
-
-            function parseCurrency(value) {
-                if (!value) return 0;
-                return parseFloat(value.replace('R$', '').replace(/\./g, '').replace(',', '.'));
-            }
-
-            function getLicenseCountByDepartment(clients) {
-                const counts = {};
-                if (!clients) return counts;
-
-                clients.forEach(client => {
-                    if (client.teams && client.teams.length > 0) {
-                        // Considerar apenas a primeira equipe do agente
-                        const firstTeam = client.teams[0];
-                        counts[firstTeam] = (counts[firstTeam] || 0) + 1;
-                    }
-                });
-                return counts;
-            }
-
-            function updateCalculatedTotal() {
-                const licenseType = document.querySelector('input[name="licenseType"]:checked').value;
-                const licenseCount = parseInt(licenseCountInput.value) || 0;
-                const value = parseCurrency(contractValueInput.value);
-
-                let total = 0;
-                if (licenseType === 'per_license') {
-                    total = licenseCount * value;
-                } else {
-                    total = value;
-                }
-                calculatedTotalEl.textContent = formatCurrency(total * 100);
-            }
-
-            function updateAllocatedTotal() {
-                const inputs = departmentDistributionEl.querySelectorAll('input');
-                const total = Array.from(inputs).reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
-                allocatedLicensesTotalEl.textContent = total;
-            }
-
-            contractValueInput.addEventListener('input', (e) => {
-                const value = e.target.value.replace(/[^0-9]/g, '');
-                e.target.value = formatCurrency(value).replace('R$\xa0', ''); // Keep R$ but allow editing
-                updateCalculatedTotal();
-            });
-
-            licenseTypeRadios.forEach(radio => radio.addEventListener('change', updateCalculatedTotal));
-            licenseCountInput.addEventListener('input', updateCalculatedTotal);
-
-            departmentDistributionEl.addEventListener('input', updateAllocatedTotal);
-
-            contractNoExpiration.addEventListener('change', () => {
-                contractExpirationDate.disabled = contractNoExpiration.checked;
-                if (contractNoExpiration.checked) {
-                    contractExpirationDate.value = '';
-                }
-            });
-
-            async function openContractModal(systemId) {
-                const system = systems.find(s => s.id == systemId);
-                if (!system) return;
-
-                document.getElementById('contractSystemId').value = systemId;
-                
-                if (system.contract) {
-                    document.getElementById('contractNegotiationDate').value = system.contract.negotiationDate || '';
-                    document.getElementById('contractExpirationDate').value = system.contract.expirationDate || '';
-                    document.getElementById('contractNoExpiration').checked = system.contract.noExpiration || false;
-                    document.querySelector(`input[name="licenseType"][value="${system.contract.licenseType || 'total'}"]`).checked = true;
-                    document.getElementById('contractLicenseCount').value = system.contract.licenseCount || '';
-                    contractValueInput.value = formatCurrency(system.contract.value * 100);
-                    document.getElementById('contractLink').value = system.contract.link || '';
-                } else {
-                    // Reset form
-                    document.getElementById('contractNegotiationDate').value = '';
-                    document.getElementById('contractExpirationDate').value = '';
-                    document.getElementById('contractNoExpiration').checked = false;
-                    document.querySelector('input[name="licenseType"][value="total"]').checked = true;
-                    document.getElementById('contractLicenseCount').value = '';
-                    contractValueInput.value = 'R$ 0,00';
-                    document.getElementById('contractLink').value = '';
-                }
-
-                updateCalculatedTotal();
-                contractExpirationDate.disabled = contractNoExpiration.checked;
-
-                departmentDistributionEl.innerHTML = '<p>Carregando departamentos...</p>';
-                const [departments, clients] = await Promise.all([
-                    getMovideskDepartments(),
-                    getMovideskClients()
-                ]);
-                const licensesInUse = getLicenseCountByDepartment(clients);
-                const totalUsed = Object.values(licensesInUse).reduce((sum, count) => sum + count, 0);
-                totalLicensesInUseEl.textContent = totalUsed;
-                const savedDepartmentLicenses = system.contract?.departmentLicenses || {};
-
-                departmentDistributionEl.innerHTML = `
-                    <div class="grid grid-cols-3 gap-2 font-semibold text-white mb-2">
-                        <div>Departamento</div>
-                        <div class="text-center">Licenças em Uso</div>
-                        <div class="text-center">Licenças Contratadas</div>
-                    </div>
-                    ${departments.map(dept => `
-                        <div class="grid grid-cols-3 gap-2 items-center">
-                            <label class="text-sm text-slate-400">${dept}</label>
-                            <span class="text-center">${licensesInUse[dept] || 0}</span>
-                            <input type="number" class="w-full px-2 py-1 rounded-lg bg-slate-900 text-white border border-slate-700" data-department="${dept}" value="${savedDepartmentLicenses[dept] || 0}">
-                        </div>
-                    `).join('')}
-                `;
-                
-                updateAllocatedTotal();
-
-                contractModal.classList.remove('hidden');
-                contractModal.classList.add('flex');
-            }
-
-            document.getElementById('contractModalCloseBtn').addEventListener('click', () => contractModal.classList.add('hidden'));
-            document.getElementById('contractModalCancelBtn').addEventListener('click', () => contractModal.classList.add('hidden'));
-
-            document.getElementById('contractModalSaveBtn').addEventListener('click', () => {
-                const systemId = document.getElementById('contractSystemId').value;
-                const system = systems.find(s => s.id == systemId);
-                if (!system) return;
-
-                const departmentLicenses = {};
-                departmentDistributionEl.querySelectorAll('input').forEach(input => {
-                    departmentLicenses[input.dataset.department] = parseInt(input.value) || 0;
-                });
-
-                system.contract = {
-                    negotiationDate: document.getElementById('contractNegotiationDate').value,
-                    expirationDate: document.getElementById('contractExpirationDate').value,
-                    noExpiration: document.getElementById('contractNoExpiration').checked,
-                    licenseType: document.querySelector('input[name="licenseType"]:checked').value,
-                    licenseCount: document.getElementById('contractLicenseCount').value,
-                    value: parseCurrency(document.getElementById('contractValue').value),
-                    link: document.getElementById('contractLink').value,
-                    departmentLicenses: departmentLicenses
-                };
-
-                saveSystems(); // Salva no localStorage
-                contractModal.classList.add('hidden');
-                renderSystems(systems);
-            });
-
-            // Dashboard Modal Logic
-            const dashboardModal = document.getElementById('dashboardModal');
-            const dashboardContent = document.getElementById('dashboardContent');
-
-            async function openDashboardModal(systemId) {
-                const system = systems.find(s => s.id == systemId);
-                const dashboardContent = document.getElementById('dashboardContent');
-                const kpiContainer = document.getElementById('kpiContainer');
-
-                if (!system || !system.contract) {
-                    kpiContainer.innerHTML = ''; // Limpa KPIs
-                    dashboardContent.innerHTML = '<p class="text-red-400">Dados de contrato não disponíveis para este sistema.</p>';
-                    dashboardModal.classList.remove('hidden');
-                    dashboardModal.classList.add('flex');
-                    return;
-                }
-
-                // Limpa o conteúdo anterior enquanto carrega
-                dashboardContent.innerHTML = '<canvas id="licenseChart"></canvas>'; 
-                kpiContainer.innerHTML = '<p>Carregando KPIs...</p>';
-                dashboardModal.classList.remove('hidden');
-                dashboardModal.classList.add('flex');
-
-                const [departments, clients] = await Promise.all([
-                    getMovideskDepartments(),
-                    getMovideskClients()
-                ]);
-
-                const licensesInUse = getLicenseCountByDepartment(clients);
-                const contractedLicenses = system.contract.departmentLicenses || {};
-
-                // Calcular KPIs
-                const totalUsedLicenses = Object.values(licensesInUse).reduce((sum, count) => sum + count, 0);
-                const totalContractedLicenses = Object.values(contractedLicenses).reduce((sum, count) => sum + count, 0);
-                const utilizationPercentage = totalContractedLicenses > 0 ? ((totalUsedLicenses / totalContractedLicenses) * 100).toFixed(1) : 0;
-
-                // Renderizar KPIs
-                kpiContainer.innerHTML = `
-                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
-                        <h4 class="text-sm font-semibold text-slate-400">Total Contratado</h4>
-                        <p class="text-2xl font-bold text-white">${totalContractedLicenses}</p>
-                    </div>
-                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
-                        <h4 class="text-sm font-semibold text-slate-400">Total em Uso</h4>
-                        <p class="text-2xl font-bold text-white">${totalUsedLicenses}</p>
-                    </div>
-                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 text-center">
-                        <h4 class="text-sm font-semibold text-slate-400">Taxa de Utilização</h4>
-                        <p class="text-2xl font-bold text-white">${utilizationPercentage}%</p>
-                    </div>
-                `;
-
-                const chartData = {
-                    labels: departments,
-                    datasets: [
-                        {
-                            label: 'Licenças em Uso',
-                            data: departments.map(dept => licensesInUse[dept] || 0),
-                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                            borderColor: 'rgba(59, 130, 246, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Licenças Contratadas',
-                            data: departments.map(dept => contractedLicenses[dept] || 0),
-                            backgroundColor: 'rgba(34, 197, 94, 0.5)',
-                            borderColor: 'rgba(34, 197, 94, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                };
-
-                if (licenseChart) {
-                    licenseChart.destroy();
-                }
-
-                const ctx = document.getElementById('licenseChart').getContext('2d');
-                licenseChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: chartData,
-                    options: {
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.dataset.label || '';
-                                        const value = context.raw;
-                                        return `${label}: ${value}`;
-                                    },
-                                    footer: function(tooltipItems) {
-                                        const deptIndex = tooltipItems[0].dataIndex;
-                                        const dept = departments[deptIndex];
-                                        const used = licensesInUse[dept] || 0;
-                                        const contracted = contractedLicenses[dept] || 0;
-                                        const available = contracted - used;
-                                        return `Disponíveis: ${available}`;
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                anchor: 'end',
-                                align: 'top',
-                                formatter: Math.round,
-                                font: {
-                                    weight: 'bold'
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-
-            document.getElementById('dashboardModalCloseBtn').addEventListener('click', () => dashboardModal.classList.add('hidden'));
-            document.getElementById('dashboardModalOkBtn').addEventListener('click', () => dashboardModal.classList.add('hidden'));
-
-
-            document.getElementById('systemsTableBody').addEventListener('click', (e) => {
-                const viewButton = e.target.closest('.view-api-btn');
-                if (viewButton) {
-                    const apiLink = viewButton.dataset.apiLink;
-                    showApiDataModal(apiLink);
-                }
-
-                const contractButton = e.target.closest('.contract-btn');
-                if (contractButton) {
-                    const systemId = contractButton.dataset.id;
-                    openContractModal(systemId);
                 }
 
                 const dashboardButton = e.target.closest('.dashboard-btn');
@@ -1230,10 +1603,108 @@
                     openDashboardModal(systemId);
                 }
             });
+            
+            const viewApiDataModal = document.getElementById('viewApiDataModal');
+            document.getElementById('viewApiDataModalCloseBtn').addEventListener('click', () => viewApiDataModal.classList.add('hidden'));
+            document.getElementById('viewApiDataModalOkBtn').addEventListener('click', () => viewApiDataModal.classList.add('hidden'));
 
-            renderSystems(systems);
+            // Contract Tab Logic (previously Modal Logic)
+            const contractNoExpirationTab = document.getElementById('contractNoExpirationTab');
+            const contractExpirationDateTab = document.getElementById('contractExpirationDateTab');
+            const contractValueInputTab = document.getElementById('contractValueTab');
+            const licenseTypeRadiosTab = document.querySelectorAll('input[name="licenseTypeTab"]');
+            const licenseCountInputTab = document.getElementById('contractLicenseCountTab');
+            const departmentDistributionElTab = document.getElementById('departmentLicenseDistributionTab');
+
+            if(contractValueInputTab) contractValueInputTab.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                e.target.value = formatCurrency(value).replace('R$\xa0', '');
+                updateCalculatedTotal();
+            });
+
+            if(licenseTypeRadiosTab) licenseTypeRadiosTab.forEach(radio => radio.addEventListener('change', updateCalculatedTotal));
+            if(licenseCountInputTab) licenseCountInputTab.addEventListener('input', updateCalculatedTotal);
+            if(departmentDistributionElTab) departmentDistributionElTab.addEventListener('input', updateAllocatedTotal);
+
+            if(contractNoExpirationTab) contractNoExpirationTab.addEventListener('change', () => {
+                if (contractExpirationDateTab) {
+                    contractExpirationDateTab.disabled = contractNoExpirationTab.checked;
+                    if (contractNoExpirationTab.checked) {
+                        contractExpirationDateTab.value = '';
+                    }
+                }
+            });
+
+            // Logic for the actual modal
+            const contractModal = document.getElementById('contractModal');
+            if (contractModal && !contractModal.dataset.listenersAttached) {
+                document.getElementById('contractModalCloseBtn').addEventListener('click', () => contractModal.classList.add('hidden'));
+                document.getElementById('contractModalCancelBtn').addEventListener('click', () => contractModal.classList.add('hidden'));
+
+                document.getElementById('contractModalSaveBtn').addEventListener('click', async () => {
+                    const systemId = document.getElementById('contractSystemId').value;
+                    if (!systemId) return;
+
+                    // NOTE: The contract modal's form fields are not fully implemented in the HTML.
+                    // This part of the code will need to be updated once the modal's HTML is complete.
+                    // For now, it will fail gracefully if elements are not found.
+                    const departmentLicenses = {};
+                    const departmentDistributionEl = document.getElementById('departmentLicenseDistribution'); // This ID is for the modal, not the tab
+                    if (departmentDistributionEl) {
+                        departmentDistributionEl.querySelectorAll('input').forEach(input => {
+                            departmentLicenses[input.dataset.department] = parseInt(input.value) || 0;
+                        });
+                    }
+
+                    const contractData = {
+                        negotiationDate: document.getElementById('contractNegotiationDate')?.value || '',
+                        expirationDate: document.getElementById('contractExpirationDate')?.value || '',
+                        noExpiration: document.getElementById('contractNoExpiration')?.checked || false,
+                        licenseType: document.querySelector('input[name="licenseType"]:checked')?.value || 'total',
+                        licenseCount: document.getElementById('contractLicenseCount')?.value || '',
+                        value: parseCurrency(document.getElementById('contractValue')?.value || '0'),
+                        link: document.getElementById('contractLink')?.value || '',
+                        departmentLicenses: departmentLicenses
+                    };
+
+                    try {
+                        const systemDocRef = doc(db, `artifacts/${appId}/public/data/systems`, systemId);
+                        await updateDoc(systemDocRef, { contract: contractData });
+                        showAlert("Contrato salvo com sucesso!");
+                        await loadSystems();
+                        contractModal.classList.add('hidden');
+                    } catch (error) {
+                        console.error("Error saving contract: ", error);
+                        showAlert("Erro ao salvar o contrato no Firebase.");
+                    }
+                });
+                contractModal.dataset.listenersAttached = 'true';
+            }
+
+            // Add event listener for auto-fill button in the tab (delegated)
+            document.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'autoFillLicensesBtnTab') {
+                    autoPopulateContractedLicenses(false);
+                }
+            });
+
+            // Add event listener for auto-fill button in the modal (delegated)
+            document.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'autoFillLicensesBtnModal') {
+                    autoPopulateContractedLicenses(true);
+                }
+            });
+
+            document.getElementById('dashboardModalCloseBtn').addEventListener('click', () => document.getElementById('dashboardModal').classList.add('hidden'));
+            document.getElementById('dashboardModalOkBtn').addEventListener('click', () => document.getElementById('dashboardModal').classList.add('hidden'));
+
+            await loadSystems();
             console.log("sistemas.html: Script finished.");
-        });
+        }
+        document.addEventListener('DOMContentLoaded', main);
     </script>
+
+    
+
 </body>
 </html>
